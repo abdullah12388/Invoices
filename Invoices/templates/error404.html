@@ -1,0 +1,35 @@
+{% load static %}
+<style>
+    .col-12{
+        text-align: center;
+    }
+    img{
+        width: 700px;
+        height: 500px;
+    }
+    p{
+        margin-bottom: 50px;
+    }
+    a{
+        text-decoration: none;
+        background-color: #176e38;
+        border-radius:5px;
+        color:#fff;
+        padding:10px 30px;
+        font-size:20px;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <img src="{% static 'img/404-page.gif' %}" alt="error404 image">
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <h1>
+		    Look like you're lost
+		</h1>
+        <p>{{Error}}</p>
+		<a href="{{home}}">Go to Home</a>
+    </div>
+</div>

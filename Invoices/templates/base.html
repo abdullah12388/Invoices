@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    {% load static %}
+
+    <head>
+        {% include "head.html" %}
+    </head>
+    <body class="sb-nav-fixed">
+    {% include "loader.html" %}
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-lg order-1 order-lg-0 me-4 me-lg-0" aria-label="sidebar-menu" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Brand-->
+            {% if user.role.id == 1 %}
+            <a class="navbar-brand ps-3" href="/system/Vendor/">
+                <img src="{% static 'img/gts-logo.png' %}" width="70%" height="100%" alt="GTS Logo" style="width:70%;">
+            </a>
+            {% elif user.role.id == 2 %}
+            <a class="navbar-brand ps-3" href="/system/Procurement/">
+                <img src="{% static 'img/gts-logo.png' %}" width="70%" height="100%" alt="GTS Logo" style="width:70%;">
+            </a>
+            {% elif user.role.id == 3 %}
+            <a class="navbar-brand ps-3" href="/system/Manager/">
+                <img src="{% static 'img/gts-logo.png' %}" width="70%" height="100%" alt="GTS Logo" style="width:70%;">
+            </a>
+            {% elif user.role.id == 4 %}
+            <a class="navbar-brand ps-3" href="/system/Presales/">
+                <img src="{% static 'img/gts-logo.png' %}" width="70%" height="100%" alt="GTS Logo" style="width:70%;">
+            </a>
+            {% else %}
+            <a class="navbar-brand ps-3" href="#">
+                <img src="{% static 'img/gts-logo.png' %}" width="70%" height="100%" alt="GTS Logo" style="width:70%;">
+            </a>
+            {% endif %}
+            <!-- <span class="navbar-text">
+                <label style="margin: 0px;"><i class="fas fa-user"></i> AM.{{user.first_name|capfirst}}</label>
+                <a class="btn btn-danger btn-sm order-1 order-lg-0 me-4 me-lg-0" href="{% url 'UserLogout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+            </span> -->
+            <div class="navbar-text" style="position: absolute;right: 20px; color: white;">
+                <label class="user-mobile" style="margin: 0px 20px 0px 0px;"><i class="fas fa-user"></i> {{user.first_name|capfirst}}</label>
+                <a class="btn btn-danger btn-sm order-1 order-lg-0 me-4 me-lg-0 user-logout-mobile" href="{% url 'UserLogout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+            </div>
+        </nav>
+        <div id="layoutSidenav">
+            {% include "sidebar.html" %}
+            <div id="layoutSidenav_content">
+                <!-- code goes here -->
+                {% if user.role.id == 1 %}
+                    {% block VendorDashboard %}
+                    {% endblock %}
+                    {% block VendorRFQToDo %}
+                    {% endblock %}
+                    {% block VendorRFQDone %}
+                    {% endblock %}
+                    {% block VendorQuotation %}
+                    {% endblock %}
+                    {% block VendorPO %}
+                    {% endblock %}
+                    {% block VendorInvoicesDone %}
+                    {% endblock %}
+                    {% block NewInvoice %}
+                    {% endblock %}
+                {% elif user.role.id == 2 %}
+                    {% block ProcurementDashboard %}
+                    {% endblock %}
+
+                    {% block ProcurementRFQCreated %}
+                    {% endblock %}
+
+                    {% block ProcurementQuotationDone %}
+                    {% endblock %}
+
+                    {% block ProcurementPONew %}
+                    {% endblock %}
+                    {% block ProcurementPOCreated %}
+                    {% endblock %}
+
+                    {% block ProcurementInvoicesToDo %}
+                    {% endblock %}
+                    {% block ProcurementInvoicesDone %}
+                    {% endblock %}
+                    {% block ProcurementNewVendor %}
+                    {% endblock %}
+                {% elif user.role.id == 3 %}
+                    {% block ManagerDashboard %}
+                    {% endblock %}
+                    {% block ManagerInvoicesDone %}
+                    {% endblock %}
+                {% elif user.role.id == 4 %}
+                    {% block PresalesDashboard %}
+                    {% endblock %}
+                    {% block PresalesNewProject %}
+                    {% endblock %}
+                    {% block PresalesNewRFQ %}
+                    {% endblock %}
+                    {% block PresalesRFQCreated %}
+                    {% endblock %}
+                    {% block PresalesQuotationToDo %}
+                    {% endblock %}
+                    {% block PresalesQuotationDone %}
+                    {% endblock %}
+                    {% block PresalesConfig %}
+                    {% endblock %}
+                {% endif %}
+                {% block changePassword %}
+                {% endblock %}
+                <!-- <footer class="py-4 bg-light mt-auto">
+                    {% include "footer.html" %}
+                </footer> -->
+            </div>
+        </div>
+        {% include "scripts.html" %}
+        {% block userLogin %}
+        {% endblock %}
+        {% block changePasswordFirstLogin %}
+        {% endblock %}
+        {% block forgetPassword %}
+        {% endblock %}
+    </body>
+</html>

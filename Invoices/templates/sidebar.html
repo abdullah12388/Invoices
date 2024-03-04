@@ -1,0 +1,451 @@
+<div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+            <div class="nav">
+                <div class="sb-sidenav-menu-heading">View</div>
+                {% if user.role.id == 1 %}
+
+                    {% if '/system/Vendor/' in request.path %}
+                    <a class="nav-link active" href="/system/Vendor/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Vendor/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-bar me-1"></i></div>
+                        Dashboard
+                    </a>
+
+
+                    {% if '/system/VendorRFQToDo/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#RFQ"
+                        role="button" aria-expanded="True" aria-controls="RFQ">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        RFQ
+                    </a>
+                    <div class="collapse show" id="RFQ" style="background-color: #000000c9;">
+                        <a class="nav-link active" href="/system/VendorRFQToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list me-1"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link" href="/system/VendorRFQDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Replyed
+                        </a>
+                    </div>
+                    {% elif '/system/VendorRFQDone/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#RFQ"
+                        role="button" aria-expanded="True" aria-controls="RFQ">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        RFQ
+                    </a>
+                    <div class="collapse show" id="RFQ" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/VendorRFQToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list me-1"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link active" href="/system/VendorRFQDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Replyed
+                        </a>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" class="btn btn-primary" data-toggle="collapse" href="#RFQ"
+                        role="button" aria-expanded="True" aria-controls="RFQ">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        RFQ
+                    </a>
+                    <div class="collapse" id="RFQ" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/VendorRFQToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list me-1"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link" href="/system/VendorRFQDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Replyed
+                        </a>
+                    </div>
+                    {% endif %}
+
+
+
+                    {% if '/system/Quotation/' in request.path %}
+                    <a class="nav-link active" href="/system/Quotation/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Quotation/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        Quotation
+                    </a>
+                    
+                    
+                    {% if '/system/PurchaseOrder/' in request.path %}
+                    <a class="nav-link active" href="/system/PurchaseOrder/">
+                    {% else %}
+                    <a class="nav-link" href="/system/PurchaseOrder/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-money-check-dollar me-1"></i></div>
+                        Purchase Order
+                    </a>
+
+
+                    
+                    {% if '/system/Invoices/New/' in request.path %}
+                    <a class="nav-link active" href="/system/Invoices/New/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Invoices/New/">
+                    {% endif %}
+                    <!-- <a class="nav-link" href="/tank/sites/"> -->
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+                        New Invoice
+                    </a>
+
+
+                    {% if '/system/Invoices/VendorDone/' in request.path %}
+                    <a class="nav-link active" href="/system/Invoices/VendorDone/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Invoices/VendorDone/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
+                        Invoices Report
+                    </a>
+
+                    
+
+                {% elif user.role.id == 2 %}
+                    {% if '/system/Procurement/' in request.path %}
+                    <a class="nav-link active" href="/system/Procurement/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Procurement/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-bar me-1"></i></div>
+                        Dashboard
+                    </a>
+
+
+                    {% if '/system/ProcurementRFQ/Created/' in request.path %}
+                    <a class="nav-link active" href="/system/ProcurementRFQ/Created/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ProcurementRFQ/Created/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        RFQ
+                    </a>
+
+
+                    {% if '/system/ProcurementQuotationDone/' in request.path %}
+                    <a class="nav-link active" href="/system/ProcurementQuotationDone/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ProcurementQuotationDone/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        Quotation
+                    </a>
+
+
+                    {% if '/system/ProcurementPO/New/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#PO"
+                        role="button" aria-expanded="True" aria-controls="PO">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        Purchase Order
+                    </a>
+                    <div class="collapse show" id="PO" style="background-color: #000000c9;">
+                        <a class="nav-link active" href="/system/ProcurementPO/New/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus me-1"></i></div>
+                            New
+                        </a>
+                        <a class="nav-link" href="/system/ProcurementPO/Created/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Created
+                        </a>
+                    </div>
+                    {% elif '/system/ProcurementPO/Created/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#PO"
+                        role="button" aria-expanded="True" aria-controls="PO">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        Purchase Order
+                    </a>
+                    <div class="collapse show" id="PO" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/ProcurementPO/New/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus me-1"></i></div>
+                            New
+                        </a>
+                        <a class="nav-link active" href="/system/ProcurementPO/Created/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Created
+                        </a>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" class="btn btn-primary" data-toggle="collapse" href="#PO"
+                        role="button" aria-expanded="True" aria-controls="PO">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        Purchase Order
+                    </a>
+                    <div class="collapse" id="PO" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/ProcurementPO/New/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus me-1"></i></div>
+                            New
+                        </a>
+                        <a class="nav-link" href="/system/ProcurementPO/Created/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Created
+                        </a>
+                    </div>
+                    {% endif %}
+
+
+                    {% if '/system/Invoices/ProcurementToDo/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#invoices"
+                        role="button" aria-expanded="True" aria-controls="invoices">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
+                        Invoices Report
+                    </a>
+                    <div class="collapse show" id="invoices" style="background-color: #000000c9;">
+                        <a class="nav-link active" href="/system/Invoices/ProcurementToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link" href="/system/Invoices/ProcurementDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            Done
+                        </a>
+                    </div>
+                    {% elif '/system/Invoices/ProcurementDone/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#invoices"
+                        role="button" aria-expanded="True" aria-controls="invoices">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
+                        Invoices Report
+                    </a>
+                    <div class="collapse show" id="invoices" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/Invoices/ProcurementToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link active" href="/system/Invoices/ProcurementDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            Done
+                        </a>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" class="btn btn-primary" data-toggle="collapse" href="#invoices"
+                        role="button" aria-expanded="True" aria-controls="invoices">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
+                        Invoices Report
+                    </a>
+                    <div class="collapse" id="invoices" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/Invoices/ProcurementToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link" href="/system/Invoices/ProcurementDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            Done
+                        </a>
+                    </div>
+                    {% endif %}
+
+
+                    {% if '/system/Invoices/ProcurementNewVendor/' in request.path %}
+                    <a class="nav-link active" href="/system/Invoices/ProcurementNewVendor/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Invoices/ProcurementNewVendor/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-user-plus"></i></div>
+                        New Vendor
+                    </a>
+
+
+                    <!-- {% if '/system/Invoices/NewVendor/' in request.path %}
+                    <a class="nav-link active" href="/system/Invoices/NewVendor/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Invoices/NewVendor/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-user-plus"></i></div>
+                        New Vendor
+                    </a> -->
+
+                {% elif user.role.id == 3 %}
+                    {% if '/system/Manager/' in request.path %}
+                    <a class="nav-link active" href="/system/Manager/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Manager/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-bar me-1"></i></div>
+                        Dashboard
+                    </a>
+
+                    {% if '/system/Invoices/ManagerDone/' in request.path %}
+                    <a class="nav-link active" href="/system/Invoices/ManagerDone/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Invoices/ManagerDone/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
+                        Invoices Report
+                    </a>
+
+                {% elif user.role.id == 4 %}
+                    {% if '/system/Presales/' in request.path %}
+                    <a class="nav-link active" href="/system/Presales/">
+                    {% else %}
+                    <a class="nav-link" href="/system/Presales/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-bar me-1"></i></div>
+                        Dashboard
+                    </a>
+
+                    {% if '/system/PresalesProject/New/' in request.path %}
+                    <a class="nav-link active" href="/system/PresalesProject/New/">
+                    {% else %}
+                    <a class="nav-link" href="/system/PresalesProject/New/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                        New Project
+                    </a>
+
+
+
+                    {% if '/system/PresalesRFQ/New/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#RFQ"
+                        role="button" aria-expanded="True" aria-controls="RFQ">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        RFQ
+                    </a>
+                    <div class="collapse show" id="RFQ" style="background-color: #000000c9;">
+                        <a class="nav-link active" href="/system/PresalesRFQ/New/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus me-1"></i></div>
+                            New
+                        </a>
+                        <a class="nav-link" href="/system/PresalesRFQ/Created/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Created
+                        </a>
+                    </div>
+                    {% elif '/system/PresalesRFQ/Created/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#RFQ"
+                        role="button" aria-expanded="True" aria-controls="RFQ">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        RFQ
+                    </a>
+                    <div class="collapse show" id="RFQ" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/PresalesRFQ/New/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus me-1"></i></div>
+                            New
+                        </a>
+                        <a class="nav-link active" href="/system/PresalesRFQ/Created/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Created
+                        </a>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" class="btn btn-primary" data-toggle="collapse" href="#RFQ"
+                        role="button" aria-expanded="True" aria-controls="RFQ">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-export me-1"></i></div>
+                        RFQ
+                    </a>
+                    <div class="collapse" id="RFQ" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/PresalesRFQ/New/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus me-1"></i></div>
+                            New
+                        </a>
+                        <a class="nav-link" href="/system/PresalesRFQ/Created/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check me-1"></i></div>
+                            Created
+                        </a>
+                    </div>
+                    {% endif %}
+
+
+                    
+                    <!-- {% if '/system/PresalesRFQ/New/' in request.path %}
+                    <a class="nav-link active" href="/system/PresalesRFQ/New/">
+                    {% else %}
+                    <a class="nav-link" href="/system/PresalesRFQ/New/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-contract me-1"></i></div>
+                        New RFQ
+                    </a> -->
+
+
+
+                    {% if '/system/PresalesQuotationToDo/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#quotationSidebar"
+                        role="button" aria-expanded="True" aria-controls="quotationSidebar">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        Quotation
+                    </a>
+                    <div class="collapse show" id="quotationSidebar" style="background-color: #000000c9;">
+                        <a class="nav-link active" href="/system/PresalesQuotationToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link" href="/system/PresalesQuotationDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            Done
+                        </a>
+                    </div>
+                    {% elif '/system/PresalesQuotationDone/' in request.path %}
+                    <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#quotationSidebar"
+                        role="button" aria-expanded="True" aria-controls="quotationSidebar">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        Quotation
+                    </a>
+                    <div class="collapse show" id="quotationSidebar" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/PresalesQuotationToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link active" href="/system/PresalesQuotationDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            Done
+                        </a>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" class="btn btn-primary" data-toggle="collapse" href="#quotationSidebar"
+                        role="button" aria-expanded="True" aria-controls="quotationSidebar">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        Quotation
+                    </a>
+                    <div class="collapse" id="quotationSidebar" style="background-color: #000000c9;">
+                        <a class="nav-link" href="/system/PresalesQuotationToDo/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                            Pending
+                        </a>
+                        <a class="nav-link" href="/system/PresalesQuotationDone/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            Done
+                        </a>
+                    </div>
+                    {% endif %}
+
+
+
+                    {% if '/system/PresalesConfiguration/' in request.path %}
+                    <a class="nav-link active" href="/system/PresalesConfiguration/">
+                    {% else %}
+                    <a class="nav-link" href="/system/PresalesConfiguration/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-sliders me-1"></i></div>
+                        Configurations
+                    </a>
+
+                {% endif %}
+                
+
+                {% if '/system/change/password/' in request.path %}
+                <a class="nav-link active" href="/system/change/password/" style="position: absolute;bottom: 0px;">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-key"></i></div>
+                    Change Password
+                </a>
+                {% else %}
+                <a class="nav-link" href="/system/change/password/" style="position: absolute;bottom: 0px;">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-key"></i></div>
+                    Change Password
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</div>

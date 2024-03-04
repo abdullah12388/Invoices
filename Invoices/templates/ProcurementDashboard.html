@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block ProcurementDashboard %}
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-2 mb-4">Invoices | Status</h1>
+        <div class="row">
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-receipt me-1"></i>
+                            Total Invoices
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 style="font-size:70px">{{t_invoice}}</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-receipt me-1"></i>
+                            Pending Invoices
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 style="font-size:70px">{{p_invoice}}</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-receipt me-1"></i>
+                            Approved Invoices
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 style="font-size:70px">{{a_invoice}}</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-receipt me-1"></i>
+                            Rejected Invoices
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 style="font-size:70px">{{r_invoice}}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h1 class="mb-4">Invoices | Status | Charts</h1>
+        <div class="row">
+            <div class="col-xl-3">
+                <div class="card mb-4">
+                    <div class="card-header card-date-filter">
+                        <i class="fa-solid fa-filter me-1"></i>
+                        Date Filter
+                    </div>
+                    <div class="card-body charts-body">
+                        <!-- select -->
+                        <div class="row">
+                            <div class="col-12">
+                                <select class="form-control" id="date_filter">
+                                    <option value="" selected disabled>Choose Period...</option>
+                                    <option value="h">Per Hour</option>
+                                    <option value="d">Per Day</option>
+                                    <option value="m">Per Month</option>
+                                    <option value="y">Per Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- per time -->
+                        <div class="row date-inputs d-none mt-2" id="row_per_time">
+                            <div class="col-12">
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="time" id="per_time_from">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12 text-center">
+                                        <h6>To</h6>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="time" id="per_time_to">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- per day -->
+                        <div class="row date-inputs d-none mt-2" id="row_per_day">
+                            <div class="col-12">
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="date" id="per_day_from">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12 text-center">
+                                        <h6>To</h6>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="date" id="per_day_to">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- per month -->
+                        <div class="row date-inputs d-none mt-2" id="row_per_month">
+                            <div class="col-12">
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="month" id="per_month_from">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12 text-center">
+                                        <h6>To</h6>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="month" id="per_month_to">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- per year -->
+                        <div class="row date-inputs d-none mt-2" id="row_per_year">
+                            <div class="col-12">
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="number" min="1900" max="2099" step="1" value="" id="per_year_from">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12 text-center">
+                                        <h6>To</h6>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="number" min="1900" max="2099" step="1" value="" id="per_year_to">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <input type="hidden" id="filter_type">
+                        <button class="btn btn-success" onclick="searchColumnChart()">Search</button>
+                        <button class="btn btn-danger" onclick="resetColumnChart()">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-5">
+                <div class="card mb-4">
+                    <div class="card-header card-date-filter">
+                        <div class="col-xl-8">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            Column Chart
+                        </div>
+                        <div class="col-xl-4 text-right">
+                            <select id="InvoiceStatusColumnSelect" class="form-control"
+                                onchange="downloadCharts('InvoiceStatusColumnChart','InvoiceStatusColumnSelect')">
+                                <option value="" selected disabled>Download</option>
+                                <option value="png">PNG</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body charts-body">
+                        <div id="InvoiceStatusColumnChart" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card mb-4">
+                    <div class="card-header card-date-filter">
+                        <div class="col-xl-7">
+                            <i class="fa-solid fa-chart-pie me-1"></i>
+                            Pie Chart
+                        </div>
+                        <div class="col-xl-5 text-right">
+                            <select id="InvoiceStatusPieSelect" class="form-control"
+                                onchange="downloadCharts('InvoiceStatusPieChart','InvoiceStatusPieSelect')">
+                                <option value="" selected disabled>Download</option>
+                                <option value="png">PNG</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body charts-body">
+                        <div id="InvoiceStatusPieChart" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

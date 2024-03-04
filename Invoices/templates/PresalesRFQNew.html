@@ -1,0 +1,785 @@
+{% extends "base.html" %}
+
+{% block PresalesNewRFQ %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row mt-4 mb-2">
+            <div class="col-xl-5">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <div class="row">
+                            <div class="col-8 d-flex justify-content-left align-items-center">
+                                <i class="fa-solid fa-file-circle-plus me-1"></i>
+                                Add RFQ Details
+                            </div>
+                            <div class="col-4 d-none d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">RFQ ID <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <input type="number" class="form-control" name="RFQ_ID" id="RFQ_ID" min="0" placeholder="Number">
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Project <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" id="project" data-live-search="true">
+                                    <option value="" selected disabled>Choose Project...</option>
+                                    {% for project in projects %}
+                                    <option value="{{project.id}}" id="{{project.name}}">{{project.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Vendor <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" id="vendor" data-live-search="true">
+                                    <option value="" selected disabled>Choose Vendor...</option>
+                                    {% for vendor in vendors %}
+                                    <option value="{{vendor.id}}" id="{{vendor.name}}">{{vendor.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Ship-to Address <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <textarea name="ship_to_address" class="form-control" id="ship_to_address" cols="30" rows="1" placeholder="Address"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Bidder ID <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <input type="number" class="form-control" name="Bidder_ID" id="Bidder_ID" min="0" placeholder="Number">
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Submission deadline</label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <input type="datetime-local" class="form-control" name="submission_deadline" id="submission_deadline" readonly>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Quote must be valid until <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <input type="date" class="form-control" name="qmbvu" id="qmbvu">
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">RFQ type <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" name="RFQ_type" id="RFQ_type" data-live-search="true">
+                                    <option value="" selected disabled>Choose RFQ Type...</option>
+                                    {% for rfqtype in RFQ_types %}
+                                    <option value="{{rfqtype.id}}" id="{{rfqtype.name}}">{{rfqtype.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Expected quote currency <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" id="eqc" data-live-search="true">
+                                    <option value="" selected disabled>Choose Currency...</option>
+                                    {% for rfqcurrency in RFQ_currency %}
+                                    <option value="{{rfqcurrency.id}}" id="{{rfqcurrency.name}}">{{rfqcurrency.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Quotes required for all items <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" name="qrfai" id="qrfai" data-live-search="true">
+                                    <option value="" selected disabled>Choose...</option>
+                                    {% for obj in qrfai %}
+                                    <option value="{{obj.0}}" id="{{obj.1}}">{{obj.1}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Bidder can change submitted quote <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" name="bccsq" id="bccsq" data-live-search="true">
+                                    <option value="" selected disabled>Choose...</option>
+                                    {% for obj in bccsq %}
+                                    <option value="{{obj.0}}" id="{{obj.1}}">{{obj.1}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Bidder can add items <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" name="bcai" id="bcai" data-live-search="true">
+                                    <option value="" selected disabled>Choose...</option>
+                                    {% for obj in bcai %}
+                                    <option value="{{obj.0}}" id="{{obj.1}}">{{obj.1}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Bidder can change quantity <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                <select class="selectpicker form-control" name="bccq" id="bccq" data-live-search="true">
+                                    <option value="" selected disabled>Choose...</option>
+                                    {% for obj in bccq %}
+                                    <option value="{{obj.0}}" id="{{obj.1}}">{{obj.1}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-7">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <div class="row">
+                                    <div class="col-9 d-flex justify-content-left align-items-center">
+                                        <i class="fa-solid fa-box-archive me-1"></i>
+                                        Add RFQ Products
+                                    </div>
+                                    <div class="col-3 d-none d-flex justify-content-start align-items-center">
+                                        <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-7">
+                                        <div class="row">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Item</label>
+                                            </div>
+                                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                                <input type="number" class="form-control" min="0" value="1" id="item_number" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Product ID <span style="color: #dc3545;">*</span></label>
+                                            </div>
+                                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                                <input type="number" class="form-control" min="0" id="product_id" placeholder="Number">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Quantity <span style="color: #dc3545;">*</span></label>
+                                            </div>
+                                            <div class="col-4">
+                                                <input type="number" class="form-control" id="quantity" placeholder="0" min="0">
+                                            </div>
+                                            <div class="col-4">
+                                                <select class="form-control" id="uom">
+                                                    <option value="" selected disabled>Choose...</option>
+                                                    {% for uom in product_uom %}
+                                                    <option value="{{uom.id}}" id="{{uom.name}}">{{uom.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Product Category</label>
+                                            </div>
+                                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                                <input type="text" class="form-control" id="category" placeholder="Enter Category Name">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="row">
+                                            <div class="col-12 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Delivery Date / Service Period <span style="color: #dc3545;">*</span></label>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                                <input type="date" class="form-control" id="dd_sp">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Product Description <span style="color: #dc3545;">*</span></label>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <textarea class="form-control" id="description" cols="30" rows="3"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer d-flex justify-content-center align-items-center">
+                                <div class="col-6 p-0 d-flex justify-content-start align-items-center">
+                                    <button class="btn btn-secondary mr-2 float-left" type="button" data-toggle="modal" data-target="#view_items_modal">
+                                        <i class="fa-solid fa-eye"></i> View Products
+                                    </button>
+                                </div>
+                                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
+                                    <button class="btn btn-success mr-4" onclick="AddItemIntoTable()" id="addProductsBTN">Add</button>
+                                    <button class="btn btn-danger" onclick="ResetItemForm()">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <i class="fa-solid fa-upload me-1"></i>
+                                Upload Attachments
+                            </div>
+                            <div class="card-body make-my-scrollable" style="max-height: 210px;">
+                                <input type="file" class="my-pond mb-0" name="filepond" id="fileInput" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <i class="fa-solid fa-bolt me-1"></i>
+                                Action Buttons
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-primary" style="width: 100%;" onclick="VerifyRFQ()">
+                                            Verify RFQ
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-secondary" style="width: 100%;" disabled id="reviewBtn" onclick="ReviewRFQ()">
+                                            Review RFQ
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div class="row mt-4">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <input type="hidden" value="{{csrf_token}}" id="csrfToken">
+                                        <button class="btn btn-success" style="width: 100%;" disabled id="submitBtn" onclick="SubmitRFQ()">
+                                            Submit RFQ
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-success" style="width: 100%;" onclick="fillFields()">
+                                            Test Data
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="verify_modal" tabindex="-1" role="dialog" aria-labelledby="verifyModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row" id="verify_img">
+                        <div class="col-12">
+                            <span class="searchLoader"></span>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="valid_img">
+                        <div class="col-6 bg-success text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-check" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="error_img">
+                        <div class="col-6 bg-danger text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-xmark" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <h3 class="mb-0" id="verify_message">
+                                Checking Fields <span class="text-primary">Validation</span>...!
+                            </h3>
+                            <h3 class="mb-0 d-none" id="valid_message">
+                                Fields are <span class="text-success">VALID</span>.
+                            </h3>
+                            <h3 class="mb-0 d-none" id="error_message">
+                                Fields are <span class="text-danger">INVALID</span>.
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row mt-4" >
+                        <div class="col-12" id="error_div">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="view_items_modal" tabindex="-1" role="dialog" aria-labelledby="viewItemsModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Added Products Table</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-9 d-flex justify-content-left align-items-center">
+                                    <i class="fas fa-table me-1"></i>
+                                    Products Table
+                                </div>
+                                <div class="col-3 d-flex justify-content-center align-items-center">
+                                    <h5 style="margin: 0;">Products = <span id="items_count_modal">0</span></h5>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="card-body table-striped">
+                            <div id="toolbar" class="select" style="display: flex;">
+                                <input type="text" class="form-control" style="margin-right:5px;" id="exportFileName"
+                                    placeholder="Export File Name">
+                                <select class="form-control" style="margin-right:5px;">
+                                    <option value="">Export Basic</option>
+                                    <option value="all">Export All</option>
+                                    <option value="selected">Export Selected</option>
+                                </select>
+                                <button class="btn" style="color: #fff;background-color: #6c757d" id="print_selected">Print
+                                    Selected</button>
+                            </div>
+                            <table class="table-sm" id="ItemsTbl" data-toggle="table" data-pagination="true" data-search="true"
+                                data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                                data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                                data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                                data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                                data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                                data-toolbar="#toolbar" data-unique-id="item_number">
+                                <thead>
+                                    <tr>
+                                        <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                                        <th data-field="item_number" data-sortable="true" data-filter-control="input">Item</th>
+                                        <th data-field="product_id" data-sortable="true" data-filter-control="input">Product ID</th>
+                                        <th data-field="description" data-sortable="true" data-filter-control="input">Product Description</th>
+                                        <th data-field="category" data-sortable="true" data-filter-control="input">Product Category</th>
+                                        <th data-field="dd_sp" data-sortable="true" data-filter-control="input">Delivery Date/Service Period</th>
+                                        <th data-field="quantity" data-sortable="true" data-filter-control="input">Quantity</th>
+                                        <th data-field="uom" data-sortable="true" data-filter-control="input">UOM</th>
+                                        <th data-field="actions" data-sortable="true" data-filter-control="input">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="review_modal" tabindex="-1" role="dialog" aria-labelledby="ReviewModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <div class="col-3 text-center">
+                        <h5 class="modal-title" style="background-color: #212529;border-radius: 5px;">ID #</h5>
+                    </div>
+                    <div class="col-7 text-center">
+                        <h5 class="modal-title" id="ViewExampleModalLongTitle">Request For Quotation Details</h5>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Vendor</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_vendor"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>RFQ ID</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_RFQ_ID"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Project</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_project_name"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Ship-to Address</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_ship_to_address"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <h4 class="m-0">General Requirements</h4>
+                        </div>
+                    </div>
+                    <hr class="bg-dark">
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder ID</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bidder_id"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Submission Deadline</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_submission_deadline"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Quote must be valid until</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_qmbvu"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>RFQ Type</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_RFQ_Type"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Expected quote currency</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_eqc"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Quotes required for all items</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_qrfai"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder can change submitted quote</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bccsq"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder can add items</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bcai"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder can change quantity</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bccq"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="items_table">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_items_table"
+                                                    aria-expanded="false" aria-controls="collapse_items_table">
+                                                    <i class="fa-solid fa-table me-1"></i>
+                                                    RFQ Products Table
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-start align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Products</h5>
+                                                        <h5 class="mb-0" id="total_items"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_items_table" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="items_table">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body table-striped table-sm">
+                                                <div id="items_toolbar" class="select" style="display: flex;">
+                                                    <input type="text" class="form-control" style="margin-right:5px;" id="items_exportFileName"
+                                                        placeholder="Export File Name">
+                                                    <select class="form-control" style="margin-right:5px;">
+                                                        <option value="">Export Basic</option>
+                                                        <option value="all">Export All</option>
+                                                        <option value="selected">Export Selected</option>
+                                                    </select>
+                                                    <button class="btn" style="color: #fff;background-color: #6c757d" id="items_print_selected">Print
+                                                        Selected</button>
+                                                </div>
+                                                <table class="table-sm" id="RFQItemsTbl" data-toggle="table" data-pagination="true" data-search="true"
+                                                    data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                                                    data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                                                    data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                                                    data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                                                    data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                                                    data-toolbar="#items_toolbar" data-unique-id="item_number">
+                                                    <thead>
+                                                        <tr>
+                                                            <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                                                            <th data-field="item_number" data-sortable="true" data-filter-control="input">Item</th>
+                                                            <th data-field="product_id" data-sortable="true" data-filter-control="input">Product ID</th>
+                                                            <th data-field="description" data-sortable="true" data-filter-control="input">Product Description</th>
+                                                            <th data-field="category" data-sortable="true" data-filter-control="input">Product Category</th>
+                                                            <th data-field="dd_sp" data-sortable="true" data-filter-control="input">Delivery Date/Service Period</th>
+                                                            <th data-field="quantity" data-sortable="true" data-filter-control="input">Quantity</th>
+                                                            <th data-field="uom" data-sortable="true" data-filter-control="input">UOM</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="invoice_files">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_invoice_files"
+                                                    aria-expanded="false" aria-controls="collapse_invoice_files">
+                                                    <i class="fa-solid fa-file-pdf me-1"></i>
+                                                    RFQ Attachment
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-start align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Files</h5>
+                                                        <h5 class="mb-0" id="total_files"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_invoice_files" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="invoice_files">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body make-my-scrollable" style="max-height: 200px;" id="files_parent">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="submit_modal" tabindex="-1" role="dialog" aria-labelledby="submitModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row" id="submit_img">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <span class="submitLoader"></span>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="submit_valid_img">
+                        <div class="col-6 bg-success text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-check" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="submit_error_img">
+                        <div class="col-6 bg-danger text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-xmark" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <h3 class="mb-0" id="submit_message">
+                                RFQ Is <span class="text-success">Submitting</span>...
+                            </h3>
+                            <h3 class="mb-0 d-none" id="submit_valid_message">
+                                RFQ Submitted <span class="text-success">Successfully</span>.
+                            </h3>
+                            <h3 class="mb-0 d-none" id="submit_error_message">
+                                RFQ <span class="text-danger">Not Submitted</span>.
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row mt-4" >
+                        <div class="col-12" id="submit_error_div">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

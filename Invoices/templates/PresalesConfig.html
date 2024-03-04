@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block PresalesConfig %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row mt-4">
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-header bg-dark text-white card-date-filter">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-list-ol me-1"></i>
+                            Add List Item Form
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-4 d-flex justify-content-center align-items-center">
+                                    <h5 style="margin: 0px;">Type <span class="text-danger m-0">*</span></h5>
+                                </div>
+                                <div class="col-8 d-flex justify-content-center align-items-center">
+                                    <select class="selectpicker form-control" data-live-search="true" name="type" required>
+                                        <option value="" selected disabled>Choose Type...</option>
+                                        <option value="RFQ_type">RFQ Types</option>
+                                        <option value="currency">Currencies</option>
+                                        <option value="uom">UOM</option>
+                                        <option value="category">Categories</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-4 d-flex justify-content-center align-items-center">
+                                    <h5 style="margin: 0px;">Name <span class="text-danger m-0">*</span></h5>
+                                </div>
+                                <div class="col-8 d-flex justify-content-center align-items-center">
+                                    <input class="form-control" type="text" placeholder="Enter Name" name="type_name" required>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-4 d-flex justify-content-center align-items-center">
+                                    <h6 class="text-danger m-0">* Required Fields</h6>
+                                </div>
+                                <div class="col-8 d-flex justify-content-start align-items-center">
+                                    <input class="btn btn-success" type="submit" value="Submit">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-header bg-dark text-white card-date-filter">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-list-ul me-1"></i>
+                            Configuration Lists
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 400px;">
+                        <input class="form-control mb-2" id="configurationSearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="configurationResultContainer">
+                            {% for item in items %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button"
+                                data-toggle="collapse" data-target="#collapse_{{item.0}}" aria-expanded="false" aria-controls="collapse_{{item.0}}">
+                                <h6 class="m-0"><i class="{{item.0.0}}"></i> {{item.0.1}}</h6>
+                                <span class="badge badge-dark badge-pill" title="Vendors">{{item.1}}</span>
+                            </button>
+                            <div class="collapse" id="collapse_{{item.0}}">
+                                <div class="card card-body">
+                                    {% for obj in item.2 %}
+                                    <div class="row">
+                                        <div class="col-2 d-flex justify-content-center align-items-center">
+                                            <i class="{{item.0.0}}"></i>
+                                        </div>
+                                        <div class="col-xl-10 d-flex justify-content-start align-items-center">
+                                            <h6 class="m-0">{{obj.name|upper}}</h6>
+                                        </div>
+                                    </div>
+                                    <hr class="m-0">
+                                    {% endfor %}
+                                </div>
+                              </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-xl-2">
+                <div class="card">
+                    <div class="card-header bg-dark text-white card-date-filter">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-dollar-sign me-1"></i>
+                            Currencies List
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 400px;">
+                        <input class="form-control mb-2" id="currencySearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="currencyResultContainer">
+                            {% for project in projects %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button">
+                                {{project.0}}
+                                <span class="badge badge-dark badge-pill" title="Vendors">{{project.1}}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2">
+                <div class="card">
+                    <div class="card-header bg-dark text-white card-date-filter">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-weight-hanging me-1"></i>
+                            UOM List
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 400px;">
+                        <input class="form-control mb-2" id="uomSearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="uomResultContainer">
+                            {% for project in projects %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button">
+                                {{project.0}}
+                                <span class="badge badge-dark badge-pill" title="Vendors">{{project.1}}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3">
+                <div class="card">
+                    <div class="card-header bg-dark text-white card-date-filter">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-layer-group me-1"></i>
+                            Products Category List
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 400px;">
+                        <input class="form-control mb-2" id="categorySearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="categoryResultContainer">
+                            {% for project in projects %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button">
+                                {{project.0}}
+                                <span class="badge badge-dark badge-pill" title="Vendors">{{project.1}}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+        <div class="row mt-4">
+            {% if 'RFQ_Type' in request.GET and request.GET.RFQ_Type == 'exists' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> RFQ Type Already Exists!...</h1>
+            </div>
+            {% elif 'RFQ_Type' in request.GET and request.GET.RFQ_Type == 'added' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> RFQ Type Added Successfully</h1>
+            </div>
+            {% endif %}
+
+            {% if 'currency' in request.GET and request.GET.currency == 'exists' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Currency Already Exists!...</h1>
+            </div>
+            {% elif 'currency' in request.GET and request.GET.currency == 'added' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> Currency Added Successfully</h1>
+            </div>
+            {% endif %}
+
+            {% if 'uom' in request.GET and request.GET.uom == 'exists' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Unit Already Exists!...</h1>
+            </div>
+            {% elif 'uom' in request.GET and request.GET.uom == 'added' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> Unit Added Successfully</h1>
+            </div>
+            {% endif %}
+
+            {% if 'category' in request.GET and request.GET.category == 'exists' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Category Already Exists!...</h1>
+            </div>
+            {% elif 'category' in request.GET and request.GET.category == 'added' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> Category Added Successfully</h1>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}
+

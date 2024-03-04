@@ -1,0 +1,105 @@
+{% load static %}
+
+<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/filepond.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/filepond-plugin-image-preview.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/filepond-plugin-image-exif-orientation.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/filepond-plugin-file-validate-size.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/filepond-plugin-file-encode.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/filepond.jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/tableExport.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jspdf.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jspdf.plugin.autotable.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/html2canvas.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-table/bootstrap-table.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap/bootstrap-select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-table/extensions/print/bootstrap-table-print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-table/extensions/mobile/bootstrap-table-mobile.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-table/extensions/key-events/bootstrap-table-key-events.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-table/extensions/filter-control/bootstrap-table-filter-control.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-table/extensions/export/bootstrap-table-export.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/scripts.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/loader.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/loader.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/51/loader.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/51/js/jsapi_compiled_default_module.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/51/js/jsapi_compiled_graphics_module.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/51/js/jsapi_compiled_ui_module.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/51/third_party/dygraphs/dygraph-tickers-combined.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charts/51/third_party/webfontloader/webfont.js' %}"></script>
+{% if '/system/' not in request.path %}
+<script type="text/javascript" src="{% static 'js/particles.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/particles.min.js' %}"></script>
+<script>
+    particlesJS.load('particles-js', "{% static 'js/particles.json' %}", function() {
+        console.log('callback - particles.js config loaded');
+    });
+</script>
+<script type="text/javascript" src="{% static 'js/login.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/time-widget.js' %}"></script>
+{% elif '/Vendor/' in request.path %}
+<script type="text/javascript" src="{% static 'js/VendorDashboard.js' %}"></script>
+{% elif '/VendorRFQToDo/' in request.path %}
+<script type="text/javascript" src="{% static 'js/VendorRFQToDo.js' %}"></script>
+{% elif '/VendorRFQDone/' in request.path %}
+<script type="text/javascript" src="{% static 'js/VendorRFQDone.js' %}"></script>
+{% elif '/Quotation/' in request.path %}
+<script type="text/javascript" src="{% static 'js/VendorQuotation.js' %}"></script>
+{% elif '/PurchaseOrder/' in request.path %}
+<script type="text/javascript" src="{% static 'js/VendorPO.js' %}"></script>
+{% elif '/Invoices/VendorDone/' in request.path %}
+<script type="text/javascript" src="{% static 'js/VendorInvoicesDone.js' %}"></script>
+{% elif '/Invoices/New/' in request.path %}
+<script type="text/javascript" src="{% static 'js/NewInvoice.js' %}"></script>
+
+{% elif '/Procurement/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementDashboard.js' %}"></script>
+
+{% elif '/ProcurementRFQ/Created/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementRFQCreated.js' %}"></script>
+
+{% elif '/ProcurementQuotationDone/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementQuotationDone.js' %}"></script>
+
+{% elif '/ProcurementPO/New/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementPONew.js' %}"></script>
+{% elif '/ProcurementPO/Created/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementPOCreated.js' %}"></script>
+
+{% elif '/Invoices/ProcurementToDo/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementInvoicesToDo.js' %}"></script>
+{% elif '/Invoices/ProcurementDone/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementInvoicesDone.js' %}"></script>
+<!-- {% elif '/NewVendor/' in request.path %}
+<script type="text/javascript" src="{% static 'js/NewVendor.js' %}"></script> -->
+{% elif '/Invoices/ProcurementNewVendor/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ProcurementNewVendor.js' %}"></script>
+
+{% elif '/Manager/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerDashboard.js' %}"></script>
+{% elif '/Invoices/ManagerDone/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerInvoicesDone.js' %}"></script>
+
+
+{% elif '/Presales/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesDashboard.js' %}"></script>
+{% elif '/PresalesProject/New/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesNewProject.js' %}"></script>
+{% elif '/PresalesRFQ/New/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesNewRFQ.js' %}"></script>
+{% elif '/PresalesRFQ/Created/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesRFQCreated.js' %}"></script>
+{% elif '/PresalesQuotationToDo/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesQuotationToDo.js' %}"></script>
+{% elif '/PresalesQuotationDone/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesQuotationDone.js' %}"></script>
+{% elif '/PresalesConfiguration/' in request.path %}
+<script type="text/javascript" src="{% static 'js/PresalesConfig.js' %}"></script>
+{% else %}
+<script></script>
+{% endif %}
+
+
+

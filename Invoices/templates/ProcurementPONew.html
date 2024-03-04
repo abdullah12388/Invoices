@@ -1,0 +1,578 @@
+{% extends "base.html" %}
+
+{% block ProcurementPONew %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row mt-2">
+            <div class="col-xl-5">
+                <div class="card mb-2">
+                    <div class="card-header bg-dark text-white">
+                        <div class="row">
+                            <div class="col-8 d-flex justify-content-start align-items-center">
+                                <i class="fa-solid fa-file-circle-plus me-1"></i>
+                                Add P.O. Details
+                            </div>
+                            <div class="col-4 d-flex justify-content-end align-items-center">
+                                <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body charts-body">
+                        <div class="row">
+                            <div class="col-5 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Quotation <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-7">
+                                <select class="selectpicker form-control" id="quotation" name="quotation" data-live-search="true">
+                                    <option value="" selected disabled>Choose Quotation...</option>
+                                    {% for quotation in quotations %}
+                                    <option value="{{quotation.id}}" id="{{quotation.RFQ.RFQ_ID}}">{{quotation.id}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-5 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">P.O. Number <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-7">
+                                <input type="text" class="form-control" name="po" id="po" placeholder="Number">
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-5 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Contact Person</label>
+                            </div>
+                            <div class="col-7">
+                                <input type="text" class="form-control" id="contact_person" placeholder="Procurement Name" value="{{user.first_name}} {{user.last_name}}" readonly>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-5 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Total Value <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-4">
+                                <input type="number" class="form-control" name="total_value" id="total_value" min="0" placeholder="Number">
+                            </div>
+                            <div class="col-3">
+                                <select class="form-control" id="currency" name="currency">
+                                    <option value="" selected disabled>Currency...</option>
+                                    {% for currency in currencies %}
+                                    <option value="{{currency.id}}" id="{{currency.name}}">{{currency.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-5 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Shipping Terms <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-7">
+                                <textarea class="form-control" name="shipping_terms" id="shipping_terms" cols="30" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-7">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <div class="row">
+                                    <div class="col-9 d-flex justify-content-start align-items-center">
+                                        <i class="fa-solid fa-box-archive me-1"></i>
+                                        Add P.O. Milestones
+                                    </div>
+                                    <div class="col-3 d-flex justify-content-end align-items-center">
+                                        <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-7">
+                                        <div class="row mb-2">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Milestone</label>
+                                            </div>
+                                            <div class="col-8 d-flex justify-content-center align-items-center">
+                                                <input type="number" class="form-control" min="0" value="1" id="milestone_id" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Precentage <span style="color: #dc3545;">*</span></label>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="number" class="form-control" name="milestone_precentage" id="milestone_precentage" placeholder="Number" min="0" max="100">
+                                            </div>
+                                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                                <label style="margin: 0;">%</label>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Payment Due</label>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="number" class="form-control" name="milestone_due" id="milestone_due" placeholder="Number" min="0">
+                                            </div>
+                                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                                <label style="margin: 0;">Days</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Amount</label>
+                                            </div>
+                                            <div class="col-8">
+                                                <input type="number" class="form-control" id="milestone_amount" placeholder="Number" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="row">
+                                            <div class="col-12 d-flex justify-content-start align-items-center">
+                                                <label style="margin: 0;">Description <span style="color: #dc3545;">*</span></label>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <textarea class="form-control" name="milestone_description" id="milestone_description" cols="30" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer d-flex justify-content-center align-items-center">
+                                <div class="col-6 p-0 d-flex justify-content-start align-items-center">
+                                    <button class="btn btn-secondary mr-2 float-left" type="button" data-toggle="modal" data-target="#view_items_modal">
+                                        <i class="fa-solid fa-eye"></i> View Milestones
+                                    </button>
+                                </div>
+                                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
+                                    <button class="btn btn-success mr-4" id="milestone_addBtn" onclick="AddItemIntoTable()" disabled>Add</button>
+                                    <button class="btn btn-danger" onclick="ResetItemForm()">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <i class="fa-solid fa-upload me-1"></i>
+                                Upload Attachment
+                            </div>
+                            <div class="card-body make-my-scrollable" style="max-height: 295px;">
+                                <input type="file" class="my-pond mb-0" name="filepond" id="fileInput" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <i class="fa-solid fa-bolt me-1"></i>
+                                Action Buttons
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-primary" style="width: 100%;" onclick="VerifyPO()">
+                                            Verify P.O.
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-secondary" style="width: 100%;" disabled id="reviewBtn" onclick="ReviewPO()">
+                                            Review P.O.
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div class="row mt-4">
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <input type="hidden" value="{{csrf_token}}" id="csrfToken">
+                                        <button class="btn btn-success" style="width: 100%;" disabled id="submitBtn" onclick="SubmitPO()">
+                                            Submit P.O.
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="view_items_modal" tabindex="-1" role="dialog" aria-labelledby="viewItemsModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Added Milestones Table</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-7 d-flex justify-content-left align-items-center">
+                                    <i class="fas fa-table me-1"></i>
+                                    Milestones Table
+                                </div>
+                                <div class="col-2 d-flex justify-content-center align-items-center">
+                                    <h5 style="margin: 0;">Milestones = <span id="milestones_count_modal">0</span></h5>
+                                </div>
+                                <div class="col-3 d-flex justify-content-center align-items-center">
+                                    <h5 style="margin: 0;">Total = <span id="milestones_total_modal">0</span></h5>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="card-body table-striped">
+                            <div id="toolbar" class="select" style="display: flex;">
+                                <input type="text" class="form-control" style="margin-right:5px;" id="exportFileName"
+                                    placeholder="Export File Name">
+                                <select class="form-control" style="margin-right:5px;">
+                                    <option value="">Export Basic</option>
+                                    <option value="all">Export All</option>
+                                    <option value="selected">Export Selected</option>
+                                </select>
+                                <button class="btn" style="color: #fff;background-color: #6c757d" id="print_selected">Print
+                                    Selected</button>
+                            </div>
+                            <table id="milestonesTbl" data-toggle="table" data-pagination="true" data-search="true"
+                                data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                                data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                                data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                                data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                                data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                                data-toolbar="#toolbar" data-unique-id="id">
+                                <thead>
+                                    <tr>
+                                        <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                                        <th data-field="id" data-sortable="true" data-filter-control="input">ID</th>
+                                        <th data-field="precentage" data-sortable="true" data-filter-control="input">Precentage</th>
+                                        <th data-field="due" data-sortable="true" data-filter-control="input">Payment Due</th>
+                                        <th data-field="amount" data-sortable="true" data-filter-control="input">Amount</th>
+                                        <th data-field="description" data-sortable="true" data-filter-control="input">Description</th>
+                                        <th data-field="timestamp" data-sortable="true" data-filter-control="input">Timestamp</th>
+                                        <th data-field="actions" data-sortable="true" data-filter-control="input">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="verify_modal" tabindex="-1" role="dialog" aria-labelledby="verifyModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row" id="verify_img">
+                        <div class="col-12">
+                            <span class="searchLoader"></span>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="valid_img">
+                        <div class="col-6 bg-success text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-check" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="error_img">
+                        <div class="col-6 bg-danger text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-xmark" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <h3 class="mb-0" id="verify_message">
+                                Checking Fields <span class="text-primary">Validation</span>...!
+                            </h3>
+                            <h3 class="mb-0 d-none" id="valid_message">
+                                Fields are <span class="text-success">VALID</span>.
+                            </h3>
+                            <h3 class="mb-0 d-none" id="error_message">
+                                Fields are <span class="text-danger">INVALID</span>.
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row mt-4" >
+                        <div class="col-12" id="error_div">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="review_modal" tabindex="-1" role="dialog" aria-labelledby="ReviewModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <div class="col-3 text-center">
+                        <h5 class="modal-title" style="background-color: #212529;border-radius: 5px;">ID #</h5>
+                    </div>
+                    <div class="col-7 text-center">
+                        <h5 class="modal-title" id="ViewExampleModalLongTitle">Purchase Order Details</h5>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Quotation</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h4 id="view_quotation"></h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>RFQ</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h4 id="view_RFQ"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>P.O. Number</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h4 id="view_PO"></h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Total Value</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h4 id="view_total_value"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Contact Person</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h4 id="view_contact_person"></h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Shipping Terms</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_shipping_terms"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="milestones_table">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-7">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_milestones_table"
+                                                    aria-expanded="false" aria-controls="collapse_milestones_table">
+                                                    <i class="fa-solid fa-table me-1"></i>
+                                                    P.O. Milestones Table
+                                                </a>
+                                            </div>
+                                            <div class="col-5 text-right">
+                                                <div class="row">
+                                                    <div class="col-4 d-flex justify-content-center align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Milestones</h5>
+                                                        <h5 class="mb-0" id="total_milestones"></h5>
+                                                    </div>
+                                                    <div class="col-8 d-flex justify-content-center align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Total</h5>
+                                                        <h5 class="mb-0" id="total_amount"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_milestones_table" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="milestones_table">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body table-striped table-sm">
+                                                <div id="milestone_toolbar" class="select" style="display: flex;">
+                                                    <input type="text" class="form-control" style="margin-right:5px;" id="milestones_exportFileName"
+                                                        placeholder="Export File Name">
+                                                    <select class="form-control" style="margin-right:5px;">
+                                                        <option value="">Export Basic</option>
+                                                        <option value="all">Export All</option>
+                                                        <option value="selected">Export Selected</option>
+                                                    </select>
+                                                    <button class="btn" style="color: #fff;background-color: #6c757d" id="milestones_print_selected">Print
+                                                        Selected</button>
+                                                </div>
+                                                <table id="POMilestonesTbl" data-toggle="table" data-pagination="true" data-search="true"
+                                                    data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                                                    data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                                                    data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                                                    data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                                                    data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                                                    data-toolbar="#milestone_toolbar" data-unique-id="id">
+                                                    <thead>
+                                                        <tr>
+                                                            <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                                                            <th data-field="id" data-sortable="true" data-filter-control="input">ID</th>
+                                                            <th data-field="precentage" data-sortable="true" data-filter-control="input">Precentage</th>
+                                                            <th data-field="due" data-sortable="true" data-filter-control="input">Payment Due</th>
+                                                            <th data-field="amount" data-sortable="true" data-filter-control="input">Amount</th>
+                                                            <th data-field="description" data-sortable="true" data-filter-control="input">Description</th>
+                                                            <th data-field="timestamp" data-sortable="true" data-filter-control="input">Timestamp</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="PO_files">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_PO_files"
+                                                    aria-expanded="false" aria-controls="collapse_PO_files">
+                                                    <i class="fa-solid fa-file-pdf me-1"></i>
+                                                    P.O. Attachment
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-center align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Files</h5>
+                                                        <h5 class="mb-0" id="total_files"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_PO_files" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="PO_files">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body make-my-scrollable" style="max-height: 200px;" id="files_parent">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="submit_modal" tabindex="-1" role="dialog" aria-labelledby="submitModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row" id="submit_img">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <span class="submitLoader"></span>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="submit_valid_img">
+                        <div class="col-6 bg-success text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-check" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row d-none justify-content-center" id="submit_error_img">
+                        <div class="col-6 bg-danger text-white d-flex justify-content-center align-items-center" style="border-radius: 50%;width: 150px;height: 150px;">
+                            <i class="fa-solid fa-xmark" style="font-size: 100px;"></i>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <h3 class="mb-0 text-center" id="submit_message">
+                                Purchase Order Is <span class="text-success">Submitting</span>...
+                            </h3>
+                            <h3 class="mb-0 text-center d-none" id="submit_valid_message">
+                                Purchase Order Submitted <span class="text-success">Successfully</span>.
+                            </h3>
+                            <h3 class="mb-0 text-center d-none" id="submit_error_message">
+                                Purchase Order <span class="text-danger">Not Submitted</span>.
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row mt-4" >
+                        <div class="col-12" id="submit_error_div">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

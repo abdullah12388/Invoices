@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block NewVendor %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row" style="margin-top: 5%;">
+            <div class="col-xl-8 m-auto">
+                <div class="card mb-4" style="background-color: #212529;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-4">
+                                <div class="card mb-4">
+                                    <div class="card-header card-date-filter">
+                                        <div class="col-xl-12">
+                                            <i class="fas fa-chart-bar me-1"></i>
+                                            Vendors List
+                                        </div>
+                                    </div>
+                                    <div class="card-body make-my-scrollable" style="max-height: 400px;">
+                                        <input class="form-control mb-2" id="vendorSearch" type="text" placeholder="Search...">
+                                        <div class="list-group" id="vendorResultContainer">
+                                            {% for vdr in vendor %}
+                                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button">
+                                                {{vdr.0}}
+                                                <span class="badge badge-primary badge-pill">{{vdr.1}}</span>
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-8">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-user-plus me-1"></i>
+                                        Add Vendor Form
+                                    </div>
+                                    <div class="card-body charts-body">
+                                        <form method="POST" action="">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-4 d-flex justify-content-center align-items-center">
+                                                    <h5 for="vendor">Vendor</h5>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input class="form-control" id="vendor" type="text" name="vendor" placeholder="Enter Vendor Name" required>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-4">
+                                                <div class="col-12 d-flex justify-content-center align-items-center">
+                                                    <input class="btn btn-success" type="submit" value="Submit">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            {% if 'done' in request.GET %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> Vendor Inserted Successfully</h1>
+            </div>
+            {% endif %}
+            {% if 'fail' in request.GET %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Vendor Approved Before</h1>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}
+

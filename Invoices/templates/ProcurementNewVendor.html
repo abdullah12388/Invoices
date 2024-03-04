@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block ProcurementNewVendor %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row mt-4">
+            <div class="col-xl-3">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header card-date-filter">
+                                <div class="col-xl-12">
+                                    <i class="fa-solid fa-user-tie me-1"></i>
+                                    Add Vendor
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" action="{% url 'ProcurementNewVendorApi' %}">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <input class="form-control" type="text" name="vendor_name" placeholder="Enter Vendor Name" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col-12 d-flex justify-content-center align-items-center">
+                                            <input class="btn btn-success" type="submit" value="Submit">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header card-date-filter">
+                                <div class="col-xl-12">
+                                    <i class="fa-solid fa-list-ul me-1"></i>
+                                    Vendors List
+                                </div>
+                            </div>
+                            <div class="card-body make-my-scrollable" style="max-height: 350px;">
+                                <input class="form-control mb-2" id="vendorSearch" type="text" placeholder="Search...">
+                                <div class="list-group" id="vendorResultContainer">
+                                    {% for vdr in vendor %}
+                                    <button type="button" class="list-group-item list-group-item-action tank-toggle-button">
+                                        {{vdr.0}}
+                                        <span class="badge badge-dark badge-pill" title="Invoices">{{vdr.1}}</span>
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-9">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-header card-date-filter">
+                                <div class="col-xl-12">
+                                    <i class="fa-solid fa-list-ul me-1"></i>
+                                    Vendor Users List
+                                </div>
+                            </div>
+                            <div class="card-body make-my-scrollable" style="max-height: 548px;">
+                                <input class="form-control mb-2" id="vendorUserSearch" type="text" placeholder="Search...">
+                                <div class="list-group" id="vendorUserResultContainer">
+                                    {% for vdr in vendor %}
+                                    <button type="button" class="list-group-item list-group-item-action tank-toggle-button"
+                                        data-toggle="collapse" data-target="#collapse_{{vdr.0}}" aria-expanded="false" aria-controls="collapse_{{vdr.0}}">
+                                        {{vdr.0}}
+                                        <span class="badge badge-dark badge-pill" title="Users">{{vdr.2|length}}</span>
+                                    </button>
+                                    <div class="collapse" id="collapse_{{vdr.0}}">
+                                        <div class="card card-body">
+                                            {% for vndUser in vdr.2%}
+                                            <div class="row">
+                                                <div class="col-2 d-flex justify-content-center align-items-center">
+                                                    <i class="fa-solid fa-user"></i>
+                                                </div>
+                                                <div class="col-10 d-flex justify-content-start align-items-center">
+                                                    <h6 class="m-0">{{vndUser.first_name|capfirst}} {{vndUser.last_name|capfirst}}</h6>
+                                                </div>
+                                            </div>
+                                            <hr class="m-0">
+                                            {% endfor %}
+                                        </div>
+                                      </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fa-solid fa-users me-1"></i>
+                                Add Vendor Users Form
+                            </div>
+                            <div class="card-body charts-body">
+                                <form method="POST" action="{% url 'ProcurementNewVendorUserApi' %}">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-4 d-flex justify-content-start align-items-center">
+                                            <h5 for="vendor">First Name <span style="color: #dc3545;">*</span></h5>
+                                        </div>
+                                        <div class="col-8">
+                                            <input class="form-control" id="fn" type="text" name="firstName" placeholder="Enter Vendor First Name" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-4 d-flex justify-content-start align-items-center">
+                                            <h5 for="vendor">Last Name</h5>
+                                        </div>
+                                        <div class="col-8">
+                                            <input class="form-control" id="ln" type="text" name="lastName" placeholder="Enter Vendor Last Name">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-4 d-flex justify-content-start align-items-center">
+                                            <h5 for="vendor">E-mail</h5>
+                                        </div>
+                                        <div class="col-8">
+                                            <input class="form-control" id="email" type="text" name="email" placeholder="Enter Vendor E-mail">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-4 d-flex justify-content-start align-items-center">
+                                            <h5 for="vendor">Username <span style="color: #dc3545;">*</span></h5>
+                                        </div>
+                                        <div class="col-8">
+                                            <input class="form-control" id="username" type="text" name="username" placeholder="Enter Vendor Username" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-4 d-flex justify-content-start align-items-center">
+                                            <h5 for="vendor">Password</h5>
+                                        </div>
+                                        <div class="col-8">
+                                            <input class="form-control" id="password" type="password" name="password" placeholder="Enter Vendor Password">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-4 d-flex justify-content-start align-items-center">
+                                            <h5 for="vendor">Vendor <span style="color: #dc3545;">*</span></h5>
+                                        </div>
+                                        <div class="col-8">
+                                            <select class="selectpicker form-control" name="vendor" required>
+                                                <option value="" selected disabled>Choose Vendor...</option>
+                                                {% for vdr in vendor %}
+                                                <option value="{{vdr.0}}">{{vdr.0}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-12 d-flex justify-content-start align-items-center">
+                                            <h5 style="color: #dc3545;">* Required Fields.</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col-12 d-flex justify-content-center align-items-center">
+                                            <input class="btn btn-success" type="submit" value="Submit">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            {% if 'vendor' in request.GET and request.GET.vendor == 'exists' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Vendor Already Exists!...</h1>
+            </div>
+            {% elif 'vendor' in request.GET and request.GET.vendor == 'added' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> Vendor Created Successfully</h1>
+            </div>
+            {% endif %}
+            {% if 'user' in request.GET and request.GET.user == 'exists' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Username Already Exists!...</h1>
+            </div>
+            {% elif 'user' in request.GET and request.GET.user == 'added' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> User Created Successfully</h1>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}
+
