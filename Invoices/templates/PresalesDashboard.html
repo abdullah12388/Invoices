@@ -3,74 +3,192 @@
 {% block PresalesDashboard %}
 <main>
     <div class="container-fluid px-4">
-        <h1 class="mt-2 mb-4">Invoices | Status</h1>
+        <h1 class="mt-2 mb-4">Status</h1>
         <div class="row">
-            <div class="col">
+            <div class="col-xl-12">
                 <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <div class="col-xl-12">
-                            <i class="fa-solid fa-receipt me-1"></i>
-                            Total Invoices
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#projects_card_body').toggleClass('d-none');">
+                        <div class="row">
+                            <div class="col-xl-10">
+                                <i class="fa-solid fa-diagram-project me-1"></i>
+                                Projects
+                            </div>
+                            <div class="col-xl-2">
+                                Total <i class="fa fa-arrow-right"></i>
+                                <span>{{t_project}}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:70px">{{t_invoice}}</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card mb-4">
-                    <div class="card-header bg-dark text-white">
-                        <div class="col-xl-12">
-                            <i class="fa-solid fa-receipt me-1"></i>
-                            Pending Invoices
+                    <div class="card-body projects-container d-none" id="projects_card_body">
+                        <div class="row">
+                            {% for project in projects %}
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#{{project.id}}_card_body').toggleClass('d-none');">
+                                        <i class="fa-solid fa-diagram-project me-1"></i>
+                                        {{project.project}}
+                                    </div>
+                                    <div class="card-body d-none" id="{{project.id}}_card_body">
+                                        <ul class="list-group">
+                                            {% for vendor in project.vendors%}
+                                            <li class="list-group-item">
+                                                <i class="fa fa-user me-1"></i>
+                                                {{vendor.name}}
+                                            </li>
+                                            {% endfor %}
+                                          </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:70px">{{p_invoice}}</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
-                        <div class="col-xl-12">
-                            <i class="fa-solid fa-receipt me-1"></i>
-                            Approved Invoices
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:70px">{{a_invoice}}</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card mb-4">
-                    <div class="card-header bg-danger text-white">
-                        <div class="col-xl-12">
-                            <i class="fa-solid fa-receipt me-1"></i>
-                            Rejected Invoices
-                        </div>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:70px">{{r_invoice}}</h1>
                     </div>
                 </div>
             </div>
         </div>
-        <h1 class="mb-4">Invoices | Status | Charts</h1>
+        <div class="row mt-2">
+            <div class="col-xl-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#rfq_card_body').toggleClass('d-none');">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-file-export me-1"></i>
+                            RFQ
+                        </div>
+                    </div>
+                    <div class="card-body text-center d-none" id="rfq_card_body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Total
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{t_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Sent
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{s_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Viewed
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{v_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header bg-danger text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Replyed
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{r_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-xl-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#quotation_card_body').toggleClass('d-none');">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-file-import me-1"></i>
+                            Quotation
+                        </div>
+                    </div>
+                    <div class="card-body text-center d-none" id="quotation_card_body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Total
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{t_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Pending
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{p_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Approved
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{a_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header bg-danger text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Rejected
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{r_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h1 class="mb-4">Status | Charts</h1>
         <div class="row">
             <div class="col-xl-3">
                 <div class="card mb-4">
-                    <div class="card-header card-date-filter">
+                    <div class="card-header card-date-filter bg-dark text-white">
                         <i class="fa-solid fa-filter me-1"></i>
                         Date Filter
                     </div>
                     <div class="card-body charts-body">
-                        <!-- select -->
+                        <!-- type select -->
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <select class="form-control" id="type_filter">
+                                    <option value="" selected disabled>Choose Type...</option>
+                                    <option value="r">RFQ</option>
+                                    <option value="q">Quotation</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- filter select -->
                         <div class="row">
                             <div class="col-12">
-                                <select class="form-control" id="date_filter">
+                                <select class="form-control" id="date_filter" disabled>
                                     <option value="" selected disabled>Choose Period...</option>
                                     <option value="h">Per Hour</option>
                                     <option value="d">Per Day</option>
@@ -161,6 +279,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-right">
+                        <input type="hidden" id="filter_for">
                         <input type="hidden" id="filter_type">
                         <button class="btn btn-success" onclick="searchColumnChart()">Search</button>
                         <button class="btn btn-danger" onclick="resetColumnChart()">Reset</button>
@@ -169,14 +288,14 @@
             </div>
             <div class="col-xl-5">
                 <div class="card mb-4">
-                    <div class="card-header card-date-filter">
+                    <div class="card-header card-date-filter bg-dark text-white">
                         <div class="col-xl-8">
                             <i class="fa-solid fa-chart-column me-1"></i>
-                            Column Chart
+                            <span id="cc_name">Quotation</span> Column Chart
                         </div>
                         <div class="col-xl-4 text-right">
-                            <select id="InvoiceStatusColumnSelect" class="form-control"
-                                onchange="downloadCharts('InvoiceStatusColumnChart','InvoiceStatusColumnSelect')">
+                            <select id="StatusColumnSelect" class="form-control"
+                                onchange="downloadCharts('StatusColumnChart','StatusColumnSelect')">
                                 <option value="" selected disabled>Download</option>
                                 <option value="png">PNG</option>
                                 <option value="pdf">PDF</option>
@@ -184,20 +303,20 @@
                         </div>
                     </div>
                     <div class="card-body charts-body">
-                        <div id="InvoiceStatusColumnChart" style="width: 100%; height: 100%;"></div>
+                        <div id="StatusColumnChart" style="width: 100%; height: 100%;"></div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-4">
                 <div class="card mb-4">
-                    <div class="card-header card-date-filter">
+                    <div class="card-header card-date-filter bg-dark text-white">
                         <div class="col-xl-7">
                             <i class="fa-solid fa-chart-pie me-1"></i>
-                            Pie Chart
+                            <span id="pc_name">Quotation</span> Pie Chart
                         </div>
                         <div class="col-xl-5 text-right">
-                            <select id="InvoiceStatusPieSelect" class="form-control"
-                                onchange="downloadCharts('InvoiceStatusPieChart','InvoiceStatusPieSelect')">
+                            <select id="StatusPieSelect" class="form-control"
+                                onchange="downloadCharts('StatusPieChart','StatusPieSelect')">
                                 <option value="" selected disabled>Download</option>
                                 <option value="png">PNG</option>
                                 <option value="pdf">PDF</option>
@@ -205,7 +324,7 @@
                         </div>
                     </div>
                     <div class="card-body charts-body">
-                        <div id="InvoiceStatusPieChart" style="width: 100%; height: 100%;"></div>
+                        <div id="StatusPieChart" style="width: 100%; height: 100%;"></div>
                     </div>
                 </div>
             </div>

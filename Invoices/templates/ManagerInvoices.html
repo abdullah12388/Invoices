@@ -1,0 +1,642 @@
+{% extends "base.html" %}
+
+{% block ManagerInvoices %}
+<main id="DoneParent">
+    <div class="container-fluid px-4">
+        <!-- <h1 class="mt-4 mb-4">Invoices | Report | done</h1> -->
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-left" style="background-color: #212529;padding: 10px 15px;border-radius: 5px;"
+                            role="tab" id="done_filters">
+                        <h4 class="panel-title m-0">
+                            <div class="row">
+                                <div class="col-9">
+                                    <a role="button" data-toggle="collapse"
+                                        style="text-decoration: none;color: #fff;" href="#collapse_done_filters"
+                                        aria-expanded="false" aria-controls="collapse_done_filters">
+                                        <i class="fa-solid fa-filter me-1"></i>
+                                        Done Invoices Filters
+                                    </a>
+                                </div>
+                                <div class="col-3 text-right">
+                                    <button class="btn btn-success btn-sm" id="sbmtBTN" disabled>Submit</button>
+                                    <button class="btn btn-danger btn-sm" id="rstBTN">Reset ALL</button>
+                                </div>
+                            </div>
+                        </h4>
+                    </div>
+                    <div id="collapse_done_filters" class="panel-collapse collapse in show" role="tabpanel"
+                        aria-labelledby="done_filters">
+                        <div class="panel-body">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Vendor
+                                                    <button class="btn btn-danger btn-sm float-right" id="vendorBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="vendor" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Vendor...</option>
+                                                        {% for vr in vendor_results %}
+                                                        <option value="{{vr.0}}">{{vr.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Invoice Number
+                                                    <button class="btn btn-danger btn-sm float-right" id="numberBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="number" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Number...</option>
+                                                        {% for nr in number_results %}
+                                                        <option value="{{nr.0}}">{{nr.0}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Invoice Date
+                                                    <button class="btn btn-danger btn-sm float-right" id="dateBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input class="form-control" type="date" id="date">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    P.O. Number
+                                                    <button class="btn btn-danger btn-sm float-right" id="poBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="po" data-live-search="true">
+                                                        <option value="" selected disabled>Choose P.O...</option>
+                                                        {% for por in po_results %}
+                                                        <option value="{{por.0}}">{{por.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Payment Due
+                                                    <button class="btn btn-danger btn-sm float-right" id="dueBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="due" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Payment Due...</option>
+                                                        {% for duer in due_results %}
+                                                        <option value="{{duer.0}}">{{duer.0}} Days</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Bill To
+                                                    <button class="btn btn-danger btn-sm float-right" id="billToBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="bill_to" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Bill To...</option>
+                                                        {% for btr in bill_to_results %}
+                                                        <option value="{{btr.0}}">{{btr.0}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Project Name
+                                                    <button class="btn btn-danger btn-sm float-right" id="projectNameBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="project_name" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Project Name...</option>
+                                                        {% for pnr in project_name_results %}
+                                                        <option value="{{pnr.0}}">{{pnr.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Invoice Type
+                                                    <button class="btn btn-danger btn-sm float-right" id="typeBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="type" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Type...</option>
+                                                        {% for tr in type_results %}
+                                                        <option value="{{tr.0}}">{{tr.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Milestone
+                                                    <button class="btn btn-danger btn-sm float-right" id="milestoneBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="milestone" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Milestone %...</option>
+                                                        {% for msr in milestone_results %}
+                                                        <option value="{{msr.0}}">{{msr.1}} %</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    VAT
+                                                    <button class="btn btn-danger btn-sm float-right" id="vatBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="vat" data-live-search="true">
+                                                        <option value="" selected disabled>Choose VAT...</option>
+                                                        {% for vatr in vat_results %}
+                                                        <option value="{{vatr.0}}">{{vatr.1}} %</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Currency
+                                                    <button class="btn btn-danger btn-sm float-right" id="currencyBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="currency" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Currency...</option>
+                                                        {% for curr in currency_results %}
+                                                        <option value="{{curr.0}}">{{curr.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Submitted By
+                                                    <button class="btn btn-danger btn-sm float-right" id="userBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="user" data-live-search="true">
+                                                        <option value="" selected disabled>Choose User...</option>
+                                                        {% for sur in submitted_user_results %}
+                                                        <option value="{{sur.0}}">{{sur.1|capfirst}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Status
+                                                    <button class="btn btn-danger btn-sm float-right" id="statusBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="status" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Status...</option>
+                                                        {% for stsr in status_results %}
+                                                        <option value="{{stsr.0}}">{{stsr.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <i class="fa-solid fa-filter me-1"></i>
+                                                    Timestamp
+                                                    <button class="btn btn-danger btn-sm float-right" id="timestampBTN"
+                                                        style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="datetime-local" id="timestamp_from">
+                                                        </div>
+                                                        <div class="col-2" style="display: flex;justify-content: center;align-items: center;">
+                                                            <label>To</label>
+                                                        </div>
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="datetime-local" id="timestamp_to">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row d-none" id="miniloader">
+            <div class="col-12 text-center">
+                <span class="loader">L &nbsp; ading</span>
+            </div>
+        </div>
+        <div class="card mb-4 mt-3 d-none" id="card-table">
+            <div class="card-header bg-dark text-white">
+                <div class="row">
+                    <div class="col-8 d-flex justify-content-left align-items-center">
+                        <i class="fas fa-table me-1"></i>
+                        Done Invoices Table
+                    </div>
+                    <!-- <div class="col-4">
+                        <div class="row">
+                            <div class="col-6 d-flex justify-content-center align-items-center">
+                                <h3 class="mr-2" id="selectedRows">0</h3>
+                                <h5>selected</h5>
+                            </div>
+                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-success m-auto"><i class="fa-solid fa-check"></i> Approve</button>
+                            </div>
+                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                <button type="button" class="btn btn-danger m-auto"><i class="fa-solid fa-xmark"></i> Reject</button>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <div class="card-body table-striped">
+                <div id="toolbar" class="select" style="display: flex;">
+                    <input type="text" class="form-control" style="margin-right:5px;" id="exportFileName"
+                        placeholder="Export File Name">
+                    <select class="form-control" style="margin-right:5px;">
+                        <option value="">Export Basic</option>
+                        <option value="all">Export All</option>
+                        <option value="selected">Export Selected</option>
+                    </select>
+                    <button class="btn" style="color: #fff;background-color: #6c757d" id="print_selected">Print
+                        Selected</button>
+                </div>
+                <table id="doneInvoicesTbl" data-toggle="table" data-pagination="true" data-search="true"
+                    data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                    data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                    data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                    data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                    data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                    data-toolbar="#toolbar" data-unique-id="id">
+                    <thead>
+                        <tr>
+                            <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                            <th data-field="id" data-sortable="true" data-filter-control="input">ID</th>
+                            <th data-field="vendor" data-sortable="true" data-filter-control="input">Vendor</th>
+                            <th data-field="date" data-sortable="true" data-filter-control="input">Invoice Date</th>
+                            <th data-field="po" data-sortable="true" data-filter-control="input">P.O. No.</th>
+                            <th data-field="bill_to" data-sortable="true" data-filter-control="input">Bill To</th>
+                            <th data-field="user" data-sortable="true" data-filter-control="input">Submitted By</th>
+                            <th data-field="timestamp" data-sortable="true" data-filter-control="input">Timestamp</th>
+                            <th data-field="status" data-sortable="true" data-filter-control="input">Status</th>
+                            <th data-field="actions" data-sortable="true" data-filter-control="input">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- {% for si in s_invoice %} -->
+                        <!-- <tr> -->
+                            <!-- <td></td>
+                            <td>{{si.invoice.id}}</td>
+                            <td>{{si.invoice.vendor}}</td>
+                            <td>{{si.invoice.date}}</td>
+                            <td>{{si.invoice.po}}</td>
+                            <td>{{si.invoice.bill_to}}</td>
+                            <td>{{si.user}}</td>
+                            <td>{{si.timestamp}}</td> -->
+                            <!-- <td class="d-flex justify-content-center align-items-center">
+                                <button class="btn btn-secondary m-2 text-white" type="button" onclick="ViewInvoice('{{tsh.id}}', 'view')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="btn btn-success m-2" type="button" onclick="ApprovedOrNotTimeSheet('{{tsh.id}}', 'approve')"><i class="fa-solid fa-check"></i></button>
+                                <button class="btn btn-danger m-2" type="button" onclick="ApprovedOrNotTimeSheet('{{tsh.id}}', 'reject')"><i class="fa-solid fa-xmark"></i></button>
+                            </td> -->
+                            <!-- <td> -->
+                                <!-- <button class="btn btn-secondary m-auto" type="button" data-toggle="modal" data-target="#view_action_modal_{{tsh.id}}"><i class="fa-solid fa-eye"></i> View</button> -->
+                                <!-- <button type="button" class="btn btn-success m-auto" data-toggle="modal" data-target="#approve_action_modal_{{tsh.id}}"><i class="fa-solid fa-check"></i></button> -->
+                                <!-- <button type="button" class="btn btn-danger m-auto" data-toggle="modal" data-target="#reject_action_modal_{{tsh.id}}"><i class="fa-solid fa-xmark"></i></button> -->
+                            <!-- </td> -->
+                        <!-- </tr> -->
+                        <!-- {%endfor%} -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="view_action_modal" tabindex="-1" role="dialog" aria-labelledby="viewModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <div class="col-3 text-center">
+                        <h5 class="modal-title" style="background-color: #212529;border-radius: 5px;">ID <span id="view_invoice_id"></span></h5>
+                    </div>
+                    <div class="col-7 text-center">
+                        <h5 class="modal-title" id="ViewExampleModalLongTitle">Invoice Details</h5>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-5">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Vendor</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h1 id="view_vendor"></h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5 style="border-right: 2px solid #212529;">Invoice Number</h5>
+                                </div>
+                                <div class="col-6">
+                                    <h5 id="view_number"></h5>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <h5 style="border-right: 2px solid #212529;">Invoice Date</h5>
+                                </div>
+                                <div class="col-6">
+                                    <h5 id="view_date"></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-5">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Bill To</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h5 id="view_bill_to"></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5 style="border-right: 2px solid #212529;">P.O. No.</h5>
+                                </div>
+                                <div class="col-6">
+                                    <h5 id="view_po"></h5>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <h5 style="border-right: 2px solid #212529;">Payment Due</h5>
+                                </div>
+                                <div class="col-6">
+                                    <h5><span id="view_due"></span> Days</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-5">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h5>Project</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h5 id="view_project_name"></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5 style="border-right: 2px solid #212529;">Invoice Type</h5>
+                                </div>
+                                <div class="col-6">
+                                    <h5 id="view_type"></h5>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <h5 style="border-right: 2px solid #212529;">Milestone</h5>
+                                </div>
+                                <div class="col-6">
+                                    <h5><span id="view_milestone"></span> %</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-5 d-flex justify-content-start align-items-center">
+                            <h5 style="border-right: 2px solid #212529;width: 100%;">Milestone Description</h5>
+                        </div>
+                        <div class="col-7">
+                            <textarea class="form-control" name="view_milestone_description" id="view_milestone_description" cols="30" rows="2" disabled></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-4 d-flex justify-content-end align-items-center">
+                        <div class="col-7">
+                            <div class="card-body bg-dark text-white" style="padding: 20px;border-radius: 5px;">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <h5>Total Amount</h5>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <h5>( <span id="ta_view_invoice_currency"></span> )</h5>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <h5 id="view_total_amount"></h5>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <h5>VAT ( <span id="view_invoice_vat"></span> % )</h5>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <h5>( <span id="vat_view_invoice_currency"></span> )</h5>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <h5 id="view_vat_amount"></h5>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <h5>Total</h5>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <h5>( <span id="t_view_invoice_currency"></span> )</h5>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <h5 id="view_invoice_total"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="invoice_files">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_invoice_files"
+                                                    aria-expanded="false" aria-controls="collapse_invoice_files">
+                                                    <i class="fa-solid fa-file-pdf me-1"></i>
+                                                    Invoice Attachments
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-center align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Files</h5>
+                                                        <h5 class="mb-0" id="total_files"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_invoice_files" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="invoice_files">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body make-my-scrollable" style="max-height: 200px;" id="files_parent">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-5">
+                            <h5 class="mb-0">Submitted By</h5>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-0" id="view_submitted_by"></h5>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-5">
+                            <h5 class="mb-0">Submitted At</h5>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-0" id="view_submitted_timestamp"></h5>
+                        </div>
+                    </div>
+                    <hr class="d-none" id="action_border"/>
+                    <!-- actions data -->
+                    <div class="row mb-4 d-none" id="action_by">
+                        <div class="col-5">
+                            <h5 class="mb-0" id="action_type_by"></h5>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-0" id="view_action_by"></h5>
+                        </div>
+                    </div>
+                    <div class="row mb-4 d-none" id="action_at">
+                        <div class="col-5">
+                            <h5 class="mb-0" id="action_type_at"></h5>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-0" id="view_action_timestamp"></h5>
+                        </div>
+                    </div>
+                    <div class="row mb-4 d-none" id="action_feedback">
+                        <div class="col-5">
+                            <h5 class="mb-0">Feedback</h5>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-0" id="view_action_feedback"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-center align-items-center">
+                    <div class="row" style="width: 100%;">
+                        <div class="col-6 d-flex justify-content-start align-items-center">
+                            <input type="hidden" id="print_status">
+                            <button type="button" class="btn btn-primary" onclick="printInvoice()">Print</button>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

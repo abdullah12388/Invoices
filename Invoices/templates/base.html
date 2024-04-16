@@ -64,18 +64,14 @@
                 {% elif user.role.id == 2 %}
                     {% block ProcurementDashboard %}
                     {% endblock %}
-
                     {% block ProcurementRFQCreated %}
                     {% endblock %}
-
                     {% block ProcurementQuotationDone %}
                     {% endblock %}
-
                     {% block ProcurementPONew %}
                     {% endblock %}
                     {% block ProcurementPOCreated %}
                     {% endblock %}
-
                     {% block ProcurementInvoicesToDo %}
                     {% endblock %}
                     {% block ProcurementInvoicesDone %}
@@ -85,7 +81,19 @@
                 {% elif user.role.id == 3 %}
                     {% block ManagerDashboard %}
                     {% endblock %}
-                    {% block ManagerInvoicesDone %}
+                    {% block ManagerProject %}
+                    {% endblock %}
+                    {% block ManagerRFQ %}
+                    {% endblock %}
+                    {% block ManagerQuotation %}
+                    {% endblock %}
+                    {% block ManagerPO %}
+                    {% endblock %}
+                    {% block ManagerInvoices %}
+                    {% endblock %}
+                    {% block ManagerVendor %}
+                    {% endblock %}
+                    {% block ManagerConfiguration %}
                     {% endblock %}
                 {% elif user.role.id == 4 %}
                     {% block PresalesDashboard %}

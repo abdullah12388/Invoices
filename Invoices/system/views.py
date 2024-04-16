@@ -22,6 +22,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 
+# Global Varaibles Created Here
+database_name = settings.DATABASES.get('default')['NAME']
+
 # Create your views here.
 
 ####################### VENDOR ###########################################
@@ -30,26 +33,52 @@ def VendorDashboardView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     # t_invoice = Invoice.objects.count()
-    t_invoice = SubmittedInvoice.objects.filter(user=user_obj).count()
-    p_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[0][0]).count()
-    a_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[1][0]).count()
-    r_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[2][0]).count()
+    # vendor
+    vendor_obj = Vendor.objects.filter(users=user_obj).first()
+    print(vendor_obj)
+    # RFQ 
+    RFQ_data = RFQ.objects.filter(vendor=vendor_obj)
+    print(RFQ_data.count())
+    # Quotation
+    quotation_obj = Quotation.objects.select_related('RFQ').filter(RFQ__vendor=vendor_obj)
+    print(quotation_obj.count())
+    # PO
+    PO_obj = PurchaseOrder.objects.select_related('quotation__RFQ__vendor').filter(quotation__RFQ__vendor=vendor_obj)
+    print(PO_obj.count())
+    # Invoices
+    Invoice_obj = SubmittedInvoice.objects.filter(user=user_obj)
+    print(Invoice_obj.count())
+    
     context = {
         'user': user_obj,
-        # 't_invoice': t_invoice,
-        't_invoice': t_invoice,
-        'p_invoice': p_invoice,
-        'a_invoice': a_invoice,
-        'r_invoice': r_invoice
+        # RFQ
+        't_RFQ': RFQ_data.count(),
+        'p_RFQ': RFQ_data.filter(status=RFQ_status_choices[0][0]).count(),
+        'r_RFQ': RFQ_data.filter(status=RFQ_status_choices[2][0]).count(),
+        # Quotation
+        't_Quotation': quotation_obj.count(),
+        'p_Quotation': quotation_obj.filter(status=Quotation_status_choices[0][0]).count(),
+        'a_Quotation': quotation_obj.filter(status=Quotation_status_choices[1][0]).count(),
+        'r_Quotation': quotation_obj.filter(status=Quotation_status_choices[2][0]).count(),
+        # Purchase Order
+        't_PO': PO_obj.count(),
+        'o_PO': PO_obj.filter(status=PO_status_choices[0][0]).count(),
+        'c_PO': PO_obj.filter(status=PO_status_choices[1][0]).count(),
+        # Invoices
+        't_invoice': Invoice_obj.count(),
+        'p_invoice': Invoice_obj.filter(status=status_choices[0][0]).count(),
+        'a_invoice': Invoice_obj.filter(status=status_choices[1][0]).count(),
+        'r_invoice': Invoice_obj.filter(status=status_choices[2][0]).count()
     }
     return render(request, 'VendorDashboard.html', context)
 
 
 @is_user_login
-def VendorInvoicesStatusColumnChartApi(request):
+def VendorStatusColumnChartApi(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     if request.GET:
+        type = request.GET.get('type', None)
         filter = request.GET.get('filter', None)
         from_value = request.GET.get('from', None)
         to_value = request.GET.get('to', None)
@@ -76,34 +105,137 @@ def VendorInvoicesStatusColumnChartApi(request):
                 # print(year_to, month_to, filters_query)
             if filter == 'per_year':
                 filters_query &= Q(timestamp__year__lte=to_value)
-        p_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[0][0]).filter(filters_query).count()
-        a_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[1][0]).filter(filters_query).count()
-        r_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[2][0]).filter(filters_query).count()
+        if type == 'rfq':
+            rfq_list = RFQ.objects.select_related('vendor').filter(vendor__users=user_obj)
+            p_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_rfq, p_rfq, '#007bff'],
+                ['Replyed', r_rfq, r_rfq, '#28a745'],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.select_related('RFQ__vendor').filter(RFQ__vendor__users=user_obj)
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation, p_quotation, '#007bff'],
+                ['Approved', a_quotation, a_quotation, '#28a745'],
+                ['Rejected', r_quotation, r_quotation, '#dc3545'],
+            ]
+        if type == 'purchase_order':
+            po_list = PurchaseOrder.objects.select_related('quotation__RFQ__vendor').filter(quotation__RFQ__vendor__users=user_obj)
+            o_po = po_list.filter(status=PO_status_choices[0][0]).filter(filters_query).count()
+            c_po = po_list.filter(status=PO_status_choices[1][0]).filter(filters_query).count()
+            data = [
+                ['Opened', o_po, o_po, '#28a745'],
+                ['Closed', c_po, c_po, '#dc3545'],
+            ]
+        if type == 'invoices':
+            invoices_list = SubmittedInvoice.objects.filter(user=user_obj)
+            p_invoice = invoices_list.filter(status=status_choices[0][0]).filter(filters_query).count()
+            a_invoice = invoices_list.filter(status=status_choices[1][0]).filter(filters_query).count()
+            r_invoice = invoices_list.filter(status=status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_invoice, p_invoice, '#007bff'],
+                ['Approved', a_invoice, a_invoice, '#28a745'],
+                ['Rejected', r_invoice, r_invoice, '#dc3545'],
+            ]
         # print(p_invoice, a_invoice, r_invoice)
     else:
-        p_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[0][0]).count()
-        a_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[1][0]).count()
-        r_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[2][0]).count()
-    data = [
-        ['Pending', p_invoice, p_invoice, '#343a40'],
-        ['Approved', a_invoice, a_invoice, '#28a745'],
-        ['Rejected', r_invoice, r_invoice, '#dc3545'],
-    ]
+        invoices_list = SubmittedInvoice.objects.filter(user=user_obj)
+        p_invoice = invoices_list.filter(status=status_choices[0][0]).count()
+        a_invoice = invoices_list.filter(status=status_choices[1][0]).count()
+        r_invoice = invoices_list.filter(status=status_choices[2][0]).count()
+        data = [
+            ['Pending', p_invoice, p_invoice, '#007bff'],
+            ['Approved', a_invoice, a_invoice, '#28a745'],
+            ['Rejected', r_invoice, r_invoice, '#dc3545'],
+        ]
     return JsonResponse(data=data, safe=False)
 
 
 @is_user_login
-def VendorInvoicesStatusPieChartApi(request):
+def VendorStatusPieChartApi(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
-    p_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[0][0]).count()
-    a_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[1][0]).count()
-    r_invoice = SubmittedInvoice.objects.filter(user=user_obj, status=status_choices[2][0]).count()
-    data = [
-        ['Pending', p_invoice],
-        ['Approved', a_invoice],
-        ['Rejected', r_invoice],
-    ]
+    if request.GET:
+        type = request.GET.get('type', None)
+        filter = request.GET.get('filter', None)
+        from_value = request.GET.get('from', None)
+        to_value = request.GET.get('to', None)
+        current_date = datetime.now().date()
+        filters_query = Q()
+        if from_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__gte=from_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__gte=from_value)
+            if filter == 'per_month':
+                year_from, month_from = map(int, from_value.split('-'))
+                filters_query &= (Q(timestamp__year__gt=year_from) | (Q(timestamp__year=year_from) & Q(timestamp__month__gte=month_from)))
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__gte=from_value)
+        if to_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__lte=to_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__lte=to_value)
+            if filter == 'per_month':
+                year_to, month_to = map(int, to_value.split('-'))
+                filters_query &= (Q(timestamp__year__lt=year_to) | (Q(timestamp__year=year_to) & Q(timestamp__month__lte=month_to)))
+                # print(year_to, month_to, filters_query)
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__lte=to_value)
+        if type == 'rfq':
+            rfq_list = RFQ.objects.select_related('vendor').filter(vendor__users=user_obj)
+            p_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_rfq],
+                ['Replyed', r_rfq],
+                ['', 0],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.select_related('RFQ__vendor').filter(RFQ__vendor__users=user_obj)
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation],
+                ['Approved', a_quotation],
+                ['Rejected', r_quotation],
+            ]
+        if type == 'purchase_order':
+            po_list = PurchaseOrder.objects.select_related('quotation__RFQ__vendor').filter(quotation__RFQ__vendor__users=user_obj)
+            o_po = po_list.filter(status=PO_status_choices[0][0]).filter(filters_query).count()
+            c_po = po_list.filter(status=PO_status_choices[1][0]).filter(filters_query).count()
+            data = [
+                ['', 0],
+                ['Opened', o_po],
+                ['Closed', c_po],
+            ]
+        if type == 'invoices':
+            invoices_list = SubmittedInvoice.objects.filter(user=user_obj)
+            p_invoice = invoices_list.filter(status=status_choices[0][0]).filter(filters_query).count()
+            a_invoice = invoices_list.filter(status=status_choices[1][0]).filter(filters_query).count()
+            r_invoice = invoices_list.filter(status=status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_invoice],
+                ['Approved', a_invoice],
+                ['Rejected', r_invoice],
+            ]
+        # print(p_invoice, a_invoice, r_invoice)
+    else:
+        invoices_list = SubmittedInvoice.objects.filter(user=user_obj)
+        p_invoice = invoices_list.filter(status=status_choices[0][0]).count()
+        a_invoice = invoices_list.filter(status=status_choices[1][0]).count()
+        r_invoice = invoices_list.filter(status=status_choices[2][0]).count()
+        data = [
+            ['Pending', p_invoice],
+            ['Approved', a_invoice],
+            ['Rejected', r_invoice],
+        ]
     return JsonResponse(data=data, safe=False)
 
 
@@ -114,25 +246,25 @@ def VendorPendingRFQView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        vendor = cursor.execute(f"SELECT DISTINCT [vendor_id] FROM [Invoices].[dbo].[system_vendor_users] WHERE [useraccount_id] = {user_obj.id}")
+        vendor = cursor.execute(f"SELECT DISTINCT [vendor_id] FROM [{database_name}].[dbo].[system_vendor_users] WHERE [useraccount_id] = {user_obj.id}")
         vendor_results = vendor.fetchall()
 
-        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [Invoices].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] != 'r'")
+        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [{database_name}].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] != 'r'")
         RFQ_ID_results = RFQ_ID.fetchall()
-        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_project] as p
+        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_project] as p
                                 WHERE srfq.project_id = p.id and [vendor_id] = {vendor_results[0][0]}""")
         project_results = project.fetchall()
-        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [Invoices].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]}")
+        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [{database_name}].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]}")
         bidder_id_results = bidder_id.fetchall()
-        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqtype] as t
+        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqtype] as t
                                 WHERE srfq.type_id = t.id and [vendor_id] = {vendor_results[0][0]}""")
         RFQ_type_results = RFQ_type.fetchall()
-        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqcurrency] as c
+        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqcurrency] as c
                                 WHERE srfq.currency_id = c.id and [vendor_id] = {vendor_results[0][0]}""")
         RFQ_currency_results = RFQ_currency.fetchall()
-        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [Invoices].[dbo].[system_rfq_products] as srfqp
-                                join [Invoices].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
-                                join [Invoices].[dbo].[system_product] as sp on srfqp.product_id = sp.id
+        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [{database_name}].[dbo].[system_rfq_products] as srfqp
+                                join [{database_name}].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
+                                join [{database_name}].[dbo].[system_product] as sp on srfqp.product_id = sp.id
                                 where srfq.vendor_id = {vendor_results[0][0]}""")
         product_id_results = product_id.fetchall()
     context = {
@@ -416,29 +548,29 @@ def VendorDoneRFQView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        vendor = cursor.execute(f"SELECT DISTINCT [vendor_id] FROM [Invoices].[dbo].[system_vendor_users] WHERE [useraccount_id] = {user_obj.id}")
+        vendor = cursor.execute(f"SELECT DISTINCT [vendor_id] FROM [{database_name}].[dbo].[system_vendor_users] WHERE [useraccount_id] = {user_obj.id}")
         vendor_results = vendor.fetchall()
 
-        # Quotation_ID = cursor.execute(f"""SELECT DISTINCT sq.[id] FROM [Invoices].[dbo].[system_quotation] AS sq
-        #                         JOIN [Invoices].[dbo].[system_rfq] AS srfq ON srfq.[id] = sq.[RFQ_id]
+        # Quotation_ID = cursor.execute(f"""SELECT DISTINCT sq.[id] FROM [{database_name}].[dbo].[system_quotation] AS sq
+        #                         JOIN [{database_name}].[dbo].[system_rfq] AS srfq ON srfq.[id] = sq.[RFQ_id]
         #                         WHERE srfq.[vendor_id] = {vendor_results[0][0]}""")
         # Quotation_ID_results = Quotation_ID.fetchall()
-        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [Invoices].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] = 'r'")
+        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [{database_name}].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] = 'r'")
         RFQ_ID_results = RFQ_ID.fetchall()
-        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_project] as p
+        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_project] as p
                                 WHERE srfq.project_id = p.id and [vendor_id] = {vendor_results[0][0]} AND srfq.[status] = 'r'""")
         project_results = project.fetchall()
-        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [Invoices].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] = 'r'")
+        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [{database_name}].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] = 'r'")
         bidder_id_results = bidder_id.fetchall()
-        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqtype] as t
+        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqtype] as t
                                 WHERE srfq.type_id = t.id and [vendor_id] = {vendor_results[0][0]} AND srfq.[status] = 'r'""")
         RFQ_type_results = RFQ_type.fetchall()
-        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqcurrency] as c
+        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqcurrency] as c
                                 WHERE srfq.currency_id = c.id and [vendor_id] = {vendor_results[0][0]} AND srfq.[status] = 'r'""")
         RFQ_currency_results = RFQ_currency.fetchall()
-        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [Invoices].[dbo].[system_rfq_products] as srfqp
-                                join [Invoices].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
-                                join [Invoices].[dbo].[system_product] as sp on srfqp.product_id = sp.id
+        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [{database_name}].[dbo].[system_rfq_products] as srfqp
+                                join [{database_name}].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
+                                join [{database_name}].[dbo].[system_product] as sp on srfqp.product_id = sp.id
                                 where srfq.vendor_id = {vendor_results[0][0]} AND srfq.[status] = 'r'""")
         product_id_results = product_id.fetchall()
     context = {
@@ -685,21 +817,21 @@ def VendorQuotationView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        vendor = cursor.execute(f"SELECT DISTINCT [vendor_id] FROM [Invoices].[dbo].[system_vendor_users] WHERE [useraccount_id] = {user_obj.id}")
+        vendor = cursor.execute(f"SELECT DISTINCT [vendor_id] FROM [{database_name}].[dbo].[system_vendor_users] WHERE [useraccount_id] = {user_obj.id}")
         vendor_results = vendor.fetchall()
 
-        Quotation_ID = cursor.execute(f"""SELECT DISTINCT sq.[id] FROM [Invoices].[dbo].[system_quotation] AS sq
-                                JOIN [Invoices].[dbo].[system_rfq] AS srfq ON srfq.[id] = sq.[RFQ_id]
+        Quotation_ID = cursor.execute(f"""SELECT DISTINCT sq.[id] FROM [{database_name}].[dbo].[system_quotation] AS sq
+                                JOIN [{database_name}].[dbo].[system_rfq] AS srfq ON srfq.[id] = sq.[RFQ_id]
                                 WHERE srfq.[vendor_id] = {vendor_results[0][0]}""")
         Quotation_ID_results = Quotation_ID.fetchall()
-        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [Invoices].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] = 'r'")
+        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [{database_name}].[dbo].[system_rfq] WHERE [vendor_id] = {vendor_results[0][0]} AND [status] = 'r'")
         RFQ_ID_results = RFQ_ID.fetchall()
-        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfqcurrency] as cr
+        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfqcurrency] as cr
                                 WHERE sq.[currency_id] = cr.[id]""")
         currency_results = currency.fetchall()
-        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [Invoices].[dbo].[system_quotation] AS sq
-                                JOIN [Invoices].[dbo].[system_rfq] AS srfq ON srfq.[id] = sq.[RFQ_id]
-                                JOIN [Invoices].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]
+        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [{database_name}].[dbo].[system_quotation] AS sq
+                                JOIN [{database_name}].[dbo].[system_rfq] AS srfq ON srfq.[id] = sq.[RFQ_id]
+                                JOIN [{database_name}].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]
                                 WHERE srfq.[vendor_id] = {vendor_results[0][0]}""")
         user_results = user.fetchall()
     context = {
@@ -798,19 +930,19 @@ def VendorPOView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        quotation_id = cursor.execute(f"SELECT DISTINCT [quotation_id] FROM [Invoices].[dbo].[system_purchaseorder]")
+        quotation_id = cursor.execute(f"SELECT DISTINCT [quotation_id] FROM [{database_name}].[dbo].[system_purchaseorder]")
         quotation_id_results = quotation_id.fetchall()
-        PO_number = cursor.execute(f"SELECT DISTINCT [id], [number] FROM [Invoices].[dbo].[system_purchaseorder]")
+        PO_number = cursor.execute(f"SELECT DISTINCT [id], [number] FROM [{database_name}].[dbo].[system_purchaseorder]")
         PO_number_results = PO_number.fetchall()
-        submitted_user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [Invoices].[dbo].[system_purchaseorder] as spo, [Invoices].[dbo].[account_useraccount] as u
+        submitted_user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [{database_name}].[dbo].[system_purchaseorder] as spo, [{database_name}].[dbo].[account_useraccount] as u
                                 WHERE spo.[contact_person_id] = u.id""")
         submitted_user_results = submitted_user.fetchall()
-        PO_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [Invoices].[dbo].[system_purchaseorder] as spo, [Invoices].[dbo].[system_rfqcurrency] as c
+        PO_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_purchaseorder] as spo, [{database_name}].[dbo].[system_rfqcurrency] as c
                                 WHERE spo.currency_id = c.id""")
         PO_currency_results = PO_currency.fetchall()
-        milestones = cursor.execute(f"""SELECT DISTINCT sm.[id], sm.[precentage] FROM [Invoices].[dbo].[system_purchaseorder_milestones] as spom
-                                join [Invoices].[dbo].[system_purchaseorder] as spo on spom.purchaseorder_id = spo.id
-                                join [Invoices].[dbo].[system_pomilestone] as sm on spom.pomilestone_id = sm.id""")
+        milestones = cursor.execute(f"""SELECT DISTINCT sm.[id], sm.[precentage] FROM [{database_name}].[dbo].[system_purchaseorder_milestones] as spom
+                                join [{database_name}].[dbo].[system_purchaseorder] as spo on spom.purchaseorder_id = spo.id
+                                join [{database_name}].[dbo].[system_pomilestone] as sm on spom.pomilestone_id = sm.id""")
         milestones_results = milestones.fetchall()
     context = {
         'user': user_obj,
@@ -931,11 +1063,11 @@ def NewInvoiceView(request):
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
         PO = cursor.execute(f"""SELECT DISTINCT spo.[id], spo.[number]
-                                FROM [Invoices].[dbo].[system_purchaseorder] AS spo
-                                    ,[Invoices].[dbo].[system_quotation] AS sq
-                                    ,[Invoices].[dbo].[system_rfq] AS srfq
-                                    ,[Invoices].[dbo].[system_vendor] AS sv
-                                    ,[Invoices].[dbo].[system_vendor_users] AS svu
+                                FROM [{database_name}].[dbo].[system_purchaseorder] AS spo
+                                    ,[{database_name}].[dbo].[system_quotation] AS sq
+                                    ,[{database_name}].[dbo].[system_rfq] AS srfq
+                                    ,[{database_name}].[dbo].[system_vendor] AS sv
+                                    ,[{database_name}].[dbo].[system_vendor_users] AS svu
                                 WHERE
                                     spo.quotation_id = sq.id AND
                                     sq.RFQ_id = srfq.id AND
@@ -944,17 +1076,15 @@ def NewInvoiceView(request):
                                     svu.useraccount_id = {user_obj.id} AND
                                     spo.status = 'o'""")
         PO_results = PO.fetchall()
-        vendor = cursor.execute(f"""SELECT DISTINCT sv.id, sv.name FROM [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_vendor] AS sv
+        vendor = cursor.execute(f"""SELECT DISTINCT sv.id, sv.name FROM [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_vendor] AS sv
                                 WHERE svu.vendor_id = sv.id AND svu.useraccount_id = {user_obj.id}""")
         vendor_results = vendor.fetchone()
-        type = cursor.execute("SELECT DISTINCT [id], [name] FROM [Invoices].[dbo].[system_invoicetype]")
+        type = cursor.execute("SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_invoicetype]")
         type_results = type.fetchall()
-        currency = cursor.execute("SELECT DISTINCT [id], [name] FROM [Invoices].[dbo].[system_invoicecurrency]")
+        currency = cursor.execute("SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_invoicecurrency]")
         currency_results = currency.fetchall()
-        vat = cursor.execute("SELECT DISTINCT [id], [amount] FROM [Invoices].[dbo].[system_invoicevat]")
+        vat = cursor.execute("SELECT DISTINCT [id], [amount] FROM [{database_name}].[dbo].[system_invoicevat]")
         vat_results = vat.fetchall()
-        uom = cursor.execute("SELECT DISTINCT [id],[name] FROM [Invoices].[dbo].[system_itemuom]")
-        uom_results = uom.fetchall()
     context = {
         'user': user_obj,
         'PO_results': PO_results,
@@ -963,7 +1093,6 @@ def NewInvoiceView(request):
         'types': type_results,
         'currencies': currency_results,
         'vats': vat_results,
-        'uoms': uom_results,
     }
     return render(request, 'NewInvoice.html', context)
   
@@ -1011,6 +1140,7 @@ def NewInvoiceSubmitApi(request):
         project = request.POST.get('project', None)
         number = request.POST.get('number', None)
         date = request.POST.get('date', None)
+        amount = request.POST.get('amount', None)
         payment_due = request.POST.get('due', None)
         bill_to = request.POST.get('bill_to', None)
         type = request.POST.get('type', None)
@@ -1035,27 +1165,13 @@ def NewInvoiceSubmitApi(request):
                     project_id=project,
                     number=number,
                     date=date,
+                    amount=amount,
                     payment_due=payment_due,
                     bill_to=bill_to,
                     type_id=type,
                     currency_id=currency,
                     vat_id=vat,
                 )
-
-                # items creation
-                items_list = request.POST.getlist('items', None)
-                for item in items_list:
-                    item_dict = json.loads(item)
-                    uom_obj = ItemUom.objects.get(name=item_dict.get('uom'))
-                    item_obj = Item.objects.create(
-                        number = item_dict.get('number'),
-                        description = item_dict.get('description'),
-                        quantity = item_dict.get('quantity'),
-                        uom = uom_obj,
-                        unit_price = item_dict.get('unit_price'),
-                        amount = item_dict.get('amount'),
-                    )
-                    invoice_obj.items.add(item_obj)
                 
                 # files creation
                 if request.FILES:
@@ -1088,6 +1204,7 @@ def NewInvoiceSubmitApi(request):
                 project_id=project,
                 number=number,
                 date=date,
+                amount=amount,
                 payment_due=payment_due,
                 bill_to=bill_to,
                 type_id=type,
@@ -1095,21 +1212,6 @@ def NewInvoiceSubmitApi(request):
                 vat_id=vat,
             )
 
-            # items creation
-            items_list = request.POST.getlist('items', None)
-            for item in items_list:
-                item_dict = json.loads(item)
-                uom_obj = ItemUom.objects.get(name=item_dict.get('uom'))
-                item_obj = Item.objects.create(
-                    number = item_dict.get('number'),
-                    description = item_dict.get('description'),
-                    quantity = item_dict.get('quantity'),
-                    uom = uom_obj,
-                    unit_price = item_dict.get('unit_price'),
-                    amount = item_dict.get('amount'),
-                )
-                invoice_obj.items.add(item_obj)
-            
             # files creation
             if request.FILES:
                 # print(request.FILES.getlist('filepond'))
@@ -1142,49 +1244,39 @@ def VendorDoneInvoicesView(request):
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
         number = cursor.execute(f"""SELECT DISTINCT si.[number]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu
                                 WHERE si.vendor_id = svu.vendor_id AND svu.useraccount_id = {user_obj.id}""")
         number_results = number.fetchall()
         po = cursor.execute(f"""SELECT DISTINCT spo.[id], spo.[number]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_purchaseorder] AS spo
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_purchaseorder] AS spo
                                 WHERE si.po_id = spo.id AND si.vendor_id = svu.vendor_id AND svu.useraccount_id = {user_obj.id}""")
         po_results = po.fetchall()
         due = cursor.execute(f"""SELECT DISTINCT si.[payment_due]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu
                                 WHERE si.vendor_id = svu.vendor_id AND svu.useraccount_id = {user_obj.id}""")
         due_results = due.fetchall()
         bill_to = cursor.execute(f"""SELECT DISTINCT si.[bill_to]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu
                                 WHERE si.vendor_id = svu.vendor_id AND svu.useraccount_id = {user_obj.id}""")
         bill_to_results = bill_to.fetchall()
         project_name = cursor.execute(f"""SELECT DISTINCT sp.[id], sp.[name]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_project] AS sp
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_project] AS sp
                                 WHERE si.vendor_id = svu.vendor_id AND si.project_id = sp.id AND svu.useraccount_id = {user_obj.id}""")
         project_name_results = project_name.fetchall()
         milestone = cursor.execute(f"""SELECT DISTINCT spom.[id], spom.[precentage]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_pomilestone] AS spom
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_pomilestone] AS spom
                                 WHERE si.vendor_id = svu.vendor_id AND si.milestone_id = spom.id AND svu.useraccount_id = {user_obj.id}""")
         milestone_results = milestone.fetchall()
-        item = cursor.execute(f"""SELECT DISTINCT sitm.[id], sitm.[number] 
-                                FROM [Invoices].[dbo].[system_invoice_items] as sii
-                                    ,[Invoices].[dbo].[system_invoice] as sinvo
-                                    ,[Invoices].[dbo].[system_item] as sitm
-                                    ,[Invoices].[dbo].[system_vendor_users] AS svu
-                                WHERE sii.invoice_id = sinvo.id
-                                    AND sii.item_id = sitm.id
-                                    AND sinvo.vendor_id = svu.vendor_id
-                                    AND svu.useraccount_id = {user_obj.id}""")
-        item_results = item.fetchall()
         type = cursor.execute(f"""SELECT DISTINCT sinvot.[id], sinvot.[name]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_invoicetype] AS sinvot
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_invoicetype] AS sinvot
                                 WHERE si.vendor_id = svu.vendor_id AND si.type_id = sinvot.id AND svu.useraccount_id = {user_obj.id}""")
         type_results = type.fetchall()
         currency = cursor.execute(f"""SELECT DISTINCT sinvoc.[id], sinvoc.[name]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_invoicecurrency] AS sinvoc
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_invoicecurrency] AS sinvoc
                                 WHERE si.vendor_id = svu.vendor_id AND si.currency_id = sinvoc.id AND svu.useraccount_id = {user_obj.id}""")
         currency_results = currency.fetchall()
         vat = cursor.execute(f"""SELECT DISTINCT sinvov.[id], sinvov.[amount]
-                                FROM [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor_users] AS svu, [Invoices].[dbo].[system_invoicevat] AS sinvov
+                                FROM [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_invoicevat] AS sinvov
                                 WHERE si.vendor_id = svu.vendor_id AND si.currency_id = sinvov.id AND svu.useraccount_id = {user_obj.id}""")
         vat_results = vat.fetchall()
     context = {
@@ -1195,7 +1287,6 @@ def VendorDoneInvoicesView(request):
         'bill_to_results': bill_to_results,
         'project_name_results': project_name_results,
         'milestone_results': milestone_results,
-        'item_results': item_results,
         'currency_results': currency_results,
         'type_results': type_results,
         'vat_results': vat_results,
@@ -1217,7 +1308,6 @@ def VendorInvoicesDoneTableApi(request):
         project_name = request.GET.get('project_name', None)
         type = request.GET.get('type', None)
         milestone = request.GET.get('milestone', None)
-        item = request.GET.get('item', None)
         vat = request.GET.get('vat', None)
         currency = request.GET.get('currency', None)
         status = request.GET.get('status', None)
@@ -1251,8 +1341,6 @@ def VendorInvoicesDoneTableApi(request):
             invoices_list = invoices_list.filter(invoice__type_id=type)
         if milestone:
             invoices_list = invoices_list.filter(invoice__milestone_id=milestone)
-        if item:
-            invoices_list = invoices_list.filter(invoice__items=item)
         if vat:
             invoices_list = invoices_list.filter(invoice__vat_id=vat)
         if currency:
@@ -1269,6 +1357,7 @@ def VendorInvoicesDoneTableApi(request):
                 "invoice_id": invlst.invoice.id,
                 "vendor": invlst.invoice.vendor.name,
                 "date": invlst.invoice.date,
+                "amount": f'{invlst.invoice.amount} {invlst.invoice.currency.name}',
                 "po": invlst.invoice.po.number,
                 "bill_to": invlst.invoice.bill_to,
                 "user": f"{invlst.user.first_name} {invlst.user.last_name}",
@@ -1294,22 +1383,6 @@ def VendorInvoicesDoneDetailsApi(request):
                                 'invoice__vat',
                                 'invoice__currency')\
                             .get(id=submitted_id)
-        items_list = invoice_details.invoice.items.select_related('uom')
-        items = []
-        items_count = invoice_details.invoice.items.count()
-        items_total_amount = 0
-        for item in items_list:
-            items_total_amount += int(item.amount)
-            items.append(
-                {
-                'number': item.number,
-                'description': item.description,
-                'quantity': item.quantity,
-                'uom': item.uom.name,
-                'unit_price': item.unit_price,
-                'amount': item.amount,
-                }
-            )
         
         fhs = FileHandler.objects.filter(invoice=invoice_details.invoice)
         attachments = []
@@ -1331,12 +1404,10 @@ def VendorInvoicesDoneDetailsApi(request):
             'type': invoice_details.invoice.type.name,
             'milestone': invoice_details.invoice.milestone.precentage,
             'milestone_description': invoice_details.invoice.milestone.description,
-            'items': items,
-            'items_count':items_count,
-            'items_total_amount':items_total_amount,
+            'items_total_amount':invoice_details.invoice.amount,
             'vat': invoice_details.invoice.vat.amount,
-            'vat_amount': (items_total_amount * invoice_details.invoice.vat.amount)/100,
-            'invoice_total': items_total_amount+((items_total_amount * invoice_details.invoice.vat.amount)/100),
+            'vat_amount': (invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100,
+            'invoice_total': invoice_details.invoice.amount+((invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100),
             'currency': invoice_details.invoice.currency.name,
             'invoice_timestamp': date_time_formatter(invoice_details.invoice.timestamp),
             'invoice_attachments': attachments,
@@ -1382,23 +1453,45 @@ def VendorInvoicesDoneDetailsApi(request):
 def ProcurementDashboardView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
-    # t_invoice = Invoice.objects.count()
-    t_invoice = SubmittedInvoice.objects.count()
-    p_invoice = PendingInvoice.objects.count()
-    a_invoice = ApprovedInvoice.objects.count()
-    r_invoice = RejectedInvoice.objects.count()
+    # RFQ 
+    RFQ_data = RFQ.objects.all()
+    print(RFQ_data.count())
+    # Quotation
+    quotation_obj = Quotation.objects.all()
+    print(quotation_obj.count())
+    # PO
+    PO_obj = PurchaseOrder.objects.all()
+    print(PO_obj.count())
+    # Invoices
+    Invoice_obj = SubmittedInvoice.objects.all()
+    print(Invoice_obj.count())
+    
     context = {
         'user': user_obj,
-        # 't_invoice': t_invoice,
-        't_invoice': t_invoice,
-        'p_invoice': p_invoice,
-        'a_invoice': a_invoice,
-        'r_invoice': r_invoice
+        # RFQ
+        't_RFQ': RFQ_data.count(),
+        'p_RFQ': RFQ_data.filter(status=RFQ_status_choices[0][0]).count(),
+        'r_RFQ': RFQ_data.filter(status=RFQ_status_choices[2][0]).count(),
+        # Quotation
+        't_Quotation': quotation_obj.count(),
+        'p_Quotation': quotation_obj.filter(status=Quotation_status_choices[0][0]).count(),
+        'a_Quotation': quotation_obj.filter(status=Quotation_status_choices[1][0]).count(),
+        'r_Quotation': quotation_obj.filter(status=Quotation_status_choices[2][0]).count(),
+        # Purchase Order
+        't_PO': PO_obj.count(),
+        'o_PO': PO_obj.filter(status=PO_status_choices[0][0]).count(),
+        'c_PO': PO_obj.filter(status=PO_status_choices[1][0]).count(),
+        # Invoices
+        't_invoice': Invoice_obj.count(),
+        'p_invoice': Invoice_obj.filter(status=status_choices[0][0]).count(),
+        'a_invoice': Invoice_obj.filter(status=status_choices[1][0]).count(),
+        'r_invoice': Invoice_obj.filter(status=status_choices[2][0]).count()
     }
     return render(request, 'ProcurementDashboard.html', context)
 
-def ProcurementInvoicesStatusColumnChartApi(request):
+def ProcurementStatusColumnChartApi(request):
     if request.GET:
+        type = request.GET.get('type', None)
         filter = request.GET.get('filter', None)
         from_value = request.GET.get('from', None)
         to_value = request.GET.get('to', None)
@@ -1425,31 +1518,135 @@ def ProcurementInvoicesStatusColumnChartApi(request):
                 # print(year_to, month_to, filters_query)
             if filter == 'per_year':
                 filters_query &= Q(timestamp__year__lte=to_value)
-        p_invoice = PendingInvoice.objects.filter(filters_query).count()
-        a_invoice = ApprovedInvoice.objects.filter(filters_query).count()
-        r_invoice = RejectedInvoice.objects.filter(filters_query).count()
+        if type == 'rfq':
+            rfq_list = RFQ.objects.all()
+            p_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_rfq, p_rfq, '#007bff'],
+                ['Replyed', r_rfq, r_rfq, '#28a745'],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.all()
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation, p_quotation, '#007bff'],
+                ['Approved', a_quotation, a_quotation, '#28a745'],
+                ['Rejected', r_quotation, r_quotation, '#dc3545'],
+            ]
+        if type == 'purchase_order':
+            po_list = PurchaseOrder.objects.all()
+            o_po = po_list.filter(status=PO_status_choices[0][0]).filter(filters_query).count()
+            c_po = po_list.filter(status=PO_status_choices[1][0]).filter(filters_query).count()
+            data = [
+                ['Opened', o_po, o_po, '#28a745'],
+                ['Closed', c_po, c_po, '#dc3545'],
+            ]
+        if type == 'invoices':
+            invoices_list = SubmittedInvoice.objects.all()
+            p_invoice = invoices_list.filter(status=status_choices[0][0]).filter(filters_query).count()
+            a_invoice = invoices_list.filter(status=status_choices[1][0]).filter(filters_query).count()
+            r_invoice = invoices_list.filter(status=status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_invoice, p_invoice, '#007bff'],
+                ['Approved', a_invoice, a_invoice, '#28a745'],
+                ['Rejected', r_invoice, r_invoice, '#dc3545'],
+            ]
         # print(p_invoice, a_invoice, r_invoice)
     else:
-        p_invoice = PendingInvoice.objects.count()
-        a_invoice = ApprovedInvoice.objects.count()
-        r_invoice = RejectedInvoice.objects.count()
-    data = [
-        ['Pending', p_invoice, p_invoice, '#343a40'],
-        ['Approved', a_invoice, a_invoice, '#28a745'],
-        ['Rejected', r_invoice, r_invoice, '#dc3545'],
-    ]
+        invoices_list = SubmittedInvoice.objects.all()
+        p_invoice = invoices_list.filter(status=status_choices[0][0]).count()
+        a_invoice = invoices_list.filter(status=status_choices[1][0]).count()
+        r_invoice = invoices_list.filter(status=status_choices[2][0]).count()
+        data = [
+            ['Pending', p_invoice, p_invoice, '#007bff'],
+            ['Approved', a_invoice, a_invoice, '#28a745'],
+            ['Rejected', r_invoice, r_invoice, '#dc3545'],
+        ]
     return JsonResponse(data=data, safe=False)
 
-def ProcurementInvoicesStatusPieChartApi(request):
-    p_invoice = PendingInvoice.objects.count()
-    a_invoice = ApprovedInvoice.objects.count()
-    r_invoice = RejectedInvoice.objects.count()
-    data = [
-        ['Pending', p_invoice],
-        ['Approved', a_invoice],
-        ['Rejected', r_invoice],
-    ]
+def ProcurementStatusPieChartApi(request):
+    if request.GET:
+        type = request.GET.get('type', None)
+        filter = request.GET.get('filter', None)
+        from_value = request.GET.get('from', None)
+        to_value = request.GET.get('to', None)
+        current_date = datetime.now().date()
+        filters_query = Q()
+        if from_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__gte=from_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__gte=from_value)
+            if filter == 'per_month':
+                year_from, month_from = map(int, from_value.split('-'))
+                filters_query &= (Q(timestamp__year__gt=year_from) | (Q(timestamp__year=year_from) & Q(timestamp__month__gte=month_from)))
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__gte=from_value)
+        if to_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__lte=to_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__lte=to_value)
+            if filter == 'per_month':
+                year_to, month_to = map(int, to_value.split('-'))
+                filters_query &= (Q(timestamp__year__lt=year_to) | (Q(timestamp__year=year_to) & Q(timestamp__month__lte=month_to)))
+                # print(year_to, month_to, filters_query)
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__lte=to_value)
+        if type == 'rfq':
+            rfq_list = RFQ.objects.all()
+            p_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_rfq],
+                ['Replyed', r_rfq],
+                ['', 0],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.all()
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation],
+                ['Approved', a_quotation],
+                ['Rejected', r_quotation],
+            ]
+        if type == 'purchase_order':
+            po_list = PurchaseOrder.objects.all()
+            o_po = po_list.filter(status=PO_status_choices[0][0]).filter(filters_query).count()
+            c_po = po_list.filter(status=PO_status_choices[1][0]).filter(filters_query).count()
+            data = [
+                ['', 0],
+                ['Opened', o_po],
+                ['Closed', c_po],
+            ]
+        if type == 'invoices':
+            invoices_list = SubmittedInvoice.objects.all()
+            p_invoice = invoices_list.filter(status=status_choices[0][0]).filter(filters_query).count()
+            a_invoice = invoices_list.filter(status=status_choices[1][0]).filter(filters_query).count()
+            r_invoice = invoices_list.filter(status=status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_invoice],
+                ['Approved', a_invoice],
+                ['Rejected', r_invoice],
+            ]
+        # print(p_invoice, a_invoice, r_invoice)
+    else:
+        invoices_list = SubmittedInvoice.objects.all()
+        p_invoice = invoices_list.filter(status=status_choices[0][0]).count()
+        a_invoice = invoices_list.filter(status=status_choices[1][0]).count()
+        r_invoice = invoices_list.filter(status=status_choices[2][0]).count()
+        data = [
+            ['Pending', p_invoice],
+            ['Approved', a_invoice],
+            ['Rejected', r_invoice],
+        ]
     return JsonResponse(data=data, safe=False)
+
 
 
 # RFQ
@@ -1458,26 +1655,26 @@ def ProcurementCreatedRFQView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [Invoices].[dbo].[system_rfq]")
+        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [{database_name}].[dbo].[system_rfq]")
         RFQ_ID_results = RFQ_ID.fetchall()
-        vendor = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [Invoices].[dbo].[system_vendor]")
+        vendor = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_vendor]")
         vendor_results = vendor.fetchall()
-        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_project] as p
+        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_project] as p
                                 WHERE srfq.project_id = p.id""")
         project_results = project.fetchall()
-        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [Invoices].[dbo].[system_rfq]")
+        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [{database_name}].[dbo].[system_rfq]")
         bidder_id_results = bidder_id.fetchall()
-        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqtype] as t
+        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqtype] as t
                                 WHERE srfq.type_id = t.id""")
         RFQ_type_results = RFQ_type.fetchall()
-        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqcurrency] as c
+        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqcurrency] as c
                                 WHERE srfq.currency_id = c.id""")
         RFQ_currency_results = RFQ_currency.fetchall()
-        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [Invoices].[dbo].[system_rfq_products] as srfqp
-                                join [Invoices].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
-                                join [Invoices].[dbo].[system_product] as sp on srfqp.product_id = sp.id""")
+        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [{database_name}].[dbo].[system_rfq_products] as srfqp
+                                join [{database_name}].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
+                                join [{database_name}].[dbo].[system_product] as sp on srfqp.product_id = sp.id""")
         product_id_results = product_id.fetchall()
-        user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[account_useraccount] as u
+        user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[account_useraccount] as u
                                 WHERE srfq.user_id = u.id""")
         user_results = user.fetchall()
     context = {
@@ -1635,16 +1832,16 @@ def ProcurementQuotationDoneView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [Invoices].[dbo].[system_quotation]""")
+        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [{database_name}].[dbo].[system_quotation]""")
         Quotation_ID_results = Quotation_ID.fetchall()
-        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfq] AS srfq
+        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfq] AS srfq
                                 WHERE sq.[RFQ_id] = srfq.[id]""")
         RFQ_ID_results = RFQ_ID.fetchall()
-        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfqcurrency] as cr
+        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfqcurrency] as cr
                                 WHERE sq.[currency_id] = cr.[id]""")
         currency_results = currency.fetchall()
-        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [Invoices].[dbo].[system_quotation] AS sq
-                                JOIN [Invoices].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]""")
+        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [{database_name}].[dbo].[system_quotation] AS sq
+                                JOIN [{database_name}].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]""")
         user_results = user.fetchall()
     context = {
         'user': user_obj,
@@ -1843,19 +2040,19 @@ def ProcurementCreatedPOView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        quotation_id = cursor.execute(f"SELECT DISTINCT [quotation_id] FROM [Invoices].[dbo].[system_purchaseorder]")
+        quotation_id = cursor.execute(f"SELECT DISTINCT [quotation_id] FROM [{database_name}].[dbo].[system_purchaseorder]")
         quotation_id_results = quotation_id.fetchall()
-        PO_number = cursor.execute(f"SELECT DISTINCT [id], [number] FROM [Invoices].[dbo].[system_purchaseorder]")
+        PO_number = cursor.execute(f"SELECT DISTINCT [id], [number] FROM [{database_name}].[dbo].[system_purchaseorder]")
         PO_number_results = PO_number.fetchall()
-        submitted_user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [Invoices].[dbo].[system_purchaseorder] as spo, [Invoices].[dbo].[account_useraccount] as u
+        submitted_user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [{database_name}].[dbo].[system_purchaseorder] as spo, [{database_name}].[dbo].[account_useraccount] as u
                                 WHERE spo.[contact_person_id] = u.id""")
         submitted_user_results = submitted_user.fetchall()
-        PO_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [Invoices].[dbo].[system_purchaseorder] as spo, [Invoices].[dbo].[system_rfqcurrency] as c
+        PO_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_purchaseorder] as spo, [{database_name}].[dbo].[system_rfqcurrency] as c
                                 WHERE spo.currency_id = c.id""")
         PO_currency_results = PO_currency.fetchall()
-        milestones = cursor.execute(f"""SELECT DISTINCT sm.[id], sm.[precentage] FROM [Invoices].[dbo].[system_purchaseorder_milestones] as spom
-                                join [Invoices].[dbo].[system_purchaseorder] as spo on spom.purchaseorder_id = spo.id
-                                join [Invoices].[dbo].[system_pomilestone] as sm on spom.pomilestone_id = sm.id""")
+        milestones = cursor.execute(f"""SELECT DISTINCT sm.[id], sm.[precentage] FROM [{database_name}].[dbo].[system_purchaseorder_milestones] as spom
+                                join [{database_name}].[dbo].[system_purchaseorder] as spo on spom.purchaseorder_id = spo.id
+                                join [{database_name}].[dbo].[system_pomilestone] as sm on spom.pomilestone_id = sm.id""")
         milestones_results = milestones.fetchall()
     context = {
         'user': user_obj,
@@ -1974,57 +2171,47 @@ def ProcurementPendingInvoicesView(request):
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
         vendor = cursor.execute(f"""SELECT DISTINCT sv.[id], sv.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor] AS sv
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor] AS sv
                                 WHERE ssi.invoice_id = si.id AND si.vendor_id = sv.id AND ssi.status = 'p'""")
         vendor_results = vendor.fetchall()
         number = cursor.execute(f"""SELECT DISTINCT si.[number]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
                                 WHERE ssi.invoice_id = si.id AND ssi.status = 'p'""")
         number_results = number.fetchall()
         po = cursor.execute(f"""SELECT DISTINCT spo.[id], spo.[number]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_purchaseorder] AS spo
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_purchaseorder] AS spo
                                 WHERE ssi.invoice_id = si.id AND si.po_id = spo.id AND ssi.status = 'p'""")
         po_results = po.fetchall()
         due = cursor.execute(f"""SELECT DISTINCT si.[payment_due]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
                                 WHERE ssi.invoice_id = si.id AND ssi.status = 'p'""")
         due_results = due.fetchall()
         bill_to = cursor.execute(f"""SELECT DISTINCT si.[bill_to]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
                                 WHERE ssi.invoice_id = si.id AND ssi.status = 'p'""")
         bill_to_results = bill_to.fetchall()
         project_name = cursor.execute(f"""SELECT DISTINCT sp.[id], sp.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_project] AS sp
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_project] AS sp
                                 WHERE ssi.invoice_id = si.id AND si.project_id = sp.id AND ssi.status = 'p'""")
         project_name_results = project_name.fetchall()
         milestone = cursor.execute(f"""SELECT DISTINCT spom.[id], spom.[precentage]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_pomilestone] AS spom
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_pomilestone] AS spom
                                 WHERE ssi.invoice_id = si.id AND si.milestone_id = spom.id AND ssi.status = 'p'""")
         milestone_results = milestone.fetchall()
-        item = cursor.execute(f"""SELECT DISTINCT sitm.[id], sitm.[number]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi
-                                    ,[Invoices].[dbo].[system_invoice] AS sinvo
-                                    ,[Invoices].[dbo].[system_invoice_items] AS sii
-                                    ,[Invoices].[dbo].[system_item] AS sitm
-                                WHERE ssi.invoice_id = sinvo.id 
-                                    AND sii.invoice_id = sinvo.id 
-                                    AND sii.item_id = sitm.id
-                                    AND ssi.status = 'p'""")
-        item_results = item.fetchall()
         currency = cursor.execute(f"""SELECT DISTINCT sic.[id], sic.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_invoicecurrency] AS sic
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicecurrency] AS sic
                                 WHERE ssi.invoice_id = si.id AND si.currency_id = sic.id AND ssi.status = 'p'""")
         currency_results = currency.fetchall()
         type = cursor.execute(f"""SELECT DISTINCT sit.[id], sit.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_invoicetype] AS sit
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicetype] AS sit
                                 WHERE ssi.invoice_id = si.id AND si.type_id = sit.id AND ssi.status = 'p'""")
         type_results = type.fetchall()
         vat = cursor.execute(f"""SELECT DISTINCT siv.[id], siv.[amount]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_invoicevat] AS siv
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicevat] AS siv
                                 WHERE ssi.invoice_id = si.id AND si.vat_id = siv.id AND ssi.status = 'p'""")
         vat_results = vat.fetchall()
-        submitted_user = cursor.execute('''SELECT DISTINCT [user_id], ([first_name]+' '+[last_name]) as full_name FROM [Invoices].[dbo].[system_pendinginvoice], [Invoices].[dbo].[account_useraccount]
-                            WHERE [Invoices].[dbo].[system_pendinginvoice].[user_id] = [Invoices].[dbo].[account_useraccount].[id]''')
+        submitted_user = cursor.execute(f'''SELECT DISTINCT [user_id], ([first_name]+' '+[last_name]) as full_name FROM [{database_name}].[dbo].[system_pendinginvoice], [{database_name}].[dbo].[account_useraccount]
+                            WHERE [{database_name}].[dbo].[system_pendinginvoice].[user_id] = [{database_name}].[dbo].[account_useraccount].[id]''')
         submitted_user_results = submitted_user.fetchall()
     context = {
         'user': user_obj,
@@ -2035,7 +2222,6 @@ def ProcurementPendingInvoicesView(request):
         'bill_to_results': bill_to_results,
         'project_name_results': project_name_results,
         'milestone_results': milestone_results,
-        'item_results': item_results,
         'currency_results': currency_results,
         'type_results': type_results,
         'vat_results': vat_results,
@@ -2055,7 +2241,6 @@ def ProcurementInvoicesToDoTableApi(request):
         project_name = request.GET.get('project_name', None)
         type = request.GET.get('type', None)
         milestone = request.GET.get('milestone', None)
-        item = request.GET.get('item', None)
         vat = request.GET.get('vat', None)
         currency = request.GET.get('currency', None)
         user = request.GET.get('user', None)
@@ -2090,8 +2275,6 @@ def ProcurementInvoicesToDoTableApi(request):
             invoices_list = invoices_list.filter(invoice__type_id=type)
         if milestone:
             invoices_list = invoices_list.filter(invoice__milestone_id=milestone)
-        if item:
-            invoices_list = invoices_list.filter(invoice__items=item)
         if vat:
             invoices_list = invoices_list.filter(invoice__vat_id=vat)
         if currency:
@@ -2107,6 +2290,7 @@ def ProcurementInvoicesToDoTableApi(request):
             {
                 "id": invlst.id,
                 "invoice_id": invlst.invoice.id,
+                "milestone_id": invlst.invoice.milestone.id,
                 "vendor": invlst.invoice.vendor.name,
                 "date": invlst.invoice.date,
                 "po": invlst.invoice.po.number,
@@ -2132,24 +2316,7 @@ def ProcurementInvoicesToDoDetailsApi(request):
                                 'invoice__vat',
                                 'invoice__currency')\
                             .get(id=submitted_id)
-        # print(invoice_details.invoice.items.first().number)
-        items_list = invoice_details.invoice.items.select_related('uom')
-        items = []
-        items_count = invoice_details.invoice.items.count()
-        items_total_amount = 0
-        for item in items_list:
-            items_total_amount += int(item.amount)
-            items.append(
-                {
-                'number': item.number,
-                'description': item.description,
-                'quantity': item.quantity,
-                'uom': item.uom.name,
-                'unit_price': item.unit_price,
-                'amount': item.amount,
-                }
-            )
-        
+
         fhs = FileHandler.objects.filter(invoice=invoice_details.invoice)
         attachments = []
         attachments_count = fhs.count()
@@ -2171,12 +2338,10 @@ def ProcurementInvoicesToDoDetailsApi(request):
             'type': invoice_details.invoice.type.name,
             'milestone': invoice_details.invoice.milestone.precentage,
             'milestone_description': invoice_details.invoice.milestone.description,
-            'items': items,
-            'items_count':items_count,
-            'items_total_amount':items_total_amount,
+            'items_total_amount':invoice_details.invoice.amount,
             'vat': invoice_details.invoice.vat.amount,
-            'vat_amount': (items_total_amount * invoice_details.invoice.vat.amount)/100,
-            'invoice_total': items_total_amount+((items_total_amount * invoice_details.invoice.vat.amount)/100),
+            'vat_amount': (invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100,
+            'invoice_total': invoice_details.invoice.amount+((invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100),
             'currency': invoice_details.invoice.currency.name,
             'invoice_timestamp': date_time_formatter(invoice_details.invoice.timestamp),
             'invoice_attachments': attachments,
@@ -2198,20 +2363,51 @@ def ProcurementInvoicesToDoApproveApi(request):
             user_obj = Token.objects.get(token=user_token).user
             invoice_id = request.GET.get('invoice_id', None)
             feedback = request.GET.get('feedback', None)
+            milestone = request.GET.get('milestone', None)
             submit_obj = SubmittedInvoice.objects.get(invoice_id=invoice_id)
-            submit_obj.status = status_choices[1][0]
-            submit_obj.feedback = feedback
-            submit_obj.save()
-            PendingInvoice.objects.filter(invoice_id=invoice_id).delete()
             
             invoice_obj = Invoice.objects.select_related('po', 'vat').get(id=invoice_id)
-            invoice_items = invoice_obj.items.all()
-            invoice_amount = 0
-            for item in invoice_items:
-                invoice_amount += float(item.amount)
-            invoice_vat = (invoice_amount * invoice_obj.vat.amount) / 100
-            invoice_total = invoice_amount + invoice_vat
+            invoice_vat = (invoice_obj.amount * invoice_obj.vat.amount) / 100
+            invoice_total = invoice_obj.amount + invoice_vat
             
+            milestone_obj = POMilestone.objects.get(id=milestone)
+            if int(invoice_total) > int(milestone_obj.remaining):
+                submit_obj.status = status_choices[2][0]
+                submit_obj.feedback = 'The Invoice amount exceeds the Milestone!...'
+                submit_obj.save()
+                RejectedInvoice.objects.create(
+                    invoice=invoice_obj,
+                    feedback='The Invoice amount exceeds the Milestone!...',
+                    user=user_obj,
+                )
+                PendingInvoice.objects.filter(invoice=invoice_obj).delete()
+                return JsonResponse(data={'status': 'Rejected'}, safe=False)
+            elif int(invoice_total) < int(milestone_obj.remaining):
+                milestone_obj.remaining = milestone_obj.remaining - invoice_total
+                milestone_obj.save()
+                submit_obj.status = status_choices[1][0]
+                submit_obj.feedback = feedback
+            else:
+                milestone_obj.remaining = milestone_obj.remaining - invoice_total
+                milestone_obj.save()
+                submit_obj.status = status_choices[1][0]
+                submit_obj.feedback = feedback
+                invoices_list = SubmittedInvoice.objects.select_related('invoice__milestone')\
+                    .filter(invoice__milestone=milestone_obj, status=status_choices[0][0])\
+                    .exclude(invoice_id=invoice_id)
+                if invoices_list:
+                    for invItem in invoices_list:
+                        RejectedInvoice.objects.create(
+                            invoice=invItem.invoice,
+                            feedback='The Milestone is Closed.',
+                            user=user_obj,
+                        )
+                        PendingInvoice.objects.filter(invoice=invItem.invoice).delete()
+                        invItem.status = status_choices[2][0]
+                        invItem.feedback = 'Rejected'
+                        invItem.save()
+            submit_obj.save()
+            PendingInvoice.objects.filter(invoice_id=invoice_id).delete()
             po_obj = invoice_obj.po
             if int((po_obj.remaining_value) - (invoice_total)) > 0:
                 po_obj.remaining_value = (po_obj.remaining_value) - (invoice_total)
@@ -2222,18 +2418,7 @@ def ProcurementInvoicesToDoApproveApi(request):
                 po_obj.save()
             else:
                 print('Case Will Never Happend!...')
-            po_payed = invoice_total
-            for milestone in po_obj.milestones.all():
-                if milestone.remaining == 0:
-                    continue
-                else:
-                    check_value = milestone.remaining - po_payed
-                    if check_value > 0:
-                        milestone.remaining = check_value
-                    else:
-                        po_payed = po_payed - milestone.remaining
-                        milestone.remaining = 0
-                    milestone.save()
+            
             if feedback:
                 ApprovedInvoice.objects.create(
                     invoice_id=invoice_id,
@@ -2245,10 +2430,10 @@ def ProcurementInvoicesToDoApproveApi(request):
                     invoice_id=invoice_id,
                     user=user_obj,
                 )
+                
             return JsonResponse(data={'status': 'Approved'}, safe=False)
         except SubmittedInvoice.DoesNotExist as ex:
             print(ex)
-
 
 @is_user_login
 def ProcurementInvoicesToDoRejectApi(request):
@@ -2258,6 +2443,7 @@ def ProcurementInvoicesToDoRejectApi(request):
             user_obj = Token.objects.get(token=user_token).user
             invoice_id = request.GET.get('invoice_id', None)
             feedback = request.GET.get('feedback', None)
+            milestone = request.GET.get('milestone', None)
             submit_obj = SubmittedInvoice.objects.get(invoice_id=invoice_id)
             submit_obj.status = status_choices[2][0]
             submit_obj.feedback = feedback
@@ -2286,57 +2472,47 @@ def ProcurementDoneInvoicesView(request):
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
         vendor = cursor.execute(f"""SELECT DISTINCT sv.[id], sv.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_vendor] AS sv
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor] AS sv
                                 WHERE ssi.invoice_id = si.id AND si.vendor_id = sv.id""")
         vendor_results = vendor.fetchall()
         number = cursor.execute(f"""SELECT DISTINCT si.[number]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
                                 WHERE ssi.invoice_id = si.id""")
         number_results = number.fetchall()
         po = cursor.execute(f"""SELECT DISTINCT spo.[id], spo.[number]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_purchaseorder] AS spo
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_purchaseorder] AS spo
                                 WHERE ssi.invoice_id = si.id AND si.po_id = spo.id""")
         po_results = po.fetchall()
         due = cursor.execute(f"""SELECT DISTINCT si.[payment_due]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
                                 WHERE ssi.invoice_id = si.id""")
         due_results = due.fetchall()
         bill_to = cursor.execute(f"""SELECT DISTINCT si.[bill_to]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
                                 WHERE ssi.invoice_id = si.id""")
         bill_to_results = bill_to.fetchall()
         project_name = cursor.execute(f"""SELECT DISTINCT sp.[id], sp.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_project] AS sp
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_project] AS sp
                                 WHERE ssi.invoice_id = si.id AND si.project_id = sp.id""")
         project_name_results = project_name.fetchall()
         milestone = cursor.execute(f"""SELECT DISTINCT spom.[id], spom.[precentage]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_pomilestone] AS spom
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_pomilestone] AS spom
                                 WHERE ssi.invoice_id = si.id AND si.milestone_id = spom.id""")
         milestone_results = milestone.fetchall()
-        item = cursor.execute(f"""SELECT DISTINCT sitm.[id], sitm.[number]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi
-                                    ,[Invoices].[dbo].[system_invoice] AS sinvo
-                                    ,[Invoices].[dbo].[system_invoice_items] AS sii
-                                    ,[Invoices].[dbo].[system_item] AS sitm
-                                WHERE ssi.invoice_id = sinvo.id 
-                                    AND sii.invoice_id = sinvo.id 
-                                    AND sii.item_id = sitm.id
-                                   """)
-        item_results = item.fetchall()
         currency = cursor.execute(f"""SELECT DISTINCT sic.[id], sic.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_invoicecurrency] AS sic
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicecurrency] AS sic
                                 WHERE ssi.invoice_id = si.id AND si.currency_id = sic.id""")
         currency_results = currency.fetchall()
         type = cursor.execute(f"""SELECT DISTINCT sit.[id], sit.[name]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_invoicetype] AS sit
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicetype] AS sit
                                 WHERE ssi.invoice_id = si.id AND si.type_id = sit.id""")
         type_results = type.fetchall()
         vat = cursor.execute(f"""SELECT DISTINCT siv.[id], siv.[amount]
-                                FROM [Invoices].[dbo].[system_submittedinvoice] AS ssi, [Invoices].[dbo].[system_invoice] AS si, [Invoices].[dbo].[system_invoicevat] AS siv
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicevat] AS siv
                                 WHERE ssi.invoice_id = si.id AND si.vat_id = siv.id""")
         vat_results = vat.fetchall()
-        submitted_user = cursor.execute('''SELECT DISTINCT [user_id], ([first_name]+' '+[last_name]) as full_name FROM [Invoices].[dbo].[system_pendinginvoice], [Invoices].[dbo].[account_useraccount]
-                            WHERE [Invoices].[dbo].[system_pendinginvoice].[user_id] = [Invoices].[dbo].[account_useraccount].[id]''')
+        submitted_user = cursor.execute(f'''SELECT DISTINCT [user_id], ([first_name]+' '+[last_name]) as full_name FROM [{database_name}].[dbo].[system_pendinginvoice], [{database_name}].[dbo].[account_useraccount]
+                            WHERE [{database_name}].[dbo].[system_pendinginvoice].[user_id] = [{database_name}].[dbo].[account_useraccount].[id]''')
         submitted_user_results = submitted_user.fetchall()
     context = {
         'user': user_obj,
@@ -2347,7 +2523,6 @@ def ProcurementDoneInvoicesView(request):
         'bill_to_results': bill_to_results,
         'project_name_results': project_name_results,
         'milestone_results': milestone_results,
-        'item_results': item_results,
         'currency_results': currency_results,
         'type_results': type_results,
         'vat_results': vat_results,
@@ -2368,7 +2543,6 @@ def ProcurementInvoicesDoneTableApi(request):
         project_name = request.GET.get('project_name', None)
         type = request.GET.get('type', None)
         milestone = request.GET.get('milestone', None)
-        item = request.GET.get('item', None)
         vat = request.GET.get('vat', None)
         currency = request.GET.get('currency', None)
         user = request.GET.get('user', None)
@@ -2405,8 +2579,6 @@ def ProcurementInvoicesDoneTableApi(request):
             invoices_list = invoices_list.filter(invoice__type_id=type)
         if milestone:
             invoices_list = invoices_list.filter(invoice__milestone_id=milestone)
-        if item:
-            invoices_list = invoices_list.filter(invoice__items=item)
         if vat:
             invoices_list = invoices_list.filter(invoice__vat_id=vat)
         if currency:
@@ -2450,24 +2622,7 @@ def ProcurementInvoicesDoneDetailsApi(request):
                                 'invoice__vat',
                                 'invoice__currency')\
                             .get(id=submitted_id)
-        # print(invoice_details.invoice.items.first().number)
-        items_list = invoice_details.invoice.items.select_related('uom')
-        items = []
-        items_count = invoice_details.invoice.items.count()
-        items_total_amount = 0
-        for item in items_list:
-            items_total_amount += int(item.amount)
-            items.append(
-                {
-                'number': item.number,
-                'description': item.description,
-                'quantity': item.quantity,
-                'uom': item.uom.name,
-                'unit_price': item.unit_price,
-                'amount': item.amount,
-                }
-            )
-        
+
         fhs = FileHandler.objects.filter(invoice=invoice_details.invoice)
         attachments = []
         attachments_count = fhs.count()
@@ -2489,12 +2644,11 @@ def ProcurementInvoicesDoneDetailsApi(request):
             'type': invoice_details.invoice.type.name,
             'milestone': invoice_details.invoice.milestone.precentage,
             'milestone_description': invoice_details.invoice.milestone.description,
-            'items': items,
-            'items_count':items_count,
-            'items_total_amount':items_total_amount,
+
+            'items_total_amount':invoice_details.invoice.amount,
             'vat': invoice_details.invoice.vat.amount,
-            'vat_amount': (items_total_amount * invoice_details.invoice.vat.amount)/100,
-            'invoice_total': items_total_amount+((items_total_amount * invoice_details.invoice.vat.amount)/100),
+            'vat_amount': (invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100,
+            'invoice_total': invoice_details.invoice.amount+((invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100),
             'currency': invoice_details.invoice.currency.name,
             'invoice_timestamp': date_time_formatter(invoice_details.invoice.timestamp),
             'invoice_attachments': attachments,
@@ -2519,6 +2673,8 @@ def ProcurementInvoicesDoneDetailsApi(request):
         return JsonResponse(data=invoice, safe=False)
     
 
+
+
 @is_user_login
 def ProcurementNewVendorView(request):
     user_token = request.session['user_token']
@@ -2535,7 +2691,6 @@ def ProcurementNewVendorView(request):
         'vendor': vendors_list,
     }
     return render(request, 'ProcurementNewVendor.html', context)
-
 
 @is_user_login
 def ProcurementNewVendorApi(request):
@@ -2579,34 +2734,6 @@ def ProcurementNewVendorUserApi(request):
             vendor_obj.save()
             return HttpResponseRedirect('/system/Invoices/ProcurementNewVendor/?user=added')
 
-  
-# @is_user_login
-# def NewInvoiceVendorView(request):
-#     if request.POST:
-#         vendor = request.POST.get('vendor', None)
-#         check_name = Vendor.objects.filter(name=vendor).exists()
-#         if check_name:
-#             return HttpResponseRedirect('/system/Invoices/NewVendor/?fail=true')
-#         else:
-#             Vendor.objects.create(name=vendor)
-#             return HttpResponseRedirect('/system/Invoices/NewVendor/?done=true')
-#     user_token = request.session['user_token']
-#     user_obj = Token.objects.get(token=user_token).user
-#     with connection.cursor() as cursor:
-#         vendor = cursor.execute(""" SELECT v.name, COUNT(si.status) AS StatusCount
-#                                     FROM [Invoices].[dbo].[system_vendor] AS v
-#                                     LEFT JOIN [Invoices].[dbo].[system_invoice] AS i ON v.id = i.vendor_id
-#                                     LEFT JOIN [Invoices].[dbo].[system_submittedinvoice] AS si ON i.id = si.invoice_id
-#                                     GROUP BY v.id, v.name;""")
-#         vendor_results = vendor.fetchall()
-#     context = {
-#         'user': user_obj,
-#         'vendor': vendor_results,
-#     }
-#     return render(request, 'NewVendor.html', context)
-  
-
-
 
 
 ######################################## MANAGER ###############################################
@@ -2616,24 +2743,56 @@ def ProcurementNewVendorUserApi(request):
 def ManagerDashboardView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
-    # t_invoice = Invoice.objects.count()
-    t_invoice = SubmittedInvoice.objects.count()
-    p_invoice = PendingInvoice.objects.count()
-    a_invoice = ApprovedInvoice.objects.count()
-    r_invoice = RejectedInvoice.objects.count()
+    projects_list = []
+    projects = Project.objects.all()
+    for project in projects:
+        vendors_list = Vendor.objects.filter(projects=project)
+        projects_list.append({
+            'id': project.id,
+            'project': project.name,
+            'vendors': vendors_list
+        })
+    # RFQ 
+    RFQ_data = RFQ.objects.all()
+    print(RFQ_data.count())
+    # Quotation
+    quotation_obj = Quotation.objects.all()
+    print(quotation_obj.count())
+    # PO
+    PO_obj = PurchaseOrder.objects.all()
+    print(PO_obj.count())
+    # Invoices
+    Invoice_obj = SubmittedInvoice.objects.all()
+    print(Invoice_obj.count())
     context = {
         'user': user_obj,
-        # 't_invoice': t_invoice,
-        't_invoice': t_invoice,
-        'p_invoice': p_invoice,
-        'a_invoice': a_invoice,
-        'r_invoice': r_invoice
+        # projects
+        't_project': projects.count(),
+        'projects': projects_list,
+        # RFQ
+        't_RFQ': RFQ_data.count(),
+        'p_RFQ': RFQ_data.filter(status=RFQ_status_choices[0][0]).count(),
+        'r_RFQ': RFQ_data.filter(status=RFQ_status_choices[2][0]).count(),
+        # Quotation
+        't_Quotation': quotation_obj.count(),
+        'p_Quotation': quotation_obj.filter(status=Quotation_status_choices[0][0]).count(),
+        'a_Quotation': quotation_obj.filter(status=Quotation_status_choices[1][0]).count(),
+        'r_Quotation': quotation_obj.filter(status=Quotation_status_choices[2][0]).count(),
+        # Purchase Order
+        't_PO': PO_obj.count(),
+        'o_PO': PO_obj.filter(status=PO_status_choices[0][0]).count(),
+        'c_PO': PO_obj.filter(status=PO_status_choices[1][0]).count(),
+        # Invoices
+        't_invoice': Invoice_obj.count(),
+        'p_invoice': Invoice_obj.filter(status=status_choices[0][0]).count(),
+        'a_invoice': Invoice_obj.filter(status=status_choices[1][0]).count(),
+        'r_invoice': Invoice_obj.filter(status=status_choices[2][0]).count()
     }
     return render(request, 'ManagerDashboard.html', context)
 
-
-def ManagerInvoicesStatusColumnChartApi(request):
+def ManagerStatusColumnChartApi(request):
     if request.GET:
+        type = request.GET.get('type', None)
         filter = request.GET.get('filter', None)
         from_value = request.GET.get('from', None)
         to_value = request.GET.get('to', None)
@@ -2660,64 +2819,613 @@ def ManagerInvoicesStatusColumnChartApi(request):
                 # print(year_to, month_to, filters_query)
             if filter == 'per_year':
                 filters_query &= Q(timestamp__year__lte=to_value)
-        p_invoice = PendingInvoice.objects.filter(filters_query).count()
-        a_invoice = ApprovedInvoice.objects.filter(filters_query).count()
-        r_invoice = RejectedInvoice.objects.filter(filters_query).count()
+        if type == 'rfq':
+            rfq_list = RFQ.objects.all()
+            p_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_rfq, p_rfq, '#007bff'],
+                ['Replyed', r_rfq, r_rfq, '#28a745'],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.all()
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation, p_quotation, '#007bff'],
+                ['Approved', a_quotation, a_quotation, '#28a745'],
+                ['Rejected', r_quotation, r_quotation, '#dc3545'],
+            ]
+        if type == 'purchase_order':
+            po_list = PurchaseOrder.objects.all()
+            o_po = po_list.filter(status=PO_status_choices[0][0]).filter(filters_query).count()
+            c_po = po_list.filter(status=PO_status_choices[1][0]).filter(filters_query).count()
+            data = [
+                ['Opened', o_po, o_po, '#28a745'],
+                ['Closed', c_po, c_po, '#dc3545'],
+            ]
+        if type == 'invoices':
+            invoices_list = SubmittedInvoice.objects.all()
+            p_invoice = invoices_list.filter(status=status_choices[0][0]).filter(filters_query).count()
+            a_invoice = invoices_list.filter(status=status_choices[1][0]).filter(filters_query).count()
+            r_invoice = invoices_list.filter(status=status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_invoice, p_invoice, '#007bff'],
+                ['Approved', a_invoice, a_invoice, '#28a745'],
+                ['Rejected', r_invoice, r_invoice, '#dc3545'],
+            ]
         # print(p_invoice, a_invoice, r_invoice)
     else:
-        p_invoice = PendingInvoice.objects.count()
-        a_invoice = ApprovedInvoice.objects.count()
-        r_invoice = RejectedInvoice.objects.count()
-    data = [
-        ['Pending', p_invoice, p_invoice, '#343a40'],
-        ['Approved', a_invoice, a_invoice, '#28a745'],
-        ['Rejected', r_invoice, r_invoice, '#dc3545'],
-    ]
+        invoices_list = SubmittedInvoice.objects.all()
+        p_invoice = invoices_list.filter(status=status_choices[0][0]).count()
+        a_invoice = invoices_list.filter(status=status_choices[1][0]).count()
+        r_invoice = invoices_list.filter(status=status_choices[2][0]).count()
+        data = [
+            ['Pending', p_invoice, p_invoice, '#007bff'],
+            ['Approved', a_invoice, a_invoice, '#28a745'],
+            ['Rejected', r_invoice, r_invoice, '#dc3545'],
+        ]
+    return JsonResponse(data=data, safe=False)
+
+def ManagerStatusPieChartApi(request):
+    if request.GET:
+        type = request.GET.get('type', None)
+        filter = request.GET.get('filter', None)
+        from_value = request.GET.get('from', None)
+        to_value = request.GET.get('to', None)
+        current_date = datetime.now().date()
+        filters_query = Q()
+        if from_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__gte=from_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__gte=from_value)
+            if filter == 'per_month':
+                year_from, month_from = map(int, from_value.split('-'))
+                filters_query &= (Q(timestamp__year__gt=year_from) | (Q(timestamp__year=year_from) & Q(timestamp__month__gte=month_from)))
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__gte=from_value)
+        if to_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__lte=to_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__lte=to_value)
+            if filter == 'per_month':
+                year_to, month_to = map(int, to_value.split('-'))
+                filters_query &= (Q(timestamp__year__lt=year_to) | (Q(timestamp__year=year_to) & Q(timestamp__month__lte=month_to)))
+                # print(year_to, month_to, filters_query)
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__lte=to_value)
+        if type == 'rfq':
+            rfq_list = RFQ.objects.all()
+            p_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_rfq],
+                ['Replyed', r_rfq],
+                ['', 0],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.all()
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation],
+                ['Approved', a_quotation],
+                ['Rejected', r_quotation],
+            ]
+        if type == 'purchase_order':
+            po_list = PurchaseOrder.objects.all()
+            o_po = po_list.filter(status=PO_status_choices[0][0]).filter(filters_query).count()
+            c_po = po_list.filter(status=PO_status_choices[1][0]).filter(filters_query).count()
+            data = [
+                ['', 0],
+                ['Opened', o_po],
+                ['Closed', c_po],
+            ]
+        if type == 'invoices':
+            invoices_list = SubmittedInvoice.objects.all()
+            p_invoice = invoices_list.filter(status=status_choices[0][0]).filter(filters_query).count()
+            a_invoice = invoices_list.filter(status=status_choices[1][0]).filter(filters_query).count()
+            r_invoice = invoices_list.filter(status=status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_invoice],
+                ['Approved', a_invoice],
+                ['Rejected', r_invoice],
+            ]
+        # print(p_invoice, a_invoice, r_invoice)
+    else:
+        invoices_list = SubmittedInvoice.objects.all()
+        p_invoice = invoices_list.filter(status=status_choices[0][0]).count()
+        a_invoice = invoices_list.filter(status=status_choices[1][0]).count()
+        r_invoice = invoices_list.filter(status=status_choices[2][0]).count()
+        data = [
+            ['Pending', p_invoice],
+            ['Approved', a_invoice],
+            ['Rejected', r_invoice],
+        ]
     return JsonResponse(data=data, safe=False)
 
 
-def ManagerInvoicesStatusPieChartApi(request):
-    p_invoice = PendingInvoice.objects.count()
-    a_invoice = ApprovedInvoice.objects.count()
-    r_invoice = RejectedInvoice.objects.count()
-    data = [
-        ['Pending', p_invoice],
-        ['Approved', a_invoice],
-        ['Rejected', r_invoice],
-    ]
-    return JsonResponse(data=data, safe=False)
-
-
-    
 @is_user_login
-def ManagerDoneInvoicesView(request):
+def ManagerProjectView(request):
+    if request.POST:
+        project_name = request.POST.get('project_name', None)
+        check_project = Project.objects.filter(name=project_name).exists()
+        if check_project:
+            return HttpResponseRedirect('/system/PresalesProject/New/?project=exists')
+        else:
+            Project.objects.create(
+                name=project_name
+            )
+            return HttpResponseRedirect('/system/PresalesProject/New/?project=added')
+    user_token = request.session['user_token']
+    user_obj = Token.objects.get(token=user_token).user
+    projects = Project.objects.all()
+    project_list = []
+    for project in projects:
+        vendors = Vendor.objects.filter(projects=project)
+        project_list.append(
+            [project.name, vendors.count(), vendors.all()]
+        )
+    context = {
+        'user': user_obj,
+        'projects': project_list,
+    }
+    return render(request, 'ManagerProject.html', context)
+
+
+# RFQ
+@is_user_login
+def ManagerRFQView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        vendor = cursor.execute("SELECT DISTINCT [vendor] FROM [Invoices].[dbo].[system_invoice]")
+        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [{database_name}].[dbo].[system_rfq]")
+        RFQ_ID_results = RFQ_ID.fetchall()
+        vendor = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_vendor]")
         vendor_results = vendor.fetchall()
-        number = cursor.execute("SELECT DISTINCT [number] FROM [Invoices].[dbo].[system_invoice]")
-        number_results = number.fetchall()
-        po = cursor.execute("SELECT DISTINCT [po] FROM [Invoices].[dbo].[system_invoice]")
-        po_results = po.fetchall()
-        due = cursor.execute("SELECT DISTINCT [payment_due] FROM [Invoices].[dbo].[system_invoice]")
-        due_results = due.fetchall()
-        bill_to = cursor.execute("SELECT DISTINCT [bill_to] FROM [Invoices].[dbo].[system_invoice]")
-        bill_to_results = bill_to.fetchall()
-        project_name = cursor.execute("SELECT DISTINCT [project_name] FROM [Invoices].[dbo].[system_invoice]")
-        project_name_results = project_name.fetchall()
-        milestone = cursor.execute("SELECT DISTINCT [milestone] FROM [Invoices].[dbo].[system_invoice]")
-        milestone_results = milestone.fetchall()
-        item = cursor.execute("SELECT DISTINCT [id], [number] FROM [Invoices].[dbo].[system_item]")
-        item_results = item.fetchall()
-        currency = cursor.execute("SELECT DISTINCT [id], [name] FROM [Invoices].[dbo].[system_invoicecurrency]")
+        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_project] as p
+                                WHERE srfq.project_id = p.id""")
+        project_results = project.fetchall()
+        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [{database_name}].[dbo].[system_rfq]")
+        bidder_id_results = bidder_id.fetchall()
+        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqtype] as t
+                                WHERE srfq.type_id = t.id""")
+        RFQ_type_results = RFQ_type.fetchall()
+        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqcurrency] as c
+                                WHERE srfq.currency_id = c.id""")
+        RFQ_currency_results = RFQ_currency.fetchall()
+        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [{database_name}].[dbo].[system_rfq_products] as srfqp
+                                join [{database_name}].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
+                                join [{database_name}].[dbo].[system_product] as sp on srfqp.product_id = sp.id""")
+        product_id_results = product_id.fetchall()
+        user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[account_useraccount] as u
+                                WHERE srfq.user_id = u.id""")
+        user_results = user.fetchall()
+    context = {
+        'user': user_obj,
+        'vendor_results': vendor_results,
+        'RFQ_ID_results': RFQ_ID_results,
+        'project_results': project_results,
+        'bidder_id_results': bidder_id_results,
+        'RFQ_type_results': RFQ_type_results,
+        'RFQ_currency_results': RFQ_currency_results,
+        'RFQ_qrfai_results': RFQ_QuotesRequiredForAllItems,
+        'RFQ_bccsq_results': RFQ_BidderCanChangeSubmittedQuote,
+        'RFQ_bcai_results': RFQ_BidderCanAddItems,
+        'RFQ_bccq_results': RFQ_BidderCanChangeQuantity,
+        'product_id_results': product_id_results,
+        'RFQ_status': RFQ_status_choices,
+        'user_results': user_results,
+    }
+    return render(request, 'ManagerRFQ.html', context)
+
+
+def ManagerRFQTableApi(request):
+    if request.GET:
+        RFQ_ID = request.GET.get('RFQ_ID', None)
+        project = request.GET.get('project', None)
+        vendor = request.GET.get('vendor', None)
+        Bidder_ID = request.GET.get('Bidder_ID', None)
+        RFQ_Type = request.GET.get('RFQ_Type', None)
+        eqc = request.GET.get('eqc', None)
+        qrfai = request.GET.get('qrfai', None)
+        bccsq = request.GET.get('bccsq', None)
+        bcai = request.GET.get('bcai', None)
+        bccq = request.GET.get('bccq', None)
+        Product_ID = request.GET.get('Product_ID', None)
+        status = request.GET.get('status', None)
+        user = request.GET.get('user', None)
+        sd_from = request.GET.get('sd_from', None)
+        sd_to = request.GET.get('sd_to', None)
+        qmbvu_from = request.GET.get('qmbvu_from', None)
+        qmbvu_to = request.GET.get('qmbvu_to', None)
+
+        print(request.GET)
+        RFQ_list = RFQ.objects.select_related('project', 'vendor', 'type', 'currency', 'user')
+                
+        if RFQ_ID:
+            RFQ_list = RFQ_list.filter(RFQ_ID=RFQ_ID)
+        if project:
+            RFQ_list = RFQ_list.filter(project_id=project)
+        if vendor:
+            RFQ_list = RFQ_list.filter(vendor_id=vendor)
+        if Bidder_ID:
+            RFQ_list = RFQ_list.filter(bidder_id=Bidder_ID)
+        if RFQ_Type:
+            RFQ_list = RFQ_list.filter(type_id=RFQ_Type)
+        if eqc:
+            RFQ_list = RFQ_list.filter(currency_id=eqc)
+        if qrfai:
+            RFQ_list = RFQ_list.filter(Quotes_required_for_all_items=qrfai)
+        if bccsq:
+            RFQ_list = RFQ_list.filter(Bidder_can_change_submitted_quote=bccsq)
+        if bcai:
+            RFQ_list = RFQ_list.filter(Bidder_can_add_items=bcai)
+        if bccq:
+            RFQ_list = RFQ_list.filter(Bidder_can_change_quantity=bccq)
+        if Product_ID:
+            product_obj = Product.objects.get(id=Product_ID)
+            RFQ_list = RFQ_list.filter(products=product_obj)
+        if status:
+            RFQ_list = RFQ_list.filter(status=status)
+        if user:
+            RFQ_list = RFQ_list.filter(user_id=user)
+        if sd_from:
+            RFQ_list = RFQ_list.filter(submission_deadline__gte=sd_from)
+        if sd_to:
+            RFQ_list = RFQ_list.filter(submission_deadline__lte=sd_to)
+        if qmbvu_from:
+            RFQ_list = RFQ_list.filter(Quote_must_be_valid_until__gte=qmbvu_from)
+        if qmbvu_to:
+            RFQ_list = RFQ_list.filter(Quote_must_be_valid_until__lte=qmbvu_to)
+        # print(RFQ_list[0].status)
+        RFQs = [
+            {
+                "id": rfqlst.id,
+                "RFQ_ID": rfqlst.RFQ_ID,
+                "vendor": rfqlst.vendor.name,
+                "project": rfqlst.project.name,
+                "submission_deadline": date_time_formatter(rfqlst.submission_deadline),
+                "status": 'Sent' if rfqlst.status == 's' else 'Viewed' if rfqlst.status == 'v' else 'Replyed',
+                "user": f"{rfqlst.user.first_name} {rfqlst.user.last_name}",
+                "quotation": Quotation.objects.filter(RFQ=rfqlst).count(),
+            }
+            for rfqlst in RFQ_list
+        ]
+        return JsonResponse(data=RFQs, safe=False)
+
+def ManagerRFQDetailsApi(request):
+    if request.GET:
+        RFQ_ID = request.GET.get('RFQ_ID', None)
+        RFQ_details = RFQ.objects.select_related('project', 'vendor', 'type', 'currency', 'user')\
+            .get(RFQ_ID=RFQ_ID)
+        products_list = RFQ_details.products.select_related('uom')
+        products = []
+        products_count = RFQ_details.products.count()
+        for product in products_list:
+            products.append(
+                {
+                'item_number': product.item,
+                'product_id': product.product_id,
+                'description': product.description,
+                'quantity': product.quantity,
+                'uom': product.uom.name,
+                'category': product.category,
+                'dd_sp': product.delivery_date,
+                }
+            )
+        
+        fhs = RFQFileHandler.objects.filter(RFQ=RFQ_details)
+        attachments = []
+        attachments_count = fhs.count()
+        for f in fhs:
+            file_name = os.path.basename(f.file.name)
+            file_url = f.file.url
+            file_extension = os.path.splitext(file_name)[1].split('.')[1]
+            attachments.append([file_name, file_url, file_extension, f.id])
+        # print(attachments)
+
+        RFQ_obj = {
+            'id': RFQ_details.id,
+            'vendor': RFQ_details.vendor.name,
+            'RFQ_ID': RFQ_details.RFQ_ID,
+            'project_name': RFQ_details.project.name,
+            'ship_to_address': RFQ_details.ship_to_address,
+            'bidder_id': RFQ_details.bidder_id,
+            'submission_deadline': date_time_formatter(RFQ_details.submission_deadline),
+            'qmbvu': RFQ_details.Quote_must_be_valid_until,
+            'RFQ_Type': RFQ_details.type.name,
+            'eqc': RFQ_details.currency.name,
+            'qrfai': 'Yes' if RFQ_details.Quotes_required_for_all_items == 'y' else 'No',
+            'bccsq': 'Yes' if RFQ_details.Bidder_can_change_submitted_quote == 'y' else 'No',
+            'bcai': 'Yes' if RFQ_details.Bidder_can_add_items == 'y' else 'No',
+            'bccq': 'Yes' if RFQ_details.Bidder_can_change_quantity == 'y' else 'No',
+            'products': products,
+            'products_count':products_count,
+            'attachments': attachments,
+            'attachments_count': attachments_count,
+        }
+        return JsonResponse(data=RFQ_obj, safe=False)
+
+
+# Quotation
+@is_user_login
+def ManagerQuotationView(request):
+    user_token = request.session['user_token']
+    user_obj = Token.objects.get(token=user_token).user
+    with connection.cursor() as cursor:
+        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [{database_name}].[dbo].[system_quotation]""")
+        Quotation_ID_results = Quotation_ID.fetchall()
+        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfq] AS srfq
+                                WHERE sq.[RFQ_id] = srfq.[id]""")
+        RFQ_ID_results = RFQ_ID.fetchall()
+        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfqcurrency] as cr
+                                WHERE sq.[currency_id] = cr.[id]""")
         currency_results = currency.fetchall()
-        type = cursor.execute("SELECT DISTINCT [id], [name] FROM [Invoices].[dbo].[system_invoicetype]")
+        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [{database_name}].[dbo].[system_quotation] AS sq
+                                JOIN [{database_name}].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]""")
+        user_results = user.fetchall()
+    context = {
+        'user': user_obj,
+        'Quotation_ID_results': Quotation_ID_results,
+        'RFQ_ID_results': RFQ_ID_results,
+        'Status': Quotation_status_choices,
+        'currency_results': currency_results,
+        'user_results': user_results,
+    }
+    return render(request, 'ManagerQuotation.html', context)
+
+def ManagerQuotationTableApi(request):
+    if request.GET:
+        quotation = request.GET.get('quotation', None)
+        RFQ_ID = request.GET.get('RFQ_ID', None)
+        status = request.GET.get('status', None)
+        currency = request.GET.get('currency', None)
+        user = request.GET.get('user', None)
+        timestamp_from = request.GET.get('timestamp_from', None)
+        timestamp_to = request.GET.get('timestamp_to', None)
+
+        # print(request.GET)
+        Quotation_list = Quotation.objects.select_related('RFQ', 'RFQ__vendor', 'user', 'currency')
+                
+        if quotation:
+            Quotation_list = Quotation_list.filter(id=quotation)
+        if RFQ_ID:
+            Quotation_list = Quotation_list.filter(RFQ__RFQ_ID=RFQ_ID)
+        if status:
+            Quotation_list = Quotation_list.filter(status=status)
+        if currency:
+            Quotation_list = Quotation_list.filter(currency_id=currency)
+        if user:
+            Quotation_list = Quotation_list.filter(user=user)
+        if timestamp_from:
+            Quotation_list = Quotation_list.filter(timestamp__gte=timestamp_from)
+        if timestamp_to:
+            Quotation_list = Quotation_list.filter(timestamp__lte=timestamp_to)
+        # print(Quotation_list[0].status)
+
+        Quotations = [
+            {
+                "id": ql.id,
+                "RFQ_ID": ql.RFQ.RFQ_ID,
+                "currency": ql.currency.name,
+                "net_value": ql.net_value,
+                "status": 'Created' if ql.status == 'c' else 'Approved' if ql.status == 'a' else 'Rejected',
+                "user": f'{ql.user.first_name} {ql.user.last_name}',
+                "timestamp": date_time_formatter(ql.timestamp),
+            }
+            for ql in Quotation_list
+        ]
+        return JsonResponse(data=Quotations, safe=False)
+
+def ManagerQuotationDetailsApi(request):
+    if request.GET:
+        Quote_ID = request.GET.get('Quote_ID', None)
+        Quotation_details = Quotation.objects.select_related('RFQ', 'RFQ__type', 'currency', 'user')\
+            .get(id=Quote_ID)
+
+        fhs = QuotationFileHandler.objects.filter(quotation=Quotation_details)
+        attachments = []
+        attachments_count = fhs.count()
+        for f in fhs:
+            file_name = os.path.basename(f.file.name)
+            file_url = f.file.url
+            file_extension = os.path.splitext(file_name)[1].split('.')[1]
+            attachments.append([file_name, file_url, file_extension, f.id])
+            
+        Quotation_obj = {
+            'RFQ_ID': Quotation_details.RFQ.RFQ_ID,
+            'submission_deadline': date_time_formatter(Quotation_details.RFQ.submission_deadline),
+            'qmbvu': Quotation_details.RFQ.Quote_must_be_valid_until,
+            'RFQ_Type': Quotation_details.RFQ.type.name,
+            'eqc': Quotation_details.currency.name,
+            'net_value': Quotation_details.net_value,
+            'currency': Quotation_details.currency.name,
+            'attachments': attachments,
+            'attachments_count': attachments_count,
+        }
+        return JsonResponse(data=Quotation_obj, safe=False)
+
+
+# Created
+@is_user_login
+def ManagerPOView(request):
+    user_token = request.session['user_token']
+    user_obj = Token.objects.get(token=user_token).user
+    with connection.cursor() as cursor:
+        quotation_id = cursor.execute(f"SELECT DISTINCT [quotation_id] FROM [{database_name}].[dbo].[system_purchaseorder]")
+        quotation_id_results = quotation_id.fetchall()
+        PO_number = cursor.execute(f"SELECT DISTINCT [id], [number] FROM [{database_name}].[dbo].[system_purchaseorder]")
+        PO_number_results = PO_number.fetchall()
+        submitted_user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [{database_name}].[dbo].[system_purchaseorder] as spo, [{database_name}].[dbo].[account_useraccount] as u
+                                WHERE spo.[contact_person_id] = u.id""")
+        submitted_user_results = submitted_user.fetchall()
+        PO_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_purchaseorder] as spo, [{database_name}].[dbo].[system_rfqcurrency] as c
+                                WHERE spo.currency_id = c.id""")
+        PO_currency_results = PO_currency.fetchall()
+        milestones = cursor.execute(f"""SELECT DISTINCT sm.[id], sm.[precentage] FROM [{database_name}].[dbo].[system_purchaseorder_milestones] as spom
+                                join [{database_name}].[dbo].[system_purchaseorder] as spo on spom.purchaseorder_id = spo.id
+                                join [{database_name}].[dbo].[system_pomilestone] as sm on spom.pomilestone_id = sm.id""")
+        milestones_results = milestones.fetchall()
+    context = {
+        'user': user_obj,
+        'quotation_id_results': quotation_id_results,
+        'PO_number_results': PO_number_results,
+        'submitted_user_results': submitted_user_results,
+        'PO_currency_results': PO_currency_results,
+        'milestones_results': milestones_results,
+        'status_results': PO_status_choices,
+    }
+    return render(request, 'ManagerPO.html', context)
+
+def ManagerPOTableApi(request):
+    if request.GET:
+        quotation = request.GET.get('quotation', None)
+        PO_number = request.GET.get('PO_number', None)
+        user = request.GET.get('user', None)
+        currency = request.GET.get('currency', None)
+        milestone = request.GET.get('milestone', None)
+        status = request.GET.get('status', None)
+        timestamp_from = request.GET.get('timestamp_from', None)
+        timestamp_to = request.GET.get('timestamp_to', None)
+
+    
+        print(request.GET)
+        PO_list = PurchaseOrder.objects.select_related('quotation', 'contact_person', 'currency')
+                
+        if quotation:
+            PO_list = PO_list.filter(quotation_id=quotation)
+        if PO_number:
+            PO_list = PO_list.filter(id=PO_number)
+        if user:
+            PO_list = PO_list.filter(contact_person_id=user)
+        if currency:
+            PO_list = PO_list.filter(currency_id=currency)
+        if milestone:
+            milestone_obj = POMilestone.objects.get(id=milestone)
+            PO_list = PO_list.filter(milestones=milestone_obj)
+        if status:
+            PO_list = PO_list.filter(status=status)
+        if timestamp_from:
+            PO_list = PO_list.filter(timestamp__gte=timestamp_from)
+        if timestamp_to:
+            PO_list = PO_list.filter(timestamp__lte=timestamp_to)
+
+        # print(RFQ_list[0].status)
+        POs = [
+            {
+                "id": polst.id,
+                "number": polst.number,
+                "quotation": polst.quotation.id,
+                "total_value": polst.total_value,
+                "currency": polst.currency.name,
+                "milestones": polst.milestones.count(),
+                "contact_person": f"{polst.contact_person.first_name} {polst.contact_person.last_name}",
+                "status": 'Opened' if polst.status == 'o' else 'Closed',
+                "timestamp": date_time_formatter(polst.timestamp),
+            }
+            for polst in PO_list
+        ]
+        return JsonResponse(data=POs, safe=False)
+
+def ManagerPODetailsApi(request):
+    if request.GET:
+        PO_id = request.GET.get('PO_id', None)
+        PO_obj = PurchaseOrder.objects.select_related('quotation', 'contact_person', 'currency')\
+            .get(id=PO_id)
+        milestones_list = PO_obj.milestones.all()
+        milestones = []
+        milestones_count = PO_obj.milestones.count()
+        for milestone in milestones_list:
+            milestones.append(
+                {
+                'id': milestone.id,
+                'precentage': f'{milestone.precentage} %',
+                'due': f'{0 if not milestone.due else milestone.due} Days',
+                'description': milestone.description,
+                'amount': milestone.amount,
+                'timestamp': date_time_formatter(milestone.timestamp)
+                }
+            )
+        fhs = POFileHandler.objects.filter(po=PO_obj)
+        attachments = []
+        attachments_count = fhs.count()
+        for f in fhs:
+            file_name = os.path.basename(f.file.name)
+            file_url = f.file.url
+            file_extension = os.path.splitext(file_name)[1].split('.')[1]
+            attachments.append([file_name, file_url, file_extension, f.id])
+        # print(attachments)
+
+        RFQ_obj = {
+            'PO_id': PO_obj.id,
+            'PO_number': PO_obj.number,
+            'quotation': PO_obj.quotation.id,
+            'total_value': PO_obj.total_value,
+            'currency': PO_obj.currency.name,
+            'contact_person': f'{PO_obj.contact_person.first_name} {PO_obj.contact_person.last_name}',
+            'status': 'Opened' if PO_obj.status == 'o' else 'Closed',
+            'timestamp': date_time_formatter(PO_obj.timestamp),
+            'shipping_terms': PO_obj.shipping_terms,
+            'total_milestones': milestones_count,
+            'milestones':milestones,
+            'total_files': attachments_count,
+            'attachments': attachments,
+        }
+        return JsonResponse(data=RFQ_obj, safe=False)
+
+
+@is_user_login
+def ManagerInvoicesView(request):
+    user_token = request.session['user_token']
+    user_obj = Token.objects.get(token=user_token).user
+    with connection.cursor() as cursor:
+        vendor = cursor.execute(f"""SELECT DISTINCT sv.[id], sv.[name]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_vendor] AS sv
+                                WHERE ssi.invoice_id = si.id AND si.vendor_id = sv.id""")
+        vendor_results = vendor.fetchall()
+        number = cursor.execute(f"""SELECT DISTINCT si.[number]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
+                                WHERE ssi.invoice_id = si.id""")
+        number_results = number.fetchall()
+        po = cursor.execute(f"""SELECT DISTINCT spo.[id], spo.[number]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_purchaseorder] AS spo
+                                WHERE ssi.invoice_id = si.id AND si.po_id = spo.id""")
+        po_results = po.fetchall()
+        due = cursor.execute(f"""SELECT DISTINCT si.[payment_due]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
+                                WHERE ssi.invoice_id = si.id""")
+        due_results = due.fetchall()
+        bill_to = cursor.execute(f"""SELECT DISTINCT si.[bill_to]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si
+                                WHERE ssi.invoice_id = si.id""")
+        bill_to_results = bill_to.fetchall()
+        project_name = cursor.execute(f"""SELECT DISTINCT sp.[id], sp.[name]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_project] AS sp
+                                WHERE ssi.invoice_id = si.id AND si.project_id = sp.id""")
+        project_name_results = project_name.fetchall()
+        milestone = cursor.execute(f"""SELECT DISTINCT spom.[id], spom.[precentage]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_pomilestone] AS spom
+                                WHERE ssi.invoice_id = si.id AND si.milestone_id = spom.id""")
+        milestone_results = milestone.fetchall()
+        currency = cursor.execute(f"""SELECT DISTINCT sic.[id], sic.[name]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicecurrency] AS sic
+                                WHERE ssi.invoice_id = si.id AND si.currency_id = sic.id""")
+        currency_results = currency.fetchall()
+        type = cursor.execute(f"""SELECT DISTINCT sit.[id], sit.[name]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicetype] AS sit
+                                WHERE ssi.invoice_id = si.id AND si.type_id = sit.id""")
         type_results = type.fetchall()
-        vat = cursor.execute("SELECT DISTINCT [id], [amount] FROM [Invoices].[dbo].[system_invoicevat]")
+        vat = cursor.execute(f"""SELECT DISTINCT siv.[id], siv.[amount]
+                                FROM [{database_name}].[dbo].[system_submittedinvoice] AS ssi, [{database_name}].[dbo].[system_invoice] AS si, [{database_name}].[dbo].[system_invoicevat] AS siv
+                                WHERE ssi.invoice_id = si.id AND si.vat_id = siv.id""")
         vat_results = vat.fetchall()
-        submitted_user = cursor.execute('''SELECT DISTINCT [user_id], ([first_name]+' '+[last_name]) as full_name FROM [Invoices].[dbo].[system_submittedinvoice], [Invoices].[dbo].[account_useraccount]
-                            WHERE [Invoices].[dbo].[system_submittedinvoice].[user_id] = [Invoices].[dbo].[account_useraccount].[id]''')
+        submitted_user = cursor.execute(f'''SELECT DISTINCT [user_id], ([first_name]+' '+[last_name]) as full_name FROM [{database_name}].[dbo].[system_pendinginvoice], [{database_name}].[dbo].[account_useraccount]
+                            WHERE [{database_name}].[dbo].[system_pendinginvoice].[user_id] = [{database_name}].[dbo].[account_useraccount].[id]''')
         submitted_user_results = submitted_user.fetchall()
     context = {
         'user': user_obj,
@@ -2728,17 +3436,15 @@ def ManagerDoneInvoicesView(request):
         'bill_to_results': bill_to_results,
         'project_name_results': project_name_results,
         'milestone_results': milestone_results,
-        'item_results': item_results,
         'currency_results': currency_results,
         'type_results': type_results,
         'vat_results': vat_results,
         'submitted_user_results': submitted_user_results,
         'status_results': status_choices,
     }
-    return render(request, 'ManagerInvoicesDone.html', context)
+    return render(request, 'ManagerInvoices.html', context)
 
-
-def ManagerInvoicesDoneTableApi(request):
+def ManagerInvoicesTableApi(request):
     if request.GET:
         vendor = request.GET.get('vendor', None)
         number = request.GET.get('number', None)
@@ -2749,7 +3455,6 @@ def ManagerInvoicesDoneTableApi(request):
         project_name = request.GET.get('project_name', None)
         type = request.GET.get('type', None)
         milestone = request.GET.get('milestone', None)
-        item = request.GET.get('item', None)
         vat = request.GET.get('vat', None)
         currency = request.GET.get('currency', None)
         user = request.GET.get('user', None)
@@ -2761,36 +3466,37 @@ def ManagerInvoicesDoneTableApi(request):
         
         invoices_list = SubmittedInvoice.objects\
             .select_related('invoice',
+                            'invoice__po',
+                            'invoice__milestone',
+                            'invoice__vendor',
+                            'invoice__project',
                             'invoice__type',
                             'invoice__vat',
                             'invoice__currency')
-        
         if vendor:
-            invoices_list = invoices_list.filter(invoice__vendor=vendor)
+            invoices_list = invoices_list.filter(invoice__vendor_id=vendor)
         if number:
             invoices_list = invoices_list.filter(invoice__number=number)
         if date:
             invoices_list = invoices_list.filter(invoice__date=date)
         if po:
-            invoices_list = invoices_list.filter(invoice__po=po)
+            invoices_list = invoices_list.filter(invoice__po_id=po)
         if due:
             invoices_list = invoices_list.filter(invoice__payment_due=due)
         if bill_to:
             invoices_list = invoices_list.filter(invoice__bill_to=bill_to)
         if project_name:
-            invoices_list = invoices_list.filter(invoice__project_name=project_name)
+            invoices_list = invoices_list.filter(invoice__project_id=project_name)
         if type:
-            invoices_list = invoices_list.filter(invoice__type__id=type)
+            invoices_list = invoices_list.filter(invoice__type_id=type)
         if milestone:
-            invoices_list = invoices_list.filter(invoice__milestone=milestone)
-        if item:
-            invoices_list = invoices_list.filter(invoice__items=item)
+            invoices_list = invoices_list.filter(invoice__milestone_id=milestone)
         if vat:
-            invoices_list = invoices_list.filter(invoice__vat__id=vat)
+            invoices_list = invoices_list.filter(invoice__vat_id=vat)
         if currency:
-            invoices_list = invoices_list.filter(invoice__currency__id=currency)
+            invoices_list = invoices_list.filter(invoice__currency_id=currency)
         if user:
-            invoices_list = invoices_list.filter(user__id=user)
+            invoices_list = invoices_list.filter(user_id=user)
         if status:
             invoices_list = invoices_list.filter(status=status)
         if timestamp_from:
@@ -2802,9 +3508,9 @@ def ManagerInvoicesDoneTableApi(request):
             {
                 "id": invlst.id,
                 "invoice_id": invlst.invoice.id,
-                "vendor": invlst.invoice.vendor,
+                "vendor": invlst.invoice.vendor.name,
                 "date": invlst.invoice.date,
-                "po": invlst.invoice.po,
+                "po": invlst.invoice.po.number,
                 "bill_to": invlst.invoice.bill_to,
                 "user": f"{invlst.user.first_name} {invlst.user.last_name}",
                 "timestamp": date_time_formatter(invlst.timestamp),
@@ -2814,31 +3520,20 @@ def ManagerInvoicesDoneTableApi(request):
         ]
         return JsonResponse(data=invoices, safe=False)
     
-
-def ManagerInvoicesDoneDetailsApi(request):
+def ManagerInvoicesDetailsApi(request):
     if request.GET:
         submitted_id = request.GET.get('id', None)
-        invoice_details = SubmittedInvoice.objects.select_related('invoice', 'invoice__type',
-                                'invoice__vat', 'invoice__currency')\
+        invoice_details = SubmittedInvoice.objects\
+                            .select_related('invoice',
+                                'invoice__po',
+                                'invoice__milestone',
+                                'invoice__vendor',
+                                'invoice__project',
+                                'invoice__type',
+                                'invoice__vat',
+                                'invoice__currency')\
                             .get(id=submitted_id)
-        # print(invoice_details.invoice.items.first().number)
-        items_list = invoice_details.invoice.items.select_related('uom')
-        items = []
-        items_count = invoice_details.invoice.items.count()
-        items_total_amount = 0
-        for item in items_list:
-            items_total_amount += int(item.amount)
-            items.append(
-                {
-                'number': item.number,
-                'description': item.description,
-                'quantity': item.quantity,
-                'uom': item.uom.name,
-                'unit_price': item.unit_price,
-                'amount': item.amount,
-                }
-            )
-        
+
         fhs = FileHandler.objects.filter(invoice=invoice_details.invoice)
         attachments = []
         attachments_count = fhs.count()
@@ -2850,21 +3545,21 @@ def ManagerInvoicesDoneDetailsApi(request):
         # print(attachments)
         invoice = {
             'invoice_id': invoice_details.invoice.id,
-            'vendor': invoice_details.invoice.vendor,
+            'vendor': invoice_details.invoice.vendor.name,
             'number': invoice_details.invoice.number,
             'date': invoice_details.invoice.date,
-            'po': invoice_details.invoice.po,
+            'po': invoice_details.invoice.po.number,
             'payment_due': invoice_details.invoice.payment_due,
             'bill_to': invoice_details.invoice.bill_to,
-            'project_name': invoice_details.invoice.project_name,
+            'project_name': invoice_details.invoice.project.name,
             'type': invoice_details.invoice.type.name,
-            'milestone': invoice_details.invoice.milestone,
-            'items': items,
-            'items_count':items_count,
-            'items_total_amount':items_total_amount,
+            'milestone': invoice_details.invoice.milestone.precentage,
+            'milestone_description': invoice_details.invoice.milestone.description,
+
+            'items_total_amount':invoice_details.invoice.amount,
             'vat': invoice_details.invoice.vat.amount,
-            'vat_amount': (items_total_amount * invoice_details.invoice.vat.amount)/100,
-            'invoice_total': items_total_amount+((items_total_amount * invoice_details.invoice.vat.amount)/100),
+            'vat_amount': (invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100,
+            'invoice_total': invoice_details.invoice.amount+((invoice_details.invoice.amount * invoice_details.invoice.vat.amount)/100),
             'currency': invoice_details.invoice.currency.name,
             'invoice_timestamp': date_time_formatter(invoice_details.invoice.timestamp),
             'invoice_attachments': attachments,
@@ -2889,6 +3584,66 @@ def ManagerInvoicesDoneDetailsApi(request):
         return JsonResponse(data=invoice, safe=False)
     
 
+@is_user_login
+def ManagerVendorView(request):
+    user_token = request.session['user_token']
+    user_obj = Token.objects.get(token=user_token).user
+    vendors = Vendor.objects.all()
+    vendors_list = []
+    for ven in vendors:
+        vic = SubmittedInvoice.objects.filter(invoice__vendor__name=ven.name).count()
+        vendors_list.append(
+            [ven.name.upper(), vic, ven.users.all()]
+        )
+    context = {
+        'user': user_obj,
+        'vendor': vendors_list,
+    }
+    return render(request, 'ManagerVendor.html', context)
+
+
+
+@is_user_login
+def ManagerConfigurationView(request):
+    user_token = request.session['user_token']
+    user_obj = Token.objects.get(token=user_token).user
+    if request.POST:
+        type = request.POST.get('type', None)
+        type_name = request.POST.get('type_name', None)
+        if type == 'RFQ_type':
+            check_name = RFQType.objects.filter(name=type_name).exists()
+            if check_name:
+                return HttpResponseRedirect('/system/PresalesConfiguration/?RFQ_Type=exists')
+            else:
+                RFQType.objects.create(name=type_name)
+                return HttpResponseRedirect('/system/PresalesConfiguration/?RFQ_Type=added')
+        if type == 'currency':
+            check_name = RFQCurrency.objects.filter(name=type_name).exists()
+            if check_name:
+                return HttpResponseRedirect('/system/PresalesConfiguration/?currency=exists')
+            else:
+                RFQCurrency.objects.create(name=type_name)
+                return HttpResponseRedirect('/system/PresalesConfiguration/?currency=added')
+        if type == 'uom':
+            check_name = ProductUom.objects.filter(name=type_name).exists()
+            if check_name:
+                return HttpResponseRedirect('/system/PresalesConfiguration/?uom=exists')
+            else:
+                ProductUom.objects.create(name=type_name)
+                return HttpResponseRedirect('/system/PresalesConfiguration/?uom=added')
+    RFQ_types = RFQType.objects.all()
+    RFQ_currency = RFQCurrency.objects.all()
+    product_uom = ProductUom.objects.all()
+    items_list = [
+        [['fa-solid fa-file-circle-question me-1', 'RFQ Types'], RFQ_types.count(), RFQ_types],
+        [['fa-solid fa-dollar-sign me-1', 'Currencies'], RFQ_currency.count(), RFQ_currency],
+        [['fa-solid fa-weight-hanging me-1', 'UOM'], product_uom.count(), product_uom],
+    ]
+    context = {
+        'user': user_obj,
+        'items': items_list,
+    }
+    return render(request, 'ManagerConfiguration.html', context)
 
 ############################## PRESALES ########################################################
 
@@ -2897,20 +3652,165 @@ def ManagerInvoicesDoneDetailsApi(request):
 def PresalesDashboardView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
-    # t_invoice = Invoice.objects.count()
-    t_invoice = SubmittedInvoice.objects.count()
-    p_invoice = PendingInvoice.objects.count()
-    a_invoice = ApprovedInvoice.objects.count()
-    r_invoice = RejectedInvoice.objects.count()
+    # projects
+    projects_list = []
+    projects = Project.objects.all()
+    for project in projects:
+        vendors_list = Vendor.objects.filter(projects=project)
+        projects_list.append({
+            'id': project.id,
+            'project': project.name,
+            'vendors': vendors_list
+        })
+    # RFQ 
+    RFQ_data = RFQ.objects.all()
+    print(RFQ_data.count())
+    # Quotation
+    quotation_obj = Quotation.objects.all()
+    print(quotation_obj.count())
     context = {
         'user': user_obj,
-        # 't_invoice': t_invoice,
-        't_invoice': t_invoice,
-        'p_invoice': p_invoice,
-        'a_invoice': a_invoice,
-        'r_invoice': r_invoice
+        # projects
+        't_project': projects.count(),
+        'projects': projects_list,
+        # RFQ
+        't_RFQ': RFQ_data.count(),
+        's_RFQ': RFQ_data.filter(status=RFQ_status_choices[0][0]).count(),
+        'v_RFQ': RFQ_data.filter(status=RFQ_status_choices[1][0]).count(),
+        'r_RFQ': RFQ_data.filter(status=RFQ_status_choices[2][0]).count(),
+        # Quotation
+        't_Quotation': quotation_obj.count(),
+        'p_Quotation': quotation_obj.filter(status=Quotation_status_choices[0][0]).count(),
+        'a_Quotation': quotation_obj.filter(status=Quotation_status_choices[1][0]).count(),
+        'r_Quotation': quotation_obj.filter(status=Quotation_status_choices[2][0]).count(),
     }
     return render(request, 'PresalesDashboard.html', context)
+
+
+def PresalesStatusColumnChartApi(request):
+    if request.GET:
+        type = request.GET.get('type', None)
+        filter = request.GET.get('filter', None)
+        from_value = request.GET.get('from', None)
+        to_value = request.GET.get('to', None)
+        current_date = datetime.now().date()
+        filters_query = Q()
+        if from_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__gte=from_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__gte=from_value)
+            if filter == 'per_month':
+                year_from, month_from = map(int, from_value.split('-'))
+                filters_query &= (Q(timestamp__year__gt=year_from) | (Q(timestamp__year=year_from) & Q(timestamp__month__gte=month_from)))
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__gte=from_value)
+        if to_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__lte=to_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__lte=to_value)
+            if filter == 'per_month':
+                year_to, month_to = map(int, to_value.split('-'))
+                filters_query &= (Q(timestamp__year__lt=year_to) | (Q(timestamp__year=year_to) & Q(timestamp__month__lte=month_to)))
+                # print(year_to, month_to, filters_query)
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__lte=to_value)
+        if type == 'rfq':
+            rfq_list = RFQ.objects.all()
+            s_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            v_rfq = rfq_list.filter(status=RFQ_status_choices[1][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Sent', s_rfq, s_rfq, '#007bff'],
+                ['Viewed', v_rfq, v_rfq, '#28a745'],
+                ['Replyed', r_rfq, r_rfq, '#dc3545'],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.all()
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation, p_quotation, '#007bff'],
+                ['Approved', a_quotation, a_quotation, '#28a745'],
+                ['Rejected', r_quotation, r_quotation, '#dc3545'],
+            ]
+        # print(p_invoice, a_invoice, r_invoice)
+    else:
+        quotation_list = Quotation.objects.all()
+        p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).count()
+        a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).count()
+        r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).count()
+        data = [
+            ['Pending', p_quotation, p_quotation, '#007bff'],
+            ['Approved', a_quotation, a_quotation, '#28a745'],
+            ['Rejected', r_quotation, r_quotation, '#dc3545'],
+        ]
+    return JsonResponse(data=data, safe=False)
+
+
+def PresalesStatusPieChartApi(request):
+    if request.GET:
+        type = request.GET.get('type', None)
+        filter = request.GET.get('filter', None)
+        from_value = request.GET.get('from', None)
+        to_value = request.GET.get('to', None)
+        current_date = datetime.now().date()
+        filters_query = Q()
+        if from_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__gte=from_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__gte=from_value)
+            if filter == 'per_month':
+                year_from, month_from = map(int, from_value.split('-'))
+                filters_query &= (Q(timestamp__year__gt=year_from) | (Q(timestamp__year=year_from) & Q(timestamp__month__gte=month_from)))
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__gte=from_value)
+        if to_value:
+            if filter == 'per_time':
+                filters_query &= (Q(timestamp__date=current_date) & Q(timestamp__time__lte=to_value))
+            if filter == 'per_day':
+                filters_query &= Q(timestamp__date__lte=to_value)
+            if filter == 'per_month':
+                year_to, month_to = map(int, to_value.split('-'))
+                filters_query &= (Q(timestamp__year__lt=year_to) | (Q(timestamp__year=year_to) & Q(timestamp__month__lte=month_to)))
+                # print(year_to, month_to, filters_query)
+            if filter == 'per_year':
+                filters_query &= Q(timestamp__year__lte=to_value)
+        if type == 'rfq':
+            rfq_list = RFQ.objects.all()
+            s_rfq = rfq_list.filter(status=RFQ_status_choices[0][0]).filter(filters_query).count()
+            v_rfq = rfq_list.filter(status=RFQ_status_choices[1][0]).filter(filters_query).count()
+            r_rfq = rfq_list.filter(status=RFQ_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Sent', s_rfq],
+                ['Viewed', v_rfq],
+                ['Replyed', r_rfq],
+            ]
+        if type == 'quotation':
+            quotation_list = Quotation.objects.all()
+            p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).filter(filters_query).count()
+            a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).filter(filters_query).count()
+            r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).filter(filters_query).count()
+            data = [
+                ['Pending', p_quotation],
+                ['Approved', a_quotation],
+                ['Rejected', r_quotation],
+            ]
+        # print(p_invoice, a_invoice, r_invoice)
+    else:
+        quotation_list = Quotation.objects.all()
+        p_quotation = quotation_list.filter(status=Quotation_status_choices[0][0]).count()
+        a_quotation = quotation_list.filter(status=Quotation_status_choices[1][0]).count()
+        r_quotation = quotation_list.filter(status=Quotation_status_choices[2][0]).count()
+        data = [
+            ['Pending', p_quotation],
+            ['Approved', a_quotation],
+            ['Rejected', r_quotation],
+        ]
+    return JsonResponse(data=data, safe=False)
 
 
 @is_user_login
@@ -2977,7 +3877,7 @@ def PresalesNewRFQSubmitApi(request):
         project = request.POST.get('project', None)
         ship_to_address = request.POST.get('ship_to_address', None)
         Bidder_ID = request.POST.get('Bidder_ID', None)
-        # submission_deadline = request.POST.get('submission_deadline', None)
+        submission_deadline = request.POST.get('submission_deadline', None)
         qmbvu = request.POST.get('qmbvu', None)
         RFQ_type = request.POST.get('RFQ_type', None)
         eqc = request.POST.get('eqc', None)
@@ -2990,7 +3890,7 @@ def PresalesNewRFQSubmitApi(request):
         
         if check_RFQ.exists():
             data = {
-                'status': "Error: The provided invoice number is not unique.",
+                'status': "Error: The provided RFQ number is not unique.",
             }
             return JsonResponse(data=data, safe=False)
         else:
@@ -3004,7 +3904,7 @@ def PresalesNewRFQSubmitApi(request):
                 ship_to_address = ship_to_address,
                 bidder_id = Bidder_ID,
                 type_id = RFQ_type,
-                submission_deadline = datetime.now(),
+                submission_deadline = submission_deadline,
                 Quote_must_be_valid_until = qmbvu,
                 currency_id = eqc,
                 Quotes_required_for_all_items = qrfai,
@@ -3027,6 +3927,7 @@ def PresalesNewRFQSubmitApi(request):
                     quantity = int(product_dict.get('quantity')),
                     uom = uom_obj,
                     category = product_dict.get('category'),
+                    # delivery_date = datetime.strptime(product_dict.get('dd_sp'), '%d/%m/%Y').date()
                     # delivery_date = datetime.strptime(product_dict.get('dd_sp'), '%d/%m/%Y').date()
                     delivery_date = datetime.strptime(product_dict.get('dd_sp'), '%Y-%m-%d').date()
                 )
@@ -3083,26 +3984,26 @@ def PresalesCreatedRFQView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [Invoices].[dbo].[system_rfq]")
+        RFQ_ID = cursor.execute(f"SELECT DISTINCT [RFQ_ID] FROM [{database_name}].[dbo].[system_rfq]")
         RFQ_ID_results = RFQ_ID.fetchall()
-        vendor = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [Invoices].[dbo].[system_vendor]")
+        vendor = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_vendor]")
         vendor_results = vendor.fetchall()
-        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_project] as p
+        project = cursor.execute(f"""SELECT DISTINCT p.[id], p.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_project] as p
                                 WHERE srfq.project_id = p.id""")
         project_results = project.fetchall()
-        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [Invoices].[dbo].[system_rfq]")
+        bidder_id = cursor.execute(f"SELECT DISTINCT [bidder_id] FROM [{database_name}].[dbo].[system_rfq]")
         bidder_id_results = bidder_id.fetchall()
-        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqtype] as t
+        RFQ_type = cursor.execute(f"""SELECT DISTINCT t.[id], t.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqtype] as t
                                 WHERE srfq.type_id = t.id""")
         RFQ_type_results = RFQ_type.fetchall()
-        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[system_rfqcurrency] as c
+        RFQ_currency = cursor.execute(f"""SELECT DISTINCT c.[id], c.[name] FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[system_rfqcurrency] as c
                                 WHERE srfq.currency_id = c.id""")
         RFQ_currency_results = RFQ_currency.fetchall()
-        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [Invoices].[dbo].[system_rfq_products] as srfqp
-                                join [Invoices].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
-                                join [Invoices].[dbo].[system_product] as sp on srfqp.product_id = sp.id""")
+        product_id = cursor.execute(f"""SELECT sp.[id], sp.[product_id] FROM [{database_name}].[dbo].[system_rfq_products] as srfqp
+                                join [{database_name}].[dbo].[system_rfq] as srfq on srfqp.rfq_id = srfq.id
+                                join [{database_name}].[dbo].[system_product] as sp on srfqp.product_id = sp.id""")
         product_id_results = product_id.fetchall()
-        user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [Invoices].[dbo].[system_rfq] as srfq, [Invoices].[dbo].[account_useraccount] as u
+        user = cursor.execute(f"""SELECT DISTINCT u.[id], CONCAT(u.[first_name], ' ', u.[last_name]) FROM [{database_name}].[dbo].[system_rfq] as srfq, [{database_name}].[dbo].[account_useraccount] as u
                                 WHERE srfq.user_id = u.id""")
         user_results = user.fetchall()
     context = {
@@ -3263,16 +4164,16 @@ def PresalesQuotationToDoView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [Invoices].[dbo].[system_quotation] WHERE [status] = 'c'""")
+        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [{database_name}].[dbo].[system_quotation] WHERE [status] = 'c'""")
         Quotation_ID_results = Quotation_ID.fetchall()
-        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfq] AS srfq
+        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfq] AS srfq
                                 WHERE sq.[RFQ_id] = srfq.[id] AND sq.[status] = 'c'""")
         RFQ_ID_results = RFQ_ID.fetchall()
-        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfqcurrency] as cr
+        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfqcurrency] as cr
                                 WHERE sq.[currency_id] = cr.[id]""")
         currency_results = currency.fetchall()
-        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [Invoices].[dbo].[system_quotation] AS sq
-                                JOIN [Invoices].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]
+        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [{database_name}].[dbo].[system_quotation] AS sq
+                                JOIN [{database_name}].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]
                                 WHERE sq.[status] = 'c'""")
         user_results = user.fetchall()
     context = {
@@ -3413,16 +4314,16 @@ def PresalesQuotationDoneView(request):
     user_token = request.session['user_token']
     user_obj = Token.objects.get(token=user_token).user
     with connection.cursor() as cursor:
-        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [Invoices].[dbo].[system_quotation]""")
+        Quotation_ID = cursor.execute(f"""SELECT DISTINCT [id] FROM [{database_name}].[dbo].[system_quotation]""")
         Quotation_ID_results = Quotation_ID.fetchall()
-        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfq] AS srfq
+        RFQ_ID = cursor.execute(f"""SELECT DISTINCT srfq.[RFQ_ID] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfq] AS srfq
                                 WHERE sq.[RFQ_id] = srfq.[id]""")
         RFQ_ID_results = RFQ_ID.fetchall()
-        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [Invoices].[dbo].[system_quotation] AS sq, [Invoices].[dbo].[system_rfqcurrency] as cr
+        currency = cursor.execute(f"""SELECT DISTINCT cr.[id], cr.[name] FROM [{database_name}].[dbo].[system_quotation] AS sq, [{database_name}].[dbo].[system_rfqcurrency] as cr
                                 WHERE sq.[currency_id] = cr.[id]""")
         currency_results = currency.fetchall()
-        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [Invoices].[dbo].[system_quotation] AS sq
-                                JOIN [Invoices].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]
+        user = cursor.execute(f"""SELECT DISTINCT sq.[user_id], CONCAT(aua.first_name, ' ', aua.last_name) FROM [{database_name}].[dbo].[system_quotation] AS sq
+                                JOIN [{database_name}].[dbo].[account_useraccount] AS aua ON aua.[id] = sq.[user_id]
                                 WHERE sq.[status] = 'c'""")
         user_results = user.fetchall()
     context = {
@@ -3503,6 +4404,7 @@ def PresalesQuotationDoneDetailsApi(request):
             'eqc': Quotation_details.currency.name,
             'net_value': Quotation_details.net_value,
             'currency': Quotation_details.currency.name,
+            'timestamp': date_time_formatter(Quotation_details.timestamp),
             'attachments': attachments,
             'attachments_count': attachments_count,
         }

@@ -56,18 +56,14 @@
 
 {% elif '/Procurement/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ProcurementDashboard.js' %}"></script>
-
 {% elif '/ProcurementRFQ/Created/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ProcurementRFQCreated.js' %}"></script>
-
 {% elif '/ProcurementQuotationDone/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ProcurementQuotationDone.js' %}"></script>
-
 {% elif '/ProcurementPO/New/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ProcurementPONew.js' %}"></script>
 {% elif '/ProcurementPO/Created/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ProcurementPOCreated.js' %}"></script>
-
 {% elif '/Invoices/ProcurementToDo/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ProcurementInvoicesToDo.js' %}"></script>
 {% elif '/Invoices/ProcurementDone/' in request.path %}
@@ -79,8 +75,20 @@
 
 {% elif '/Manager/' in request.path %}
 <script type="text/javascript" src="{% static 'js/ManagerDashboard.js' %}"></script>
-{% elif '/Invoices/ManagerDone/' in request.path %}
-<script type="text/javascript" src="{% static 'js/ManagerInvoicesDone.js' %}"></script>
+{% elif '/ManagerProject/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerProject.js' %}"></script>
+{% elif '/ManagerRFQ/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerRFQ.js' %}"></script>
+{% elif '/ManagerQuotation/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerQuotation.js' %}"></script>
+{% elif '/ManagerPO/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerPO.js' %}"></script>
+{% elif '/ManagerInvoices/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerInvoices.js' %}"></script>
+{% elif '/ManagerVendor/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerVendor.js' %}"></script>
+{% elif '/ManagerConfiguration/' in request.path %}
+<script type="text/javascript" src="{% static 'js/ManagerConfiguration.js' %}"></script>
 
 
 {% elif '/Presales/' in request.path %}

@@ -13716,3 +13716,8 @@ body {
         transform: rotate(360deg);
     }
 }
+
+.projects-container{
+    max-height: 300px;
+    overflow: auto;
+}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block ManagerVendor %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row mt-4">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header card-date-filter bg-dark text-white">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-list-ul me-1"></i>
+                            Vendor Invoices List
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 350px;">
+                        <input class="form-control mb-2" id="vendorSearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="vendorResultContainer">
+                            {% for vdr in vendor %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button">
+                                {{vdr.0}}
+                                <span class="badge badge-dark badge-pill" title="Invoices">{{vdr.1}}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-header card-date-filter bg-dark text-white">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-list-ul me-1"></i>
+                            Vendor Users List
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 548px;">
+                        <input class="form-control mb-2" id="vendorUserSearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="vendorUserResultContainer">
+                            {% for vdr in vendor %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button"
+                                data-toggle="collapse" data-target="#collapse_{{vdr.0}}" aria-expanded="false" aria-controls="collapse_{{vdr.0}}">
+                                {{vdr.0}}
+                                <span class="badge badge-dark badge-pill" title="Users">{{vdr.2|length}}</span>
+                            </button>
+                            <div class="collapse" id="collapse_{{vdr.0}}">
+                                <div class="card card-body">
+                                    {% for vndUser in vdr.2%}
+                                    <div class="row">
+                                        <div class="col-2 d-flex justify-content-center align-items-center">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                            <h6 class="m-0">{{vndUser.first_name|capfirst}} {{vndUser.last_name|capfirst}}</h6>
+                                        </div>
+                                    </div>
+                                    <hr class="m-0">
+                                    {% endfor %}
+                                </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

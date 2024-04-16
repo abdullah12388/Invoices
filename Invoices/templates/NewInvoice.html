@@ -37,7 +37,7 @@
                             <div class="col">
                                 <div class="card">
                                     <div class="card-header bg-dark text-white p-0 d-flex justify-content-center align-items-center">
-                                        <label style="margin: 0;">Payed</label>
+                                        <label style="margin: 0;">Paid</label>
                                     </div>
                                     <div class="card-body d-flex justify-content-center align-items-center" style="border-radius: 5px;">
                                         <label style="margin: 0;font-size: 20px;" id="PO_payed">0</label>
@@ -84,7 +84,7 @@
                                             <div class="col">
                                                 <div class="card">
                                                     <div class="card-header bg-secondary text-white p-0 d-flex justify-content-center align-items-center">
-                                                        <label style="margin: 0;">Payed</label>
+                                                        <label style="margin: 0;">Paid</label>
                                                     </div>
                                                     <div class="card-body d-flex justify-content-center align-items-center" style="border-radius: 5px;">
                                                         <label style="margin: 0;font-size: 20px;" id="MPO_payed">0</label>
@@ -138,17 +138,44 @@
                             <div class="col-7">
                                 <input type="hidden" class="form-control" name="project_id" id="project_id" placeholder="Project ID" disabled>
                                 <input type="text" class="form-control" name="project_name" id="project_name" placeholder="Project Name" disabled>
-                                <!-- <select class="selectpicker form-control" id="project_name" name="project_name" data-live-search="true" disabled>
-                                    <option value="" selected disabled>Choose Type...</option>
-                                </select> -->
                             </div>
                         </div>
-                        <div class="row mt-2">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <i class="fa-solid fa-upload me-1"></i>
+                                Upload Attachments
+                            </div>
+                            <div class="card-body make-my-scrollable" style="max-height: 295px;">
+                                <input type="file" class="my-pond mb-0" name="filepond" id="fileInput"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-5">
+                <div class="card mb-2">
+                    <div class="card-header bg-dark text-white">
+                        <div class="row">
+                            <div class="col-8 d-flex justify-content-left align-items-center">
+                                <i class="fa-solid fa-file-circle-plus me-1"></i>
+                                Add Invoice Details
+                            </div>
+                            <div class="col-4 d-flex justify-content-end align-items-center">
+                                <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body charts-body">
+                        <div class="row">
                             <div class="col-5 d-flex justify-content-start align-items-center">
                                 <label style="margin: 0;">Invoice Number <span style="color: #dc3545;">*</span></label>
                             </div>
                             <div class="col-7">
-                                <input type="number" min="0" class="form-control" name="number" id="number" placeholder="0" disabled>
+                                <input type="number" min="0" class="form-control" name="number" id="number" placeholder="Number" disabled>
                             </div>
                         </div>
                         <div class="row mt-2">
@@ -161,10 +188,18 @@
                         </div>
                         <div class="row mt-2">
                             <div class="col-5 d-flex justify-content-start align-items-center">
+                                <label style="margin: 0;">Invoice Amount <span style="color: #dc3545;">*</span></label>
+                            </div>
+                            <div class="col-7">
+                                <input type="number" min="0" class="form-control" name="amount" id="amount" placeholder="Number" disabled>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-5 d-flex justify-content-start align-items-center">
                                 <label style="margin: 0;">Payment Due <span style="color: #dc3545;">*</span></label>
                             </div>
                             <div class="col-5">
-                                <input type="number" class="form-control" name="due" id="due" placeholder="0" min="0" disabled>
+                                <input type="number" class="form-control" name="due" id="due" placeholder="Number" min="0" disabled>
                             </div>
                             <div class="col-2 d-flex justify-content-center align-items-center">
                                 <label style="margin: 0;">Days</label>
@@ -252,142 +287,41 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-7">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card mb-4">
-                            <div class="card-header bg-dark text-white">
-                                <div class="row">
-                                    <div class="col-9 d-flex justify-content-left align-items-center">
-                                        <i class="fa-solid fa-box-archive me-1"></i>
-                                        Add Invoice Items
-                                    </div>
-                                    <div class="col-3 d-flex justify-content-end align-items-center">
-                                        <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-7">
-                                        <div class="row">
-                                            <div class="col-4 d-flex justify-content-start align-items-center">
-                                                <label style="margin: 0;">Item No. <span style="color: #dc3545;">*</span></label>
-                                            </div>
-                                            <div class="col-8">
-                                                <input type="number" class="form-control" min="0" id="item_number" placeholder="Number" disabled>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-4 d-flex justify-content-start align-items-center">
-                                                <label style="margin: 0;">Quantity <span style="color: #dc3545;">*</span></label>
-                                            </div>
-                                            <div class="col-4">
-                                                <input type="number" class="form-control" id="quantity" placeholder="0" min="0" disabled>
-                                            </div>
-                                            <div class="col-4">
-                                                <select class="form-control" id="uom" disabled>
-                                                    <option value="" selected disabled>Choose...</option>
-                                                    {% for uom in uoms %}
-                                                    <option value="{{uom.0}}" id="{{uom.1}}">{{uom.1}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-4 d-flex justify-content-start align-items-center">
-                                                <label style="margin: 0;">Unit Price <span style="color: #dc3545;">*</span></label>
-                                            </div>
-                                            <div class="col-8">
-                                                <input type="number" class="form-control" id="unit_price" placeholder="0" min="0" disabled>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-4 d-flex justify-content-start align-items-center">
-                                                <label style="margin: 0;">Amount</label>
-                                            </div>
-                                            <div class="col-8">
-                                                <input type="number" class="form-control" id="amount" placeholder="0" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <div class="row">
-                                            <div class="col-12 d-flex justify-content-start align-items-center">
-                                                <label style="margin: 0;">Description <span style="color: #dc3545;">*</span></label>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-12">
-                                                <textarea class="form-control" id="description" cols="30" rows="5" disabled></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer d-flex justify-content-center align-items-center">
-                                <div class="col-6 p-0 d-flex justify-content-start align-items-center">
-                                    <button class="btn btn-secondary mr-2 float-left" id="viewItemsBTN" type="button" data-toggle="modal" data-target="#view_items_modal" disabled>
-                                        <i class="fa-solid fa-eye"></i> View Items
-                                    </button>
-                                </div>
-                                <div class="col-6 p-0 d-flex justify-content-end align-items-center">
-                                    <button class="btn btn-success mr-4" id="addItemBTN" onclick="AddItemIntoTable()" disabled>Add</button>
-                                    <button class="btn btn-danger" onclick="ResetItemForm()">Reset</button>
-                                </div>
+            <div class="col-xl-2">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <i class="fa-solid fa-bolt me-1"></i>
+                        Action Buttons
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <button class="btn btn-primary" style="width: 100%;" onclick="VerifyInvoice()">
+                                    Verify Invoice
+                                </button>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-8">
-                        <div class="card">
-                            <div class="card-header bg-dark text-white">
-                                <i class="fa-solid fa-upload me-1"></i>
-                                Upload Attachments
-                            </div>
-                            <div class="card-body make-my-scrollable" style="max-height: 295px;">
-                                <input type="file" class="my-pond mb-0" name="filepond" id="fileInput"/>
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <button class="btn btn-dark" style="width: 100%;" disabled id="calcBtn" onclick="CalculateInvoice()">
+                                    Calculate Invoice
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card">
-                            <div class="card-header bg-dark text-white">
-                                <i class="fa-solid fa-bolt me-1"></i>
-                                Action Buttons
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <button class="btn btn-secondary" style="width: 100%;" disabled id="reviewBtn" onclick="ReviewInvoice()">
+                                    Review Invoice
+                                </button>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-primary" style="width: 100%;" onclick="VerifyInvoice()">
-                                            Verify Invoice
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-dark" style="width: 100%;" disabled id="calcBtn" onclick="CalculateInvoice()">
-                                            Calculate Invoice
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-secondary" style="width: 100%;" disabled id="reviewBtn" onclick="ReviewInvoice()">
-                                            Review Invoice
-                                        </button>
-                                    </div>
-                                </div>
-                                <hr/>
-                                <div class="row mt-4">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <input type="hidden" value="{{csrf_token}}" id="csrfToken">
-                                        <button class="btn btn-success" style="width: 100%;" disabled id="submitBtn" onclick="SubmitInvoice()">
-                                            Submit Invoice
-                                        </button>
-                                    </div>
-                                </div>
+                        </div>
+                        <hr/>
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <input type="hidden" value="{{csrf_token}}" id="csrfToken">
+                                <button class="btn btn-success" style="width: 100%;" disabled id="submitBtn" onclick="SubmitInvoice()">
+                                    Submit Invoice
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -433,76 +367,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="view_items_modal" tabindex="-1" role="dialog" aria-labelledby="viewItemsModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-secondary text-white">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Added Items Table</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="card">
-                        <div class="card-header bg-dark text-white">
-                            <div class="row">
-                                <div class="col-7 d-flex justify-content-left align-items-center">
-                                    <i class="fas fa-table me-1"></i>
-                                    Items Table
-                                </div>
-                                <div class="col-2 d-flex justify-content-center align-items-center">
-                                    <h5 style="margin: 0;">Items = <span id="items_count_modal">0</span></h5>
-                                </div>
-                                <div class="col-3 d-flex justify-content-center align-items-center">
-                                    <h5 style="margin: 0;">Total = <span id="items_total_modal">0</span></h5>
-                                </div>
-                            </div>
-                            
-                        </div>
-                        <div class="card-body table-striped">
-                            <div id="toolbar" class="select" style="display: flex;">
-                                <input type="text" class="form-control" style="margin-right:5px;" id="exportFileName"
-                                    placeholder="Export File Name">
-                                <select class="form-control" style="margin-right:5px;">
-                                    <option value="">Export Basic</option>
-                                    <option value="all">Export All</option>
-                                    <option value="selected">Export Selected</option>
-                                </select>
-                                <button class="btn" style="color: #fff;background-color: #6c757d" id="print_selected">Print
-                                    Selected</button>
-                            </div>
-                            <table id="ItemsTbl" data-toggle="table" data-pagination="true" data-search="true"
-                                data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
-                                data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
-                                data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
-                                data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
-                                data-filter-control="true" data-show-export="true" data-click-to-select="true"
-                                data-toolbar="#toolbar" data-unique-id="number">
-                                <thead>
-                                    <tr>
-                                        <th data-field="state" data-checkbox="true" data-visible="false"></th>
-                                        <th data-field="number" data-sortable="true" data-filter-control="input">Number</th>
-                                        <th data-field="description" data-sortable="true" data-filter-control="input">Description</th>
-                                        <th data-field="quantity" data-sortable="true" data-filter-control="input">Quantity</th>
-                                        <th data-field="uom" data-sortable="true" data-filter-control="input">UOM</th>
-                                        <th data-field="unit_price" data-sortable="true" data-filter-control="input">Unit Price</th>
-                                        <th data-field="amount" data-sortable="true" data-filter-control="input">Amount</th>
-                                        <th data-field="timestamp" data-sortable="true" data-filter-control="input">Timestamp</th>
-                                        <th data-field="actions" data-sortable="true" data-filter-control="input">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <!-- <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div> -->
             </div>
         </div>
     </div>
@@ -625,80 +489,6 @@
                         </div>
                         <div class="col-7">
                             <textarea class="form-control" name="view_milestone_description" id="view_milestone_description" cols="30" rows="2" disabled></textarea>
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="panel panel-default">
-                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
-                                        role="tab" id="items_table">
-                                    <h4 class="panel-title m-0">
-                                        <div class="row">
-                                            <div class="col-7">
-                                                <a role="button" data-toggle="collapse"
-                                                    style="text-decoration: none;color: #fff;" href="#collapse_items_table"
-                                                    aria-expanded="false" aria-controls="collapse_items_table">
-                                                    <i class="fa-solid fa-table me-1"></i>
-                                                    Invoice Items Table
-                                                </a>
-                                            </div>
-                                            <div class="col-5 text-right">
-                                                <div class="row">
-                                                    <div class="col-4 d-flex justify-content-center align-items-center text-white">
-                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Items</h5>
-                                                        <h5 class="mb-0" id="total_items"></h5>
-                                                    </div>
-                                                    <div class="col-8 d-flex justify-content-center align-items-center text-white">
-                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Total</h5>
-                                                        <h5 class="mb-0" id="total_amount"></h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </h4>
-                                </div>
-                                <div id="collapse_items_table" class="panel-collapse collapse in" role="tabpanel"
-                                    aria-labelledby="items_table">
-                                    <div class="panel-body">
-                                        <div class="card">
-                                            <div class="card-body table-striped table-sm">
-                                                <div id="items_toolbar" class="select" style="display: flex;">
-                                                    <input type="text" class="form-control" style="margin-right:5px;" id="items_exportFileName"
-                                                        placeholder="Export File Name">
-                                                    <select class="form-control" style="margin-right:5px;">
-                                                        <option value="">Export Basic</option>
-                                                        <option value="all">Export All</option>
-                                                        <option value="selected">Export Selected</option>
-                                                    </select>
-                                                    <button class="btn" style="color: #fff;background-color: #6c757d" id="items_print_selected">Print
-                                                        Selected</button>
-                                                </div>
-                                                <table id="InvoiceItemsTbl" data-toggle="table" data-pagination="true" data-search="true"
-                                                    data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
-                                                    data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
-                                                    data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
-                                                    data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
-                                                    data-filter-control="true" data-show-export="true" data-click-to-select="true"
-                                                    data-toolbar="#items_toolbar" data-unique-id="id">
-                                                    <thead>
-                                                        <tr>
-                                                            <th data-field="state" data-checkbox="true" data-visible="false"></th>
-                                                            <th data-field="number" data-sortable="true" data-filter-control="input">Number</th>
-                                                            <th data-field="description" data-sortable="true" data-filter-control="input">Description</th>
-                                                            <th data-field="quantity" data-sortable="true" data-filter-control="input">Quantity</th>
-                                                            <th data-field="uom" data-sortable="true" data-filter-control="input">UOM</th>
-                                                            <th data-field="unit_price" data-sortable="true" data-filter-control="input">Unit Price</th>
-                                                            <th data-field="amount" data-sortable="true" data-filter-control="input">Amount</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="row mb-4 d-flex justify-content-end align-items-center">

@@ -9,3 +9,11 @@ $(function () {
         });
     });
 });
+
+document.getElementById('project_name').addEventListener('keyup', function(){
+    if(this.value){
+        document.getElementById('submitBTN').removeAttribute('disabled');
+    }else{
+        document.getElementById('submitBTN').setAttribute('disabled', 'true');
+    }
+})

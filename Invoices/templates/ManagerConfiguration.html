@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block ManagerConfiguration %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="row mt-4">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white card-date-filter">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-list-ul me-1"></i>
+                            Configuration Lists
+                        </div>
+                    </div>
+                    <div class="card-body make-my-scrollable" style="max-height: 400px;">
+                        <input class="form-control mb-2" id="configurationSearch" type="text" placeholder="Search...">
+                        <div class="list-group" id="configurationResultContainer">
+                            {% for item in items %}
+                            <button type="button" class="list-group-item list-group-item-action tank-toggle-button"
+                                data-toggle="collapse" data-target="#collapse_{{item.0}}" aria-expanded="false" aria-controls="collapse_{{item.0}}">
+                                <h6 class="m-0"><i class="{{item.0.0}}"></i> {{item.0.1}}</h6>
+                                <span class="badge badge-dark badge-pill" title="Vendors">{{item.1}}</span>
+                            </button>
+                            <div class="collapse" id="collapse_{{item.0}}">
+                                <div class="card card-body">
+                                    {% for obj in item.2 %}
+                                    <div class="row">
+                                        <div class="col-2 d-flex justify-content-center align-items-center">
+                                            <i class="{{item.0.0}}"></i>
+                                        </div>
+                                        <div class="col-xl-10 d-flex justify-content-start align-items-center">
+                                            <h6 class="m-0">{{obj.name|upper}}</h6>
+                                        </div>
+                                    </div>
+                                    <hr class="m-0">
+                                    {% endfor %}
+                                </div>
+                              </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

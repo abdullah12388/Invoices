@@ -5,7 +5,7 @@
     <div class="container-fluid px-4">
         <div class="row mt-2">
             <div class="col-xl-5">
-                <div class="card mb-2">
+                <div class="card">
                     <div class="card-header bg-dark text-white">
                         <div class="row">
                             <div class="col-8 d-flex justify-content-start align-items-center">
@@ -73,26 +73,39 @@
                         </div>
                     </div>
                 </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <i class="fa-solid fa-upload me-1"></i>
+                                Upload Attachment
+                            </div>
+                            <div class="card-body make-my-scrollable" style="max-height: 295px;">
+                                <input type="file" class="my-pond mb-0" name="filepond" id="fileInput" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-xl-7">
+            <div class="col-xl-5">
                 <div class="row">
                     <div class="col-12">
                         <div class="card mb-4">
                             <div class="card-header bg-dark text-white">
                                 <div class="row">
-                                    <div class="col-9 d-flex justify-content-start align-items-center">
+                                    <div class="col-8 d-flex justify-content-start align-items-center">
                                         <i class="fa-solid fa-box-archive me-1"></i>
                                         Add P.O. Milestones
                                     </div>
-                                    <div class="col-3 d-flex justify-content-end align-items-center">
+                                    <div class="col-4 d-flex justify-content-end align-items-center">
                                         <label style="margin: 0;"><span style="color: #dc3545;">* Required Fields</span></label>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-7">
-                                        <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="row">
                                             <div class="col-4 d-flex justify-content-start align-items-center">
                                                 <label style="margin: 0;">Milestone</label>
                                             </div>
@@ -100,7 +113,7 @@
                                                 <input type="number" class="form-control" min="0" value="1" id="milestone_id" readonly>
                                             </div>
                                         </div>
-                                        <div class="row mb-2">
+                                        <div class="row mt-2">
                                             <div class="col-4 d-flex justify-content-start align-items-center">
                                                 <label style="margin: 0;">Precentage <span style="color: #dc3545;">*</span></label>
                                             </div>
@@ -111,18 +124,21 @@
                                                 <label style="margin: 0;">%</label>
                                             </div>
                                         </div>
-                                        <div class="row mb-2">
+                                        <div class="row mt-2">
                                             <div class="col-4 d-flex justify-content-start align-items-center">
-                                                <label style="margin: 0;">Payment Due</label>
+                                                <label style="margin: 0;">Payment Due <span class="d-none" id="pd_req" style="color: #dc3545;">*</span></label>
                                             </div>
-                                            <div class="col-5">
+                                            <div class="col-8 text-center" id="enableDiv">
+                                                <Button class="btn btn-secondary w-100" id="enableBTN">Click To Enable</Button>
+                                            </div>
+                                            <div class="col-5 d-none" id="pd_input">
                                                 <input type="number" class="form-control" name="milestone_due" id="milestone_due" placeholder="Number" min="0">
                                             </div>
-                                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                            <div class="col-3 d-none d-flex justify-content-center align-items-center" id="pd_label">
                                                 <label style="margin: 0;">Days</label>
                                             </div>
                                         </div>
-                                        <div class="row">
+                                        <div class="row mt-2">
                                             <div class="col-4 d-flex justify-content-start align-items-center">
                                                 <label style="margin: 0;">Amount</label>
                                             </div>
@@ -130,16 +146,14 @@
                                                 <input type="number" class="form-control" id="milestone_amount" placeholder="Number" readonly>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <div class="row">
+                                        <div class="row mt-2">
                                             <div class="col-12 d-flex justify-content-start align-items-center">
                                                 <label style="margin: 0;">Description <span style="color: #dc3545;">*</span></label>
                                             </div>
                                         </div>
                                         <div class="row mt-2">
                                             <div class="col-12">
-                                                <textarea class="form-control" name="milestone_description" id="milestone_description" cols="30" rows="5"></textarea>
+                                                <textarea class="form-control" name="milestone_description" id="milestone_description" cols="30" rows="3"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -159,48 +173,35 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-8">
-                        <div class="card">
-                            <div class="card-header bg-dark text-white">
-                                <i class="fa-solid fa-upload me-1"></i>
-                                Upload Attachment
-                            </div>
-                            <div class="card-body make-my-scrollable" style="max-height: 295px;">
-                                <input type="file" class="my-pond mb-0" name="filepond" id="fileInput" />
+            </div>
+            <div class="col-xl-2">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <i class="fa-solid fa-bolt me-1"></i>
+                        Action Buttons
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <button class="btn btn-primary" style="width: 100%;" onclick="VerifyPO()">
+                                    Verify P.O.
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card">
-                            <div class="card-header bg-dark text-white">
-                                <i class="fa-solid fa-bolt me-1"></i>
-                                Action Buttons
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <button class="btn btn-secondary" style="width: 100%;" disabled id="reviewBtn" onclick="ReviewPO()">
+                                    Review P.O.
+                                </button>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-primary" style="width: 100%;" onclick="VerifyPO()">
-                                            Verify P.O.
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-secondary" style="width: 100%;" disabled id="reviewBtn" onclick="ReviewPO()">
-                                            Review P.O.
-                                        </button>
-                                    </div>
-                                </div>
-                                <hr/>
-                                <div class="row mt-4">
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <input type="hidden" value="{{csrf_token}}" id="csrfToken">
-                                        <button class="btn btn-success" style="width: 100%;" disabled id="submitBtn" onclick="SubmitPO()">
-                                            Submit P.O.
-                                        </button>
-                                    </div>
-                                </div>
+                        </div>
+                        <hr/>
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <input type="hidden" value="{{csrf_token}}" id="csrfToken">
+                                <button class="btn btn-success" style="width: 100%;" disabled id="submitBtn" onclick="SubmitPO()">
+                                    Submit P.O.
+                                </button>
                             </div>
                         </div>
                     </div>

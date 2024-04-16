@@ -26,57 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
-
-    // const formElement = document.getElementById('req-form');
-    // let filesToUpload = [];
-
-    // formElement.addEventListener('submit', event => {
-    //     event.preventDefault();
-
-    //     // Get the FilePond files
-    //     filesToUpload = pond.getFiles();
-
-    //     // Create a FormData object to store form data and files
-    //     const formData = new FormData(formElement);
-
-    //     // Append the selected files to the FormData
-        // filesToUpload.forEach((file, index) => {
-        //     formData.append(`filepond`, file.file);
-        // });
-
-    //     // Send the form data with files to the server
-        // fetch('./', {
-        //     method: 'POST',
-        //     body: formData,
-        // })
-        //     .then(response => {
-        //         // Handle the server response
-        //         console.log('Form submitted successfully');
-        //         // Reset the form after successful submission
-        //         // formElement.reset();
-        //         // pond.removeFiles();
-        //         $('#success').css('display', 'flex');
-        //         setTimeout(()=>{
-        //             location.reload();
-        //         },3000);
-        //     })
-        //     .catch(error => {
-        //         // Handle any errors
-        //         console.error('Error submitting form:', error);
-        //     });
-    // });
-
-
-    // Fetch the CSRF token from the cookie
-    // function getCSRFToken() {
-    //     const name = 'csrftoken';
-    //     const cookieValue = document.cookie
-    //         .split('; ')
-    //         .find((cookie) => cookie.startsWith(name + '='))
-    //         .split('=')[1];
-    //     return cookieValue;
-    // }
 });
 
 
@@ -122,54 +71,26 @@ document.getElementById('milestone').addEventListener('change', function () {
         document.getElementById('project_name').value = data_list.projects[1];
         document.getElementById('number').removeAttribute('disabled');
         document.getElementById('date').removeAttribute('disabled');
+        document.getElementById('amount').removeAttribute('disabled');
         document.getElementById('due').removeAttribute('disabled');
         document.getElementById('bill_to').removeAttribute('disabled');
         document.getElementById('type').removeAttribute('disabled');
         document.getElementById('currency').removeAttribute('disabled');
         document.getElementById('vat').removeAttribute('disabled');
-        document.getElementById('item_number').removeAttribute('disabled');
-        document.getElementById('quantity').removeAttribute('disabled');
-        document.getElementById('uom').removeAttribute('disabled');
-        document.getElementById('unit_price').removeAttribute('disabled');
-        document.getElementById('description').removeAttribute('disabled');
-        document.getElementById('viewItemsBTN').removeAttribute('disabled');
-        document.getElementById('addItemBTN').removeAttribute('disabled');
     }else{
         document.getElementById('project_id').value = data_list.projects[0];
         document.getElementById('project_name').value = data_list.projects[1];
         document.getElementById('number').setAttribute('disabled', 'true');
         document.getElementById('date').setAttribute('disabled', 'true');
+        document.getElementById('amount').setAttribute('disabled', 'true');
         document.getElementById('due').setAttribute('disabled', 'true');
         document.getElementById('bill_to').setAttribute('disabled', 'true');
         document.getElementById('type').setAttribute('disabled', 'true');
         document.getElementById('currency').setAttribute('disabled', 'true');
         document.getElementById('vat').setAttribute('disabled', 'true');
-        document.getElementById('item_number').setAttribute('disabled', 'true');
-        document.getElementById('quantity').setAttribute('disabled', 'true');
-        document.getElementById('uom').setAttribute('disabled', 'true');
-        document.getElementById('unit_price').setAttribute('disabled', 'true');
-        document.getElementById('description').setAttribute('disabled', 'true');
-        document.getElementById('viewItemsBTN').setAttribute('disabled', 'true');
-        document.getElementById('addItemBTN').setAttribute('disabled', 'true');
     }
 });
 
-// view items table
-document.getElementById('quantity').addEventListener('change', function () {
-    document.getElementById('amount').value = '';
-    var unit_price = document.getElementById('unit_price');
-    if (unit_price.value) {
-        document.getElementById('amount').value = (unit_price.value) * (this.value);
-    }
-});
-
-document.getElementById('unit_price').addEventListener('change', function () {
-    document.getElementById('amount').value = '';
-    var quantity = document.getElementById('quantity');
-    if (quantity.value) {
-        document.getElementById('amount').value = (quantity.value) * (this.value);
-    }
-});
 
 function formatDateTime(date) {
     if (!(date instanceof Date)) {
@@ -182,79 +103,6 @@ function formatDateTime(date) {
     var minutes = String(date.getMinutes()).padStart(2, '0');
     var formattedDateTime = `${month}/${day}/${year} ${hours}:${minutes}`;
     return formattedDateTime;
-}
-
-function AddItemIntoTable() {
-    var item_number = document.getElementById('item_number');
-    var quantity = document.getElementById('quantity');
-    var uom = document.getElementById('uom');
-    var unit_price = document.getElementById('unit_price');
-    var amount = document.getElementById('amount');
-    var description = document.getElementById('description');
-
-    item_number.classList.remove('bg-danger');
-    quantity.classList.remove('bg-danger');
-    uom.classList.remove('bg-danger');
-    unit_price.classList.remove('bg-danger');
-    description.classList.remove('bg-danger');
-
-    if (!(item_number.value)) {
-        // console.log('number');
-        item_number.classList.add('bg-danger');
-    } else if (!(quantity.value)) {
-        // console.log('quantity');
-        quantity.classList.add('bg-danger');
-    } else if (!(uom.value)) {
-        // console.log('uom');
-        uom.classList.add('bg-danger');
-    } else if (!(unit_price.value)) {
-        // console.log('unit_price');
-        unit_price.classList.add('bg-danger');
-    } else if (!(description.value)) {
-        // console.log('description');
-        description.classList.add('bg-danger');
-    } else {
-        var items_count = document.getElementById('items_count_modal');
-        var items_total = document.getElementById('items_total_modal');
-        items_count.innerHTML = parseInt(items_count.innerHTML) + 1;
-        items_total.innerHTML = parseFloat(items_total.innerHTML) + parseFloat(amount.value);
-
-        var selectedOption = uom.options[uom.selectedIndex];
-        var action_button = `<button class="btn btn-danger m-auto" style="width:100%" onclick="DeleteItem('${item_number.value}')"><i class="fa-solid fa-trash"></i></button>`;
-
-        var o = $("#ItemsTbl");
-        o.bootstrapTable('append', {
-            'number': item_number.value,
-            'description': description.value,
-            'quantity': quantity.value,
-            'uom': selectedOption.id,
-            'unit_price': unit_price.value,
-            'amount': amount.value,
-            'timestamp': formatDateTime(new Date()),
-            'actions': action_button,
-        });
-        ResetItemForm();
-    }
-}
-
-function ResetItemForm() {
-    document.getElementById('item_number').value = '';
-    document.getElementById('quantity').value = '';
-    document.getElementById('uom').value = '';
-    document.getElementById('unit_price').value = '';
-    document.getElementById('amount').value = 0;
-    document.getElementById('description').value = '';
-}
-
-function DeleteItem(rowid) {
-    var e = $("#ItemsTbl");
-    rowData = e.bootstrapTable('getRowByUniqueId', rowid);
-    var items_count = document.getElementById('items_count_modal');
-    var items_total = document.getElementById('items_total_modal');
-    items_count.innerHTML = parseInt(items_count.innerHTML) - 1;
-    items_total.innerHTML = parseFloat(items_total.innerHTML) - parseFloat(rowData.amount);
-    console.log(rowData);
-    e.bootstrapTable('removeByUniqueId', rowid)
 }
 
 
@@ -271,12 +119,12 @@ function VerifyInvoice() {
         'Project_Name': 0,
         'Invoice_Number': 0,
         'Invoice_Date': 0,
+        'Invoice_Amount': 0,
         'Payment_Due': 0,
         'Bill_To': 0,
         'Invoice_Type': 0,
         'Currency ': 0,
         'VAT': 0,
-        'Items': 0,
         'Upload': 0,
     }
     ResetVerifyFields();
@@ -292,12 +140,12 @@ function VerifyInvoice() {
     var project_name = document.getElementById('project_name');
     var number = document.getElementById('number');
     var date = document.getElementById('date');
+    var amount = document.getElementById('amount');
     var due = document.getElementById('due');
     var bill_to = document.getElementById('bill_to');
     var type = document.getElementById('type');
     var currency = document.getElementById('currency');
     var vat = document.getElementById('vat');
-    var items_count = document.getElementById('items_count_modal');
     const files = pond.getFiles();
     var flag = false;
     
@@ -331,6 +179,11 @@ function VerifyInvoice() {
         fields.Invoice_Date = 1;
         flag = true;
     }
+    if (amount.value == '') {
+        // console.log("no amount");
+        fields.Invoice_Amount = 1;
+        flag = true;
+    }
     if (due.value == '') {
         // console.log("no due");
         fields.Payment_Due = 1;
@@ -356,11 +209,7 @@ function VerifyInvoice() {
         fields.VAT = 1;
         flag = true;
     }
-    if (items_count.innerHTML == '0') {
-        // console.log("no items");
-        fields.Items = 1;
-        flag = true;
-    }
+
     if (files.length == 0) {
         // console.log("FilePond does not have any files");
         fields.Upload = 1;
@@ -470,12 +319,12 @@ function ResetVerifyFields() {
 // Calculate Invoice
 
 function CalculateInvoice() {
-    var items_total = parseFloat(document.getElementById('items_total_modal').innerHTML);
+    var invoice_total = parseFloat(document.getElementById('amount').value);
     var vatSelect = document.getElementById('vat');
     var vat = parseInt((vatSelect.options[vatSelect.selectedIndex]).id);
-    document.getElementById('calcAmount').innerHTML = items_total;
-    document.getElementById('calcVat').innerHTML = (items_total * vat) / 100;
-    document.getElementById('calcTotal').innerHTML = items_total + ((items_total * vat) / 100);
+    document.getElementById('calcAmount').innerHTML = invoice_total;
+    document.getElementById('calcVat').innerHTML = (invoice_total * vat) / 100;
+    document.getElementById('calcTotal').innerHTML = invoice_total + ((invoice_total * vat) / 100);
     // document.getElementById('cah').classList.add('bg-dark', 'text-white');
     // document.getElementById('cah').style = 'transition: all 1s ease;';
     // document.getElementById('cvh').classList.add('bg-dark', 'text-white');
@@ -484,7 +333,7 @@ function CalculateInvoice() {
     // document.getElementById('cth').style = 'transition: all 1s ease;';
     document.getElementById('reviewBtn').removeAttribute('disabled');
     document.getElementById('submitBtn').removeAttribute('disabled');
-    document.getElementById('calcAmount').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // document.getElementById('calcAmount').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Review Invoice
@@ -497,13 +346,14 @@ function ReviewInvoice() {
     var project_name = document.getElementById('project_name');
     var number = document.getElementById('number');
     var date = document.getElementById('date');
+    var amount = document.getElementById('amount');
     var due = document.getElementById('due');
     var bill_to = document.getElementById('bill_to');
     var type = document.getElementById('type');
     var currency = document.getElementById('currency');
     var vat = document.getElementById('vat');
-    var items_count = document.getElementById('items_count_modal');
-    var items_total = document.getElementById('items_total_modal');
+    // var items_count = document.getElementById('items_count_modal');
+    // var items_total = document.getElementById('items_total_modal');
 
     var poSelectedOption = po.options[po.selectedIndex];
     var milestoneSelectedOption = milestone.options[milestone.selectedIndex];
@@ -552,8 +402,8 @@ function ReviewInvoice() {
     document.getElementById('view_bill_to').innerHTML = bill_to.value;
     document.getElementById('view_due').innerHTML = due.value;
     document.getElementById('view_type').innerHTML = typeSelectedOption.innerHTML;
-    document.getElementById('total_items').innerHTML = items_count.innerHTML;
-    document.getElementById('total_amount').innerHTML = items_total.innerHTML;
+    // document.getElementById('total_items').innerHTML = items_count.innerHTML;
+    // document.getElementById('total_amount').innerHTML = items_total.innerHTML;
     document.getElementById('ta_view_invoice_currency').innerHTML = currencySelectedOption.innerHTML;
     document.getElementById('view_total_amount').innerHTML = calcAmount.innerHTML;
     document.getElementById('view_invoice_vat').innerHTML = vatSelectedOption.innerHTML;
@@ -563,15 +413,15 @@ function ReviewInvoice() {
     document.getElementById('view_invoice_total').innerHTML = calcTotal.innerHTML;
     document.getElementById('total_files').innerHTML = files.length;
 
-    var o = $("#ItemsTbl");
-    var temp_items_table = o.bootstrapTable().bootstrapTable('getData');
+    // var o = $("#ItemsTbl");
+    // var temp_items_table = o.bootstrapTable().bootstrapTable('getData');
 
-    var t = $("#InvoiceItemsTbl");
-    t.bootstrapTable("showLoading");
-    t.bootstrapTable("load", []);
-    t.bootstrapTable("load", temp_items_table);
-    t.bootstrapTable("refresh");
-    t.bootstrapTable("hideLoading");
+    // var t = $("#InvoiceItemsTbl");
+    // t.bootstrapTable("showLoading");
+    // t.bootstrapTable("load", []);
+    // t.bootstrapTable("load", temp_items_table);
+    // t.bootstrapTable("refresh");
+    // t.bootstrapTable("hideLoading");
 
     var files_list = ``;
     files.forEach((element)=>{
@@ -616,12 +466,12 @@ function SubmitInvoice(){
             var project_id = document.getElementById('project_id');
             var number = document.getElementById('number');
             var date = document.getElementById('date');
+            var amount = document.getElementById('amount');
             var due = document.getElementById('due');
             var bill_to = document.getElementById('bill_to');
             var type = document.getElementById('type');
             var currency = document.getElementById('currency');
             var vat = document.getElementById('vat');
-            var temp_table = $("#ItemsTbl").bootstrapTable().bootstrapTable('getData');
             var files = pond.getFiles();
 
             // Create FormData object
@@ -633,6 +483,7 @@ function SubmitInvoice(){
             formData.append('project', project_id.value);
             formData.append('number', number.value);
             formData.append('date', date.value);
+            formData.append('amount', amount.value);
             formData.append('due', due.value);
             formData.append('bill_to', bill_to.value);
             formData.append('type', type.value);
@@ -642,18 +493,6 @@ function SubmitInvoice(){
             files.forEach((file, index) => {
                 console.log(file.file);
                 formData.append(`filepond`, file.file);
-            });
-            // Append additional data from the table
-            temp_table.forEach((row, index) => {
-                console.log(row);
-                formData.append(`items`, JSON.stringify({
-                    'number': row.number,
-                    'description': row.description,
-                    'quantity': row.quantity,
-                    'uom': row.uom,
-                    'unit_price': row.unit_price,
-                    'amount': row.amount,
-                }));
             });
 
             $.ajax({
@@ -720,162 +559,3 @@ function SubmitInvoice(){
         }, 3000);
     }
 }
-
-
-// temp items table
-
-var o = $("#ItemsTbl");
-$("#toolbar")
-    .find("select")
-    .change(function () {
-        var filename = document.getElementById('exportFileName').value;
-        var currentDate = new Date();
-        var temp_table = o.bootstrapTable().bootstrapTable('getData');
-        o.bootstrapTable("destroy").bootstrapTable({
-            exportDataType: $(this).val(),
-            exportOptions: {
-                fileName: (filename ? filename + '_' : 'GTS_') + currentDate.toLocaleString(),
-            },
-            exportTypes: ["json", "xml", "csv", "txt", "sql", "excel", "pdf"],
-            columns: [
-                { field: "state", checkbox: !0, visible: "selected" === $(this).val() },
-                { field: "number", title: "Number" },
-                { field: "description", title: "Description" },
-                { field: "quantity", title: "Quantity" },
-                { field: "uom", title: "UOM" },
-                { field: "unit_price", title: "Unit Price" },
-                { field: "amount", title: "Amount" },
-                { field: "timestamp", title: "Timestamp" },
-                { field: "actions", title: "Actions" },
-            ],
-        });
-        o.bootstrapTable("showLoading");
-        o.bootstrapTable("load", temp_table);
-        o.bootstrapTable("refresh");
-        o.bootstrapTable("hideLoading");
-    }).trigger('change')
-
-
-document.getElementById("print_selected").addEventListener("click", function () {
-    var selectedRows = [];
-    selectedRows = $("#ItemsTbl").bootstrapTable("getSelections");
-    console.log(selectedRows);
-    var printWindow = window.open("", "_blank");
-    var currentDate = new Date();
-    printWindow.document.open();
-    printWindow.document.write(
-        "<html><head><title>Items Table</title>" +
-        "<style>" +
-        "table { border-collapse: collapse;width: 100%; }" +
-        "th, td { border: 1px solid black;text-align: center; }" +
-        "</style>" +
-        "</head><body>"
-    );
-    //        printWindow.document.write("<html><head><title>Alarms Table</title></head><body>");
-    printWindow.document.write("<h2>Printed on: " + currentDate.toString() + "</h2>");
-    printWindow.document.write("<table>");
-    // Get the column names from the table header
-    var columnNames = [];
-    $("#ItemsTbl thead th").each(function () {
-        columnNames.push($(this).data("field"));
-    });
-
-    // Print the table header with column names
-    printWindow.document.write("<tr>");
-    for (var j = 1; j < columnNames.length - 1; j++) {
-        printWindow.document.write("<th>" + columnNames[j] + "</th>");
-    }
-    printWindow.document.write("</tr>");
-
-    // Iterate over selected rows
-    for (var i = 0; i < selectedRows.length; i++) {
-        var row = selectedRows[i];
-        printWindow.document.write("<tr>");
-        for (var j = 1; j < columnNames.length - 1; j++) {
-            var columnName = columnNames[j];
-            printWindow.document.write("<td>" + row[columnName] + "</td>");
-        }
-        printWindow.document.write("</tr>");
-    }
-    printWindow.document.write("</table></body></html>");
-    printWindow.document.close();
-    printWindow.print();
-})
-
-
-// review items table
-var t = $("#InvoiceItemsTbl");
-$("#items_toolbar")
-    .find("select")
-    .change(function () {
-        var filename = document.getElementById('items_exportFileName').value;
-        var currentDate = new Date();
-        var temp_table = t.bootstrapTable().bootstrapTable('getData');
-        t.bootstrapTable("destroy").bootstrapTable({
-            exportDataType: $(this).val(),
-            exportOptions: {
-                fileName: (filename ? filename + '_' : 'GTS_') + currentDate.toLocaleString(),
-            },
-            exportTypes: ["json", "xml", "csv", "txt", "sql", "excel", "pdf"],
-            columns: [
-                { field: "state", checkbox: !0, visible: "selected" === $(this).val() },
-                { field: "number", title: "Number" },
-                { field: "description", title: "Description" },
-                { field: "quantity", title: "Quantity" },
-                { field: "uom", title: "UOM" },
-                { field: "unit_price", title: "Unit Price" },
-                { field: "amount", title: "Amount" }
-            ],
-        });
-        t.bootstrapTable("showLoading");
-        t.bootstrapTable("load", temp_table);
-        t.bootstrapTable("refresh");
-        t.bootstrapTable("hideLoading");
-    }).trigger('change')
-
-
-document.getElementById("items_print_selected").addEventListener("click", function () {
-    var selectedRows = [];
-    selectedRows = $("#InvoiceItemsTbl").bootstrapTable("getSelections");
-    console.log(selectedRows);
-    var printWindow = window.open("", "_blank");
-    var currentDate = new Date();
-    printWindow.document.open();
-    printWindow.document.write(
-        "<html><head><title>Items Table</title>" +
-        "<style>" +
-        "table { border-collapse: collapse;width: 100%; }" +
-        "th, td { border: 1px solid black;text-align: center; }" +
-        "</style>" +
-        "</head><body>"
-    );
-    //        printWindow.document.write("<html><head><title>Alarms Table</title></head><body>");
-    printWindow.document.write("<h2>Printed on: " + currentDate.toString() + "</h2>");
-    printWindow.document.write("<table>");
-    // Get the column names from the table header
-    var columnNames = [];
-    $("#InvoiceItemsTbl thead th").each(function () {
-        columnNames.push($(this).data("field"));
-    });
-
-    // Print the table header with column names
-    printWindow.document.write("<tr>");
-    for (var j = 1; j < columnNames.length - 1; j++) {
-        printWindow.document.write("<th>" + columnNames[j] + "</th>");
-    }
-    printWindow.document.write("</tr>");
-
-    // Iterate over selected rows
-    for (var i = 0; i < selectedRows.length; i++) {
-        var row = selectedRows[i];
-        printWindow.document.write("<tr>");
-        for (var j = 1; j < columnNames.length - 1; j++) {
-            var columnName = columnNames[j];
-            printWindow.document.write("<td>" + row[columnName] + "</td>");
-        }
-        printWindow.document.write("</tr>");
-    }
-    printWindow.document.write("</table></body></html>");
-    printWindow.document.close();
-    printWindow.print();
-})

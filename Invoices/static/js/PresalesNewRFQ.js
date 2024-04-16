@@ -77,18 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
     //     return cookieValue;
     // }
     // Get the current date and time
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');  // Months are 0-indexed
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const hours = String(currentDate.getHours()).padStart(2, '0');
-    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    // const currentDate = new Date();
+    // const year = currentDate.getFullYear();
+    // const month = String(currentDate.getMonth() + 1).padStart(2, '0');  // Months are 0-indexed
+    // const day = String(currentDate.getDate()).padStart(2, '0');
+    // const hours = String(currentDate.getHours()).padStart(2, '0');
+    // const minutes = String(currentDate.getMinutes()).padStart(2, '0');
 
     // Format the date and time for datetime-local input
-    const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    // const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
     
     // Set the value of the input field
-    document.getElementById('submission_deadline').value = formattedDateTime;
+    // document.getElementById('submission_deadline').value = formattedDateTime;
 });
 
 
@@ -306,6 +306,7 @@ function VerifyRFQ() {
     var vendor = document.getElementById('vendor');
     var ship_to_address = document.getElementById('ship_to_address');
     var Bidder_ID = document.getElementById('Bidder_ID');
+    var submission_deadline = document.getElementById('submission_deadline');
     var qmbvu = document.getElementById('qmbvu');
     var RFQ_type = document.getElementById('RFQ_type');
     var eqc = document.getElementById('eqc');
@@ -341,6 +342,11 @@ function VerifyRFQ() {
     if (Bidder_ID.value == '') {
         // console.log("no vat");
         fields.Bidder_ID = 1;
+        flag = true;
+    }
+    if (submission_deadline.value == '') {
+        // console.log("no milestone");
+        fields.Submission_Deadline = 1;
         flag = true;
     }
     if (qmbvu.value == '') {
@@ -566,7 +572,7 @@ function ReviewRFQ() {
         show: true,
     });
 
-    document.getElementById('submitBtn').removeAttribute('disabled');
+    // document.getElementById('submitBtn').removeAttribute('disabled');
 }
 
 
@@ -586,7 +592,7 @@ function SubmitRFQ(){
             var project = document.getElementById('project');
             var ship_to_address = document.getElementById('ship_to_address');
             var Bidder_ID = document.getElementById('Bidder_ID');
-            // var submission_deadline = document.getElementById('submission_deadline');
+            var submission_deadline = document.getElementById('submission_deadline');
             var qmbvu = document.getElementById('qmbvu');
             var RFQ_type = document.getElementById('RFQ_type');
             var eqc = document.getElementById('eqc');
@@ -606,7 +612,7 @@ function SubmitRFQ(){
             formData.append('project', project.value);
             formData.append('ship_to_address', ship_to_address.value);
             formData.append('Bidder_ID', Bidder_ID.value);
-            // formData.append('submission_deadline', submission_deadline.value);
+            formData.append('submission_deadline', submission_deadline.value);
             formData.append('qmbvu', qmbvu.value);
             formData.append('RFQ_type', RFQ_type.value);
             formData.append('eqc', eqc.value);

@@ -166,6 +166,7 @@ function ViewQuoteModal(rowid) {
             document.getElementById('cq_eqc').innerHTML=t.eqc;
             document.getElementById('total_net_value').innerHTML=t.net_value;
             document.getElementById('cq_currency').innerHTML=t.currency;
+            document.getElementById('quotation_timestamp').innerHTML=t.timestamp;
 
 
             document.getElementById('q_total_files').innerHTML=t.attachments_count;

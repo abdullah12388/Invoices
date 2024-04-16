@@ -19,26 +19,26 @@ class VendorAdmin(admin.ModelAdmin):
         'timestamp',
     ]
 
-@admin.register(ItemUom)
-class ItemUomAdmin(admin.ModelAdmin):
-    list_display = [
-        'id',
-        'name',
-        'timestamp',
-    ]
+# @admin.register(ItemUom)
+# class ItemUomAdmin(admin.ModelAdmin):
+#     list_display = [
+#         'id',
+#         'name',
+#         'timestamp',
+#     ]
 
-@admin.register(Item)
-class ItemAdmin(admin.ModelAdmin):
-    list_display = [
-        'id',
-        'number',
-        'description',
-        'quantity',
-        'uom',
-        'unit_price',
-        'amount',
-        'timestamp',
-    ]
+# @admin.register(Item)
+# class ItemAdmin(admin.ModelAdmin):
+#     list_display = [
+#         'id',
+#         'number',
+#         'description',
+#         'quantity',
+#         'uom',
+#         'unit_price',
+#         'amount',
+#         'timestamp',
+#     ]
     
 @admin.register(InvoiceType)
 class InvoiceTypeAdmin(admin.ModelAdmin):
@@ -74,6 +74,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'project',
         'number',
         'date',
+        'amount',
         'payment_due',
         'bill_to',
         'type',

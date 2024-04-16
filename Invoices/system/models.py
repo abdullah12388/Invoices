@@ -73,7 +73,6 @@ RFQ_BidderCanChangeQuantity = [
 ]
 
 
-
 class RFQ(models.Model):
     RFQ_ID = models.CharField(max_length=256)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -213,19 +212,19 @@ def PO_delete_related_files(sender, instance, **kwargs):
 
 
 
-class ItemUom(models.Model):
-    name = models.CharField(max_length=10)
-    timestamp = models.DateTimeField(auto_now_add=True)
+# class ItemUom(models.Model):
+#     name = models.CharField(max_length=10)
+#     timestamp = models.DateTimeField(auto_now_add=True)
     
 
-class Item(models.Model):    
-    number = models.CharField(max_length=256)
-    description = models.TextField()
-    quantity = models.FloatField()
-    uom = models.ForeignKey(ItemUom, on_delete=models.CASCADE)
-    unit_price = models.FloatField()
-    amount = models.FloatField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+# class Item(models.Model):    
+#     number = models.CharField(max_length=256)
+#     description = models.TextField()
+#     quantity = models.FloatField()
+#     uom = models.ForeignKey(ItemUom, on_delete=models.CASCADE)
+#     unit_price = models.FloatField()
+#     amount = models.FloatField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class InvoiceType(models.Model):
@@ -250,12 +249,13 @@ class Invoice(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     number = models.CharField(max_length=256)
     date = models.DateField()
+    amount = models.FloatField()
     payment_due = models.PositiveBigIntegerField()
     bill_to = models.CharField(max_length=256)
     type = models.ForeignKey(InvoiceType, on_delete=models.CASCADE)
     currency = models.ForeignKey(InvoiceCurrency, on_delete=models.CASCADE)
     vat = models.ForeignKey(InvoiceVat, on_delete=models.CASCADE)
-    items = models.ManyToManyField(Item, related_name='InvoiceItems')
+    # items = models.ManyToManyField(Item, related_name='InvoiceItems')
     timestamp = models.DateTimeField(auto_now_add=True)
 
 

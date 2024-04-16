@@ -57,7 +57,7 @@
                                     <h4 style="margin: 0px;">Name <span class="text-danger m-0">*</span></h4>
                                 </div>
                                 <div class="col-8 d-flex justify-content-center align-items-center">
-                                    <input class="form-control" type="text" placeholder="Enter Project Name" name="project_name">
+                                    <input class="form-control" type="text" placeholder="Enter Project Name" name="project_name" pattern="^(?!^\d+$)(?!^\s+$).*$" id="project_name">
                                 </div>
                             </div>
                             <div class="row mt-4">
@@ -71,7 +71,7 @@
                                 <div class="col-4 d-flex justify-content-center align-items-center">
                                 </div>
                                 <div class="col-8 d-flex justify-content-start align-items-center">
-                                    <input class="btn btn-success" type="submit" value="Submit">
+                                    <input class="btn btn-success" type="submit" value="Submit" id="submitBTN" disabled>
                                 </div>
                             </div>
                         </form>

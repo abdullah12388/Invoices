@@ -1,5 +1,6 @@
 let pond;
 var precent = 0;
+var due = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Get a reference to the file input element
@@ -108,6 +109,15 @@ document.getElementById('milestone_precentage').addEventListener('change', funct
     milestone_amount.value = (parseFloat(total_value.value) * parseFloat(this.value))/100;
 })
 
+
+document.getElementById('enableBTN').addEventListener('click', function(){
+    document.getElementById('enableDiv').classList.add('d-none');
+    document.getElementById('pd_input').classList.remove('d-none');
+    document.getElementById('pd_label').classList.remove('d-none');
+    document.getElementById('pd_req').classList.remove('d-none');
+    due = true;
+});
+
 function AddItemIntoTable() {
     var milestone_id = document.getElementById('milestone_id');
     var milestone_precentage = document.getElementById('milestone_precentage');
@@ -123,15 +133,16 @@ function AddItemIntoTable() {
         // console.log('number');
         milestone_precentage.classList.add('bg-danger');
     } 
-    // else if (!(milestone_due.value)) {
-    //     // console.log('quantity');
-    //     milestone_due.classList.add('bg-danger');
-    // } 
+    else if (due && (!(milestone_due.value))) {
+        // console.log(milestone_due);
+        milestone_due.classList.add('bg-danger');
+    }
     else if (!(milestone_description.value)) {
         // console.log('unit_price');
         milestone_description.classList.add('bg-danger');
     } else {
-        if(precent < 100){
+        check_precent = parseInt(precent) + parseInt(milestone_precentage.value);
+        if(check_precent <= 100){
             milestone_precentage.classList.remove('bg-danger', 'text-white');
             precent = parseInt(precent) + parseInt(milestone_precentage.value);
             var milestones_count = document.getElementById('milestones_count_modal');
@@ -165,6 +176,12 @@ function ResetItemForm() {
     document.getElementById('milestone_due').value = '';
     document.getElementById('milestone_amount').value = '';
     document.getElementById('milestone_description').value = '';
+    
+    document.getElementById('enableDiv').classList.remove('d-none');
+    document.getElementById('pd_input').classList.add('d-none');
+    document.getElementById('pd_label').classList.add('d-none');
+    document.getElementById('pd_req').classList.add('d-none');
+    due = false;
 }
 
 function DeleteItem(rowid) {
@@ -387,7 +404,7 @@ function ReviewPO() {
     document.getElementById('total_files').innerHTML = files.length;
 
     var o = $("#milestonesTbl");
-    var temp_items_table = o.bootstrapTable().bootstrapTable('getData');
+    var temp_items_table = o.bootstrapTable('getData');
 
     var t = $("#POMilestonesTbl");
     t.bootstrapTable("showLoading");
@@ -441,7 +458,7 @@ function SubmitPO(){
             var currency = document.getElementById('currency');
             var shipping_terms = document.getElementById('shipping_terms');
 
-            var temp_table = $("#milestonesTbl").bootstrapTable().bootstrapTable('getData');
+            var temp_table = $("#milestonesTbl").bootstrapTable('getData');
             var files = pond.getFiles();
             
             // Create FormData object
@@ -542,7 +559,7 @@ $("#toolbar")
     .change(function () {
         var filename = document.getElementById('exportFileName').value;
         var currentDate = new Date();
-        var temp_table = o.bootstrapTable().bootstrapTable('getData');
+        var temp_table = o.bootstrapTable('getData');
         o.bootstrapTable("destroy").bootstrapTable({
             exportDataType: $(this).val(),
             exportOptions: {
@@ -621,7 +638,7 @@ $("#milestone_toolbar")
     .change(function () {
         var filename = document.getElementById('milestones_exportFileName').value;
         var currentDate = new Date();
-        var temp_table = t.bootstrapTable().bootstrapTable('getData');
+        var temp_table = t.bootstrapTable('getData');
         t.bootstrapTable("destroy").bootstrapTable({
             exportDataType: $(this).val(),
             exportOptions: {

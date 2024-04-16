@@ -1,0 +1,671 @@
+{% extends "base.html" %}
+
+{% block ManagerQuotation %}
+<main id="DoneParent">
+    <div class="container-fluid px-4">
+        <!-- <h1 class="mt-4 mb-4">Invoices | Report | Pending</h1> -->
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-left" style="background-color: #212529;padding: 10px 15px;border-radius: 5px;"
+                            role="tab" id="pending_filters">
+                        <h4 class="panel-title m-0">
+                            <div class="row">
+                                <div class="col-9">
+                                    <a role="button" data-toggle="collapse"
+                                        style="text-decoration: none;color: #fff;" href="#collapse_done_filters"
+                                        aria-expanded="false" aria-controls="collapse_done_filters">
+                                        <i class="fa-solid fa-filter me-1"></i>
+                                        Quotation Filters
+                                    </a>
+                                </div>
+                                <div class="col-3 text-right">
+                                    <button class="btn btn-success btn-sm" id="sbmtBTN" disabled>Submit</button>
+                                    <button class="btn btn-danger btn-sm" id="rstBTN">Reset ALL</button>
+                                </div>
+                            </div>
+                        </h4>
+                    </div>
+                    <div id="collapse_done_filters" class="panel-collapse collapse in show" role="tabpanel"
+                        aria-labelledby="pending_filters">
+                        <div class="panel-body">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <div class="row">
+                                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                                            <i class="fa-solid fa-filter me-1"></i>
+                                                            Quotation ID
+                                                        </div>
+                                                        <div class="col-2 d-flex justify-content-end align-items-center">
+                                                            <button class="btn btn-danger btn-sm" id="quotationBTN"
+                                                                style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="quotation" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Quotation...</option>
+                                                        {% for qidr in Quotation_ID_results %}
+                                                        <option value="{{qidr.0}}">{{qidr.0}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <div class="row">
+                                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                                            <i class="fa-solid fa-filter me-1"></i>
+                                                            RFQ ID
+                                                        </div>
+                                                        <div class="col-2 d-flex justify-content-end align-items-center">
+                                                            <button class="btn btn-danger btn-sm" id="RFQIDBTN"
+                                                                style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="RFQ_ID" data-live-search="true">
+                                                        <option value="" selected disabled>Choose RFQ ID...</option>
+                                                        {% for rfqir in RFQ_ID_results %}
+                                                        <option value="{{rfqir.0}}">{{rfqir.0}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <div class="row">
+                                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                                            <i class="fa-solid fa-filter me-1"></i>
+                                                            Status
+                                                        </div>
+                                                        <div class="col-2 d-flex justify-content-end align-items-center">
+                                                            <button class="btn btn-danger btn-sm" id="statusBTN"
+                                                            style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="status" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Status...</option>
+                                                        {% for st in Status %}
+                                                        <option value="{{st.0}}">{{st.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <div class="row">
+                                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                                            <i class="fa-solid fa-filter me-1"></i>
+                                                            Currency
+                                                        </div>
+                                                        <div class="col-2 d-flex justify-content-end align-items-center">
+                                                            <button class="btn btn-danger btn-sm" id="currencyBTN"
+                                                            style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="currency" data-live-search="true">
+                                                        <option value="" selected disabled>Choose Currency...</option>
+                                                        {% for cur in currency_results %}
+                                                        <option value="{{cur.0}}">{{cur.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <div class="row">
+                                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                                            <i class="fa-solid fa-filter me-1"></i>
+                                                            Submitted User
+                                                        </div>
+                                                        <div class="col-2 d-flex justify-content-end align-items-center">
+                                                            <button class="btn btn-danger btn-sm" id="userBTN"
+                                                                style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <select class="selectpicker form-control" id="user" data-live-search="true">
+                                                        <option value="" selected disabled>Choose User...</option>
+                                                        {% for ur in user_results %}
+                                                        <option value="{{ur.0}}">{{ur.1}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-4">
+                                            <div class="card">
+                                                <div class="card-header bg-dark text-white">
+                                                    <div class="row">
+                                                        <div class="col-10 d-flex justify-content-start align-items-center">
+                                                            <i class="fa-solid fa-filter me-1"></i>
+                                                            Timestamp
+                                                        </div>
+                                                        <div class="col-2 d-flex justify-content-end align-items-center">
+                                                            <button class="btn btn-danger btn-sm" id="timestampBTN"
+                                                                style="padding: 0px 5px;"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="datetime-local" id="timestamp_from">
+                                                        </div>
+                                                        <div class="col-2" style="display: flex;justify-content: center;align-items: center;">
+                                                            <label>To</label>
+                                                        </div>
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="datetime-local" id="timestamp_to">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row d-none" id="miniloader">
+            <div class="col-12 text-center">
+                <span class="loader">L &nbsp; ading</span>
+            </div>
+        </div>
+        <div class="card mb-4 mt-3 d-none" id="card-table">
+            <div class="card-header bg-dark text-white">
+                <i class="fas fa-table me-1"></i>
+                Quotation Table
+            </div>
+            <div class="card-body table-striped">
+                <div id="toolbar" class="select" style="display: flex;">
+                    <input type="text" class="form-control" style="margin-right:5px;" id="exportFileName"
+                        placeholder="Export File Name">
+                    <select class="form-control" style="margin-right:5px;">
+                        <option value="">Export Basic</option>
+                        <option value="all">Export All</option>
+                        <option value="selected">Export Selected</option>
+                    </select>
+                    <button class="btn" style="color: #fff;background-color: #6c757d" id="print_selected">Print
+                        Selected</button>
+                </div>
+                <table id="doneQuotationTbl" data-toggle="table" data-pagination="true" data-search="true"
+                    data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                    data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                    data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                    data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                    data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                    data-toolbar="#toolbar" data-unique-id="id">
+                    <thead>
+                        <tr>
+                            <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                            <th data-field="id" data-sortable="true" data-filter-control="input">ID</th>
+                            <th data-field="RFQ_ID" data-sortable="true" data-filter-control="input">RFQ ID</th>
+                            <th data-field="net_value" data-sortable="true" data-filter-control="input">Total Net Value</th>
+                            <th data-field="currency" data-sortable="true" data-filter-control="input">Currency</th>
+                            <th data-field="user" data-sortable="true" data-filter-control="input">Submitted user</th>
+                            <th data-field="status" data-sortable="true" data-filter-control="input">Status</th>
+                            <th data-field="timestamp" data-sortable="true" data-filter-control="input">Timestamp</th>
+                            <th data-field="details" data-sortable="true" data-filter-control="input">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="view_action_modal" tabindex="-1" role="dialog" aria-labelledby="ReviewModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <div class="col-3 text-center">
+                        <h5 class="modal-title" id="RFQ_Sys_ID" style="background-color: #212529;border-radius: 5px;">ID #</h5>
+                    </div>
+                    <div class="col-7 text-center">
+                        <h5 class="modal-title" id="ViewExampleModalLongTitle">Request For Quotation Details</h5>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Vendor</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_vendor"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>RFQ ID</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_RFQ_ID"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Project</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_project_name"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Ship-to Address</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_ship_to_address"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <h4 class="m-0">General Requirements</h4>
+                        </div>
+                    </div>
+                    <hr class="bg-dark">
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder ID</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bidder_id"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Submission Deadline</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_submission_deadline"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Quote must be valid until</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_qmbvu"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>RFQ Type</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_RFQ_Type"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Expected quote currency</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_eqc"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Quotes required for all items</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_qrfai"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder can change submitted quote</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bccsq"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder can add items</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bcai"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <label>Bidder can change quantity</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h6 id="view_bccq"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="items_table">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_items_table"
+                                                    aria-expanded="false" aria-controls="collapse_items_table">
+                                                    <i class="fa-solid fa-table me-1"></i>
+                                                    RFQ Products Table
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-start align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Products</h5>
+                                                        <h5 class="mb-0" id="total_products"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_items_table" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="items_table">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body table-striped table-sm">
+                                                <div id="items_toolbar" class="select" style="display: flex;">
+                                                    <input type="text" class="form-control" style="margin-right:5px;" id="items_exportFileName"
+                                                        placeholder="Export File Name">
+                                                    <select class="form-control" style="margin-right:5px;">
+                                                        <option value="">Export Basic</option>
+                                                        <option value="all">Export All</option>
+                                                        <option value="selected">Export Selected</option>
+                                                    </select>
+                                                    <button class="btn" style="color: #fff;background-color: #6c757d" id="items_print_selected">Print
+                                                        Selected</button>
+                                                </div>
+                                                <table class="table-sm" id="RFQProductsTbl" data-toggle="table" data-pagination="true" data-search="true"
+                                                    data-show-columns="true" data-show-toggle="true" data-show-columns-search="true"
+                                                    data-show-pagination-switch="true" data-show-fullscreen="true" data-searchable="true"
+                                                    data-show-print="true" data-print-as-filtered-and-sorted-on-ui="true"
+                                                    data-mobile-responsive="true" data-key-events="true" data-show-search-clear-button="true"
+                                                    data-filter-control="true" data-show-export="true" data-click-to-select="true"
+                                                    data-toolbar="#items_toolbar" data-unique-id="item_number">
+                                                    <thead>
+                                                        <tr>
+                                                            <th data-field="state" data-checkbox="true" data-visible="false"></th>
+                                                            <th data-field="item_number" data-sortable="true" data-filter-control="input">Item</th>
+                                                            <th data-field="product_id" data-sortable="true" data-filter-control="input">Product ID</th>
+                                                            <th data-field="description" data-sortable="true" data-filter-control="input">Product Description</th>
+                                                            <th data-field="category" data-sortable="true" data-filter-control="input">Product Category</th>
+                                                            <th data-field="dd_sp" data-sortable="true" data-filter-control="input">Delivery Date/Service Period</th>
+                                                            <th data-field="quantity" data-sortable="true" data-filter-control="input">Quantity</th>
+                                                            <th data-field="uom" data-sortable="true" data-filter-control="input">UOM</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left" style="background-color: #6c757d;padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="invoice_files">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_invoice_files"
+                                                    aria-expanded="false" aria-controls="collapse_invoice_files">
+                                                    <i class="fa-solid fa-file-pdf me-1"></i>
+                                                    RFQ Attachment
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-start align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Files</h5>
+                                                        <h5 class="mb-0" id="total_files"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_invoice_files" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="invoice_files">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body make-my-scrollable" style="max-height: 200px;" id="files_parent">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="view_quote_action_modal" tabindex="-1" role="dialog" aria-labelledby="viewQuoteModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title">Quotation Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px; font-weight: bold;">General Information From RFQ</label>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4 d-flex justify-content-start align-items-center">
+                            <label style="margin: 0;font-size: 20px;">RFQ ID</label>
+                        </div>
+                        <div class="col-8 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="cq_RFQ_ID"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4 d-flex justify-content-start align-items-center">
+                            <label style="margin: 0;font-size: 20px;">RFQ Type</label>
+                        </div>
+                        <div class="col-8 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="cq_RFQ_Type"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4 d-flex justify-content-start align-items-center">
+                            <label style="margin: 0;font-size: 20px;">Submission Deadline</label>
+                        </div>
+                        <div class="col-8 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="cq_submission_deadline"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4 d-flex justify-content-start align-items-center">
+                            <label style="margin: 0;font-size: 20px;">Quote Must Be Valid Until</label>
+                        </div>
+                        <div class="col-8 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="cq_qmbvu"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4 d-flex justify-content-start align-items-center">
+                            <label style="margin: 0;font-size: 20px;">Currency</label>
+                        </div>
+                        <div class="col-8 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="cq_eqc"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px; font-weight: bold;">Quote Information</label>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4 d-flex justify-content-start align-items-center">
+                            <label style="margin: 0;font-size: 20px;">Total Net Value</label>
+                        </div>
+                        <div class="col-5 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="total_net_value"></label>
+                        </div>
+                        <div class="col-3 d-flex justify-content-center align-items-center">
+                            <label style="margin: 0;font-size: 20px;" id="cq_currency"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading text-left bg-secondary text-white" style="padding: 10px 15px;border-radius: 5px;"
+                                        role="tab" id="quote_files">
+                                    <h4 class="panel-title m-0">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a role="button" data-toggle="collapse"
+                                                    style="text-decoration: none;color: #fff;" href="#collapse_quote_files"
+                                                    aria-expanded="false" aria-controls="collapse_quote_files">
+                                                    <i class="fa-solid fa-file-pdf me-1"></i>
+                                                    Quotation Attachment
+                                                </a>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-start align-items-center text-white">
+                                                        <h5 class="mb-0 mr-2 pr-2" style="border-right: 2px solid #fff;">Files</h5>
+                                                        <h5 class="mb-0" id="q_total_files"></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                                <div id="collapse_quote_files" class="panel-collapse collapse in" role="tabpanel"
+                                    aria-labelledby="quote_files">
+                                    <div class="panel-body">
+                                        <div class="card">
+                                            <div class="card-body make-my-scrollable" style="max-height: 200px;" id="q_files_parent">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

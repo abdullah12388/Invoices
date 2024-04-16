@@ -95,7 +95,7 @@
                     {% endif %}
                     <!-- <a class="nav-link" href="/tank/sites/"> -->
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
-                        New Invoice
+                        Invoices | New
                     </a>
 
 
@@ -105,7 +105,7 @@
                     <a class="nav-link" href="/system/Invoices/VendorDone/">
                     {% endif %}
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
-                        Invoices Report
+                        Invoices | Report
                     </a>
 
                     
@@ -197,7 +197,7 @@
                     <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#invoices"
                         role="button" aria-expanded="True" aria-controls="invoices">
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
-                        Invoices Report
+                        Invoices
                     </a>
                     <div class="collapse show" id="invoices" style="background-color: #000000c9;">
                         <a class="nav-link active" href="/system/Invoices/ProcurementToDo/">
@@ -213,7 +213,7 @@
                     <a class="nav-link active" class="btn btn-primary" data-toggle="collapse" href="#invoices"
                         role="button" aria-expanded="True" aria-controls="invoices">
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
-                        Invoices Report
+                        Invoices
                     </a>
                     <div class="collapse show" id="invoices" style="background-color: #000000c9;">
                         <a class="nav-link" href="/system/Invoices/ProcurementToDo/">
@@ -229,7 +229,7 @@
                     <a class="nav-link" class="btn btn-primary" data-toggle="collapse" href="#invoices"
                         role="button" aria-expanded="True" aria-controls="invoices">
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
-                        Invoices Report
+                        Invoices
                     </a>
                     <div class="collapse" id="invoices" style="background-color: #000000c9;">
                         <a class="nav-link" href="/system/Invoices/ProcurementToDo/">
@@ -250,7 +250,7 @@
                     <a class="nav-link" href="/system/Invoices/ProcurementNewVendor/">
                     {% endif %}
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-user-plus"></i></div>
-                        New Vendor
+                        Vendor | New
                     </a>
 
 
@@ -274,14 +274,78 @@
                         Dashboard
                     </a>
 
-                    {% if '/system/Invoices/ManagerDone/' in request.path %}
-                    <a class="nav-link active" href="/system/Invoices/ManagerDone/">
+
+                    {% if '/system/ManagerProject/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerProject/">
                     {% else %}
-                    <a class="nav-link" href="/system/Invoices/ManagerDone/">
+                    <a class="nav-link" href="/system/ManagerProject/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                        Projects
+                    </a>
+
+
+                    {% if '/system/ManagerRFQ/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerRFQ/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ManagerRFQ/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        RFQs
+                    </a>
+
+
+                    {% if '/system/ManagerQuotation/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerQuotation/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ManagerQuotation/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-import me-1"></i></div>
+                        Quotations
+                    </a>
+
+
+                    {% if '/system/ManagerPO/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerPO/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ManagerPO/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-money-check-dollar me-1"></i></div>
+                        Purchase Orders
+                    </a>
+
+
+                    {% if '/system/ManagerInvoices/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerInvoices/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ManagerInvoices/">
                     {% endif %}
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-business-time"></i></div>
-                        Invoices Report
+                        Invoices
                     </a>
+
+
+                    {% if '/system/ManagerVendor/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerVendor/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ManagerVendor/">
+                    {% endif %}
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-user me-1"></i></div>
+                        Vendors
+                    </a>
+
+
+                    {% if '/system/ManagerConfiguration/' in request.path %}
+                    <a class="nav-link active" href="/system/ManagerConfiguration/">
+                    {% else %}
+                    <a class="nav-link" href="/system/ManagerConfiguration/">
+                    {% endif %}
+                    <!-- <a class="nav-link active" href="/tank/dashboard/"> -->
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-sliders me-1"></i></div>
+                        Configurations
+                    </a>
+
 
                 {% elif user.role.id == 4 %}
                     {% if '/system/Presales/' in request.path %}

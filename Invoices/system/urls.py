@@ -1,13 +1,13 @@
 from django.urls import path, re_path, include
 from .views import *
 # from django.views.static import serve
-"/system/Vendor/Invoices/Status/column/chart/api/"
-"/system/Vendor/Invoices/Status/pie/chart/api/"
+
+
 urlpatterns = [
     # Vendor
     path('Vendor/', VendorDashboardView, name='VendorDashboardView'),
-    path('Vendor/Invoices/Status/column/chart/api/', VendorInvoicesStatusColumnChartApi, name='VendorInvoicesStatusColumnChartApi'),
-    path('Vendor/Invoices/Status/pie/chart/api/', VendorInvoicesStatusPieChartApi, name='VendorInvoicesStatusPieChartApi'),
+    path('Vendor/Status/column/chart/api/', VendorStatusColumnChartApi, name='VendorStatusColumnChartApi'),
+    path('Vendor/Status/pie/chart/api/', VendorStatusPieChartApi, name='VendorStatusPieChartApi'),
     
     path('VendorRFQToDo/', VendorPendingRFQView, name='VendorPendingRFQView'),
     path('VendorRFQToDo/table/api/', VendorRFQToDoTableApi, name='VendorRFQToDoTableApi'),
@@ -41,8 +41,8 @@ urlpatterns = [
 
     # Procurement
     path('Procurement/', ProcurementDashboardView, name='ProcurementDashboardView'),
-    path('Procurement/Invoices/Status/column/chart/api/', ProcurementInvoicesStatusColumnChartApi, name='ProcurementInvoicesStatusColumnChartApi'),
-    path('Procurement/Invoices/Status/pie/chart/api/', ProcurementInvoicesStatusPieChartApi, name='ProcurementInvoicesStatusPieChartApi'),
+    path('Procurement/Status/column/chart/api/', ProcurementStatusColumnChartApi, name='ProcurementStatusColumnChartApi'),
+    path('Procurement/Status/pie/chart/api/', ProcurementStatusPieChartApi, name='ProcurementStatusPieChartApi'),
     
     path('ProcurementRFQ/Created/', ProcurementCreatedRFQView, name='ProcurementCreatedRFQView'),
     path('ProcurementRFQ/Created/table/api/', ProcurementCreatedRFQTableApi, name='ProcurementCreatedRFQTableApi'),
@@ -82,16 +82,38 @@ urlpatterns = [
     
     # Manager
     path('Manager/', ManagerDashboardView, name='ManagerDashboardView'),
-    path('Manager/Invoices/Status/column/chart/api/', ManagerInvoicesStatusColumnChartApi, name='ManagerInvoicesStatusColumnChartApi'),
-    path('Manager/Invoices/Status/pie/chart/api/', ManagerInvoicesStatusPieChartApi, name='ManagerInvoicesStatusPieChartApi'),
+    path('Manager/Status/column/chart/api/', ManagerStatusColumnChartApi, name='ManagerStatusColumnChartApi'),
+    path('Manager/Status/pie/chart/api/', ManagerStatusPieChartApi, name='ManagerStatusPieChartApi'),
     
-    path('Invoices/ManagerDone/', ManagerDoneInvoicesView, name='ManagerDoneInvoicesView'),
-    path("Invoices/ManagerDone/table/api/", ManagerInvoicesDoneTableApi, name='ManagerInvoicesDoneTableApi'),
-    path("Invoices/ManagerDone/details/api/", ManagerInvoicesDoneDetailsApi, name='ManagerInvoicesDoneDetailsApi'),
+    path('ManagerProject/', ManagerProjectView, name='ManagerProjectView'),
+    
+    path('ManagerRFQ/', ManagerRFQView, name='ManagerRFQView'),
+    path('ManagerRFQ/table/api/', ManagerRFQTableApi, name='ManagerRFQTableApi'),
+    path("ManagerRFQ/details/api/", ManagerRFQDetailsApi, name='ManagerRFQDetailsApi'),
+
+    path('ManagerQuotation/', ManagerQuotationView, name='ManagerQuotationView'),
+    path('ManagerQuotation/table/api/', ManagerQuotationTableApi, name='ManagerQuotationTableApi'),
+    path("ManagerQuotation/details/api/", ManagerQuotationDetailsApi, name='ManagerQuotationDetailsApi'),
+
+    path('ManagerPO/', ManagerPOView, name='ManagerPOView'),
+    path('ManagerPO/table/api/', ManagerPOTableApi, name='ManagerPOTableApi'),
+    path("ManagerPO/details/api/", ManagerPODetailsApi, name='ManagerPODetailsApi'),
+    
+    path('ManagerInvoices/', ManagerInvoicesView, name='ManagerInvoicesView'),
+    path("ManagerInvoices/table/api/", ManagerInvoicesTableApi, name='ManagerInvoicesTableApi'),
+    path("ManagerInvoices/details/api/", ManagerInvoicesDetailsApi, name='ManagerInvoicesDetailsApi'),
+    
+    path("ManagerVendor/", ManagerVendorView, name='ManagerVendorView'),
+    
+    path('ManagerConfiguration/', ManagerConfigurationView, name='ManagerConfigurationView'),
     
     # PreSales
     path('Presales/', PresalesDashboardView, name='PresalesDashboardView'),
+    path('Presales/Status/column/chart/api/', PresalesStatusColumnChartApi, name='PresalesStatusColumnChartApi'),
+    path('Presales/Status/pie/chart/api/', PresalesStatusPieChartApi, name='PresalesStatusPieChartApi'),
+    
     path('PresalesProject/New/', PresalesNewProjectView, name='PresalesNewProjectView'),
+    
     path('PresalesRFQ/New/', PresalesNewRFQView, name='PresalesNewRFQView'),
     path('PresalesRFQ/New/Submit/api/', PresalesNewRFQSubmitApi, name='PresalesNewRFQSubmitApi'),
     path('PresalesRFQ/Created/', PresalesCreatedRFQView, name='PresalesCreatedRFQView'),
@@ -110,7 +132,6 @@ urlpatterns = [
 
     
     path('PresalesConfiguration/', PresalesConfigurationView, name='PresalesConfigurationView'),
-    
     
     
     # change Password

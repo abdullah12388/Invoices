@@ -3,18 +3,33 @@ document.getElementById('per_year_from').value = currentyear;
 document.getElementById('per_year_to').value = currentyear;
 
 function searchColumnChart(){
+    filter_for = document.getElementById('filter_for').value;
     filter_type = document.getElementById('filter_type').value;
     $.ajax({
-        url: "/system/Procurement/Invoices/Status/column/chart/api/",
+        url: "/system/Procurement/Status/column/chart/api/",
         method: "GET",
         dataType: "json",
         data: {
+            'type': filter_for,
             'filter': filter_type,
             'from': document.getElementById(filter_type+'_from').value,
             'to': document.getElementById(filter_type+'_to').value,
         },
         success: function (t) {
             console.log(t);
+            if(filter_for == 'rfq'){
+                document.getElementById('cc_name').innerHTML = 'RFQ';
+            }
+            if(filter_for == 'quotation'){
+                document.getElementById('cc_name').innerHTML = 'Quotation';
+            }
+            if(filter_for == 'purchase_order'){
+                document.getElementById('cc_name').innerHTML = 'Purchase Order';
+            }
+            if(filter_for == 'invoices'){
+                document.getElementById('cc_name').innerHTML = 'Invoices';
+            }
+
             var e = new google.visualization.DataTable();
             e.addColumn("string", "Status"),
             e.addColumn("number", "Count"),
@@ -23,7 +38,7 @@ function searchColumnChart(){
             t.forEach((t) => {
                 e.addRow(t);
             });
-            var a = new google.visualization.ColumnChart(document.getElementById("InvoiceStatusColumnChart"));
+            var a = new google.visualization.ColumnChart(document.getElementById("StatusColumnChart"));
             google.visualization.events.addListener(a, "select", function () {
                 const t = a.getSelection();
                 if (t && t.length > 0) {
@@ -34,11 +49,55 @@ function searchColumnChart(){
                 }
             }),
             a.draw(e, {
-                title: "Invoice Count per Status",
+                title: "Count per Status",
                 // hAxis: { title: "Tasks", titleTextStyle: { fontSize: 18, color: "#053061", bold: !0, italic: !1 } },
                 vAxis: { title: "Count", titleTextStyle: { fontSize: 18, color: "#035061", bold: !0, italic: !1 } },
                 legend: { position: "none" },
             });
+        },
+    });
+    $.ajax({
+        url: "/system/Procurement/Status/pie/chart/api/",
+        method: "GET",
+        dataType: "json",
+        data: {
+            'type': filter_for,
+            'filter': filter_type,
+            'from': document.getElementById(filter_type+'_from').value,
+            'to': document.getElementById(filter_type+'_to').value,
+        },
+        success: function (t) {
+            console.log(t);
+            if(filter_for == 'rfq'){
+                document.getElementById('pc_name').innerHTML = 'RFQ';
+            }
+            if(filter_for == 'quotation'){
+                document.getElementById('pc_name').innerHTML = 'Quotation';
+            }
+            if(filter_for == 'purchase_order'){
+                document.getElementById('pc_name').innerHTML = 'Purchase Order';
+            }
+            if(filter_for == 'invoices'){
+                document.getElementById('pc_name').innerHTML = 'Invoices';
+            }
+
+            var e = new google.visualization.DataTable();
+            e.addColumn("string", "Status"),
+            e.addColumn("number", "Count"),
+            t.forEach((t) => {
+                e.addRow(t);
+            });
+            var a = new google.visualization.PieChart(document.getElementById("StatusPieChart"));
+            google.visualization.events.addListener(a, "select", function () {
+                const t = a.getSelection();
+                if (t && t.length > 0) {
+                    const a = t[0].row;
+                    // companyTablePie(e.getValue(a, 0).split(" ")[0]);
+                    // console.log(e.getValue(a, 0).split(" ")[0]);
+                    // window.location.href = "/tank/sites/" + e.getValue(a, 0).split(" ")[0] + "/";
+                }
+            }),
+            a.draw(e, { title: "Count per Status", pieHole: 0.3, colors: ['#007bff', '#28a745', '#dc3545'] });
         },
     });
 }
@@ -58,9 +117,38 @@ function resetColumnChart(){
     document.getElementById('per_month_to').value = '';
     document.getElementById('per_year_from').value = currentyear;
     document.getElementById('per_year_to').value = currentyear;
+    document.getElementById('date_filter').setAttribute('disabled', 'true');
+    document.getElementById('type_filter').value = '';
+    document.getElementById('filter_for').value = '';
     // all data api
-    InvoiceStatusColumnChart();
+    StatusColumnChart();
+    StatusPieChart();
 }
+
+
+document.getElementById('type_filter').addEventListener('change', function(){
+    document.getElementById('date_filter').removeAttribute('disabled');
+    if(this.value == 'r'){
+        document.getElementById('filter_for').value = 'rfq';
+        // document.getElementById('cc_name').innerHTML = 'RFQ';
+        // document.getElementById('pc_name').innerHTML = 'RFQ';
+    }
+    if(this.value == 'q'){
+        document.getElementById('filter_for').value = 'quotation';
+        // document.getElementById('cc_name').innerHTML = 'Quotation';
+        // document.getElementById('pc_name').innerHTML = 'Quotation';
+    }
+    if(this.value == 'p'){
+        document.getElementById('filter_for').value = 'purchase_order';
+        // document.getElementById('cc_name').innerHTML = 'Purchase Order';
+        // document.getElementById('pc_name').innerHTML = 'Purchase Order';
+    }
+    if(this.value == 'i'){
+        document.getElementById('filter_for').value = 'invoices';
+        // document.getElementById('cc_name').innerHTML = 'Invoices';
+        // document.getElementById('pc_name').innerHTML = 'Invoices';
+    }
+})
 
 
 document.getElementById('date_filter').addEventListener('change', function(){
@@ -90,13 +178,14 @@ document.getElementById('date_filter').addEventListener('change', function(){
 })
 
 
-function InvoiceStatusColumnChart() {
+function StatusColumnChart() {
     $.ajax({
-        url: "/system/Procurement/Invoices/Status/column/chart/api/",
+        url: "/system/Procurement/Status/column/chart/api/",
         method: "GET",
         dataType: "json",
         success: function (t) {
             console.log(t);
+            document.getElementById('cc_name').innerHTML = 'Invoices';
             var e = new google.visualization.DataTable();
             e.addColumn("string", "Status"),
             e.addColumn("number", "Count"),
@@ -105,7 +194,7 @@ function InvoiceStatusColumnChart() {
             t.forEach((t) => {
                 e.addRow(t);
             });
-            var a = new google.visualization.ColumnChart(document.getElementById("InvoiceStatusColumnChart"));
+            var a = new google.visualization.ColumnChart(document.getElementById("StatusColumnChart"));
             google.visualization.events.addListener(a, "select", function () {
                 const t = a.getSelection();
                 if (t && t.length > 0) {
@@ -116,7 +205,7 @@ function InvoiceStatusColumnChart() {
                 }
             }),
             a.draw(e, {
-                title: "Invoice Count per Status",
+                title: "Count per Status",
                 // hAxis: { title: "Tasks", titleTextStyle: { fontSize: 18, color: "#053061", bold: !0, italic: !1 } },
                 vAxis: { title: "Count", titleTextStyle: { fontSize: 18, color: "#035061", bold: !0, italic: !1 } },
                 legend: { position: "none" },
@@ -125,20 +214,21 @@ function InvoiceStatusColumnChart() {
     });
 }
 
-function InvoiceStatusPieChart() {
+function StatusPieChart() {
     $.ajax({
-        url: "/system/Procurement/Invoices/Status/pie/chart/api/",
+        url: "/system/Procurement/Status/pie/chart/api/",
         method: "GET",
         dataType: "json",
         success: function (t) {
             console.log(t);
+            document.getElementById('pc_name').innerHTML = 'Invoices';
             var e = new google.visualization.DataTable();
             e.addColumn("string", "Status"),
             e.addColumn("number", "Count"),
             t.forEach((t) => {
                 e.addRow(t);
             });
-            var a = new google.visualization.PieChart(document.getElementById("InvoiceStatusPieChart"));
+            var a = new google.visualization.PieChart(document.getElementById("StatusPieChart"));
             google.visualization.events.addListener(a, "select", function () {
                 const t = a.getSelection();
                 if (t && t.length > 0) {
@@ -148,7 +238,7 @@ function InvoiceStatusPieChart() {
                     // window.location.href = "/tank/sites/" + e.getValue(a, 0).split(" ")[0] + "/";
                 }
             }),
-            a.draw(e, { title: "Invoice Count per Status", pieHole: 0.3, colors: ['#343a40', '#28a745', '#dc3545'] });
+            a.draw(e, { title: "Count per Status", pieHole: 0.3, colors: ['#007bff', '#28a745', '#dc3545'] });
         },
     });
 }
@@ -156,8 +246,8 @@ function InvoiceStatusPieChart() {
 
 $(function () {
     google.charts.load("current", { packages: ["corechart", "bar"] });
-    google.charts.setOnLoadCallback(InvoiceStatusColumnChart);
-    google.charts.setOnLoadCallback(InvoiceStatusPieChart);
+    google.charts.setOnLoadCallback(StatusColumnChart);
+    google.charts.setOnLoadCallback(StatusPieChart);
 });
 
 
@@ -195,3 +285,20 @@ function downloadCharts(chart_id, select_id) {
         });
     }
 }
+
+
+// function FizzBuzz(number){
+//     for (let i=1; i<=number; i++){
+//         var output = '';
+//         if((i%3==0)&&(i%5==0)){
+//             output+= 'FIZZBUZZ';
+//         }else if(i % 3 == 0){
+//             output+= 'FIZZ';
+//         }else if(i % 5 == 0){
+//             output+= 'BUZZ';
+//         }else{
+//             output+=i;
+//         }
+//         console.log(output);
+//     }
+// }

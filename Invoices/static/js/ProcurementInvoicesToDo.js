@@ -9,7 +9,6 @@ $(function () {
         'project_name': '',
         'type': '',
         'milestone': '',
-        'item': '',
         'vat': '',
         'currency': '',
         'user': '',
@@ -61,11 +60,6 @@ $(function () {
         filters.milestone = this.value;
         document.getElementById('sbmtBTN').removeAttribute('disabled');
     });
-    document.getElementById("item").addEventListener("change", function () {
-        // console.log(this.value);
-        filters.item = this.value;
-        document.getElementById('sbmtBTN').removeAttribute('disabled');
-    });
     document.getElementById("vat").addEventListener("change", function () {
         // console.log(this.value);
         filters.vat = this.value;
@@ -108,7 +102,6 @@ $(function () {
                 'project_name': filters.project_name,
                 'type': filters.type,
                 'milestone': filters.milestone,
-                'item': filters.item,
                 'vat': filters.vat,
                 'currency': filters.currency,
                 'user': filters.user,
@@ -163,10 +156,6 @@ $(function () {
         filters.milestone = '';
         $('#milestone').selectpicker('val', "");
     });
-    document.getElementById("itemBTN").addEventListener("click", function () {
-        filters.item = '';
-        $('#item').selectpicker('val', "");
-    });
     document.getElementById("vatBTN").addEventListener("click", function () {
         filters.vat = '';
         $('#vat').selectpicker('val', "");
@@ -196,7 +185,6 @@ $(function () {
             'project_name': '',
             'type': '',
             'milestone': '',
-            'item': '',
             'vat': '',
             'currency': '',
             'user': '',
@@ -245,36 +233,29 @@ function ViewInvoiceModal(rowid) {
         },
         success: function (t) {
             // console.log(t);
-            document.getElementById('view_invoice_id').innerHTML=t.invoice_id;
-            document.getElementById('view_vendor').innerHTML=t.vendor;
-            document.getElementById('view_number').innerHTML=t.number;
-            document.getElementById('view_date').innerHTML=t.date;
-            document.getElementById('view_bill_to').innerHTML=t.bill_to;
-            document.getElementById('view_po').innerHTML=t.po;
-            document.getElementById('view_due').innerHTML=t.payment_due;
-            document.getElementById('view_project_name').innerHTML=t.project_name;
-            document.getElementById('view_type').innerHTML=t.type;
-            document.getElementById('view_milestone').innerHTML=t.milestone;
-            document.getElementById('view_milestone_description').innerHTML=t.milestone_description;
-            document.getElementById('total_items').innerHTML=t.items_count;
-            document.getElementById('total_amount').innerHTML=t.items_total_amount;
-            var iit = $("#InvoiceItemsTbl");
-            iit.bootstrapTable("showLoading");
-            iit.bootstrapTable("load", []);
-            iit.bootstrapTable("load", t.items);
-            iit.bootstrapTable("refresh");
-            iit.bootstrapTable("hideLoading");
-            document.getElementById('ta_view_invoice_currency').innerHTML=t.currency;
-            document.getElementById('vat_view_invoice_currency').innerHTML=t.currency;
-            document.getElementById('t_view_invoice_currency').innerHTML=t.currency;
-            document.getElementById('view_total_amount').innerHTML=t.items_total_amount;
-            document.getElementById('view_invoice_vat').innerHTML=t.vat;
-            document.getElementById('view_vat_amount').innerHTML=t.vat_amount;
-            document.getElementById('view_invoice_total').innerHTML=t.invoice_total;
-            document.getElementById('total_files').innerHTML=t.invoice_attachments_count;
+            document.getElementById('view_invoice_id').innerHTML = t.invoice_id;
+            document.getElementById('view_vendor').innerHTML = t.vendor;
+            document.getElementById('view_number').innerHTML = t.number;
+            document.getElementById('view_date').innerHTML = t.date;
+            document.getElementById('view_bill_to').innerHTML = t.bill_to;
+            document.getElementById('view_po').innerHTML = t.po;
+            document.getElementById('view_due').innerHTML = t.payment_due;
+            document.getElementById('view_project_name').innerHTML = t.project_name;
+            document.getElementById('view_type').innerHTML = t.type;
+            document.getElementById('view_milestone').innerHTML = t.milestone;
+            document.getElementById('view_milestone_description').innerHTML = t.milestone_description;
+
+            document.getElementById('ta_view_invoice_currency').innerHTML = t.currency;
+            document.getElementById('vat_view_invoice_currency').innerHTML = t.currency;
+            document.getElementById('t_view_invoice_currency').innerHTML = t.currency;
+            document.getElementById('view_total_amount').innerHTML = t.items_total_amount;
+            document.getElementById('view_invoice_vat').innerHTML = t.vat;
+            document.getElementById('view_vat_amount').innerHTML = t.vat_amount;
+            document.getElementById('view_invoice_total').innerHTML = t.invoice_total;
+            document.getElementById('total_files').innerHTML = t.invoice_attachments_count;
             var files_list = ``;
-            t.invoice_attachments.forEach((element)=>{
-                files_list +=`
+            t.invoice_attachments.forEach((element) => {
+                files_list += `
                 <div class="row mb-2" style="border-left: 1px solid #6c757d;">
                     <div class="col-1 d-flex justify-content-start align-items-center">
                         <h5 class="mb-0">${element[3]}</h5>
@@ -296,8 +277,8 @@ function ViewInvoiceModal(rowid) {
                 `;
             })
             document.getElementById('files_parent').innerHTML = files_list;
-            document.getElementById('view_submitted_by').innerHTML=(t.user).toUpperCase();
-            document.getElementById('view_submitted_timestamp').innerHTML=t.submitted_timestamp;
+            document.getElementById('view_submitted_by').innerHTML = (t.user).toUpperCase();
+            document.getElementById('view_submitted_timestamp').innerHTML = t.submitted_timestamp;
 
             document.getElementById('print_status').value = t.status;
 
@@ -317,7 +298,7 @@ function ViewInvoiceModal(rowid) {
 function ViewApproveInvoiceModal(rowid, invoice_id) {
     var e = $("#pendingInvoicesTbl");
     rowData = e.bootstrapTable('getRowByUniqueId', rowid);
-    console.log(rowData);
+    // console.log(rowData);
     document.getElementById('approve_invoice_id').innerHTML = invoice_id;
     document.getElementById('approve_vendor').innerHTML = rowData.vendor;
     document.getElementById('approve_date').innerHTML = rowData.date;
@@ -326,6 +307,8 @@ function ViewApproveInvoiceModal(rowid, invoice_id) {
     document.getElementById('approve_submitted_by').innerHTML = rowData.user;
     document.getElementById('approve_timestamp').innerHTML = rowData.timestamp;
     document.getElementById('ap_invoice_id').value = rowData.id;
+    document.getElementById('ap_milestone_id').value = rowData.milestone_id;
+    document.getElementById('approve_feedback').value = '';
     $('#approve_action_modal').modal({
         backdrop: true,
         keyboard: true,
@@ -348,6 +331,8 @@ function ViewRejectInvoiceModal(rowid, invoice_id) {
     document.getElementById('reject_submitted_by').innerHTML = rowData.user;
     document.getElementById('reject_timestamp').innerHTML = rowData.timestamp;
     document.getElementById('rp_invoice_id').value = rowData.id;
+    document.getElementById('rp_milestone_id').value = rowData.milestone_id;
+    document.getElementById('reject_feedback').value = '';
     $('#reject_action_modal').modal({
         backdrop: true,
         keyboard: true,
@@ -360,6 +345,7 @@ function ViewRejectInvoiceModal(rowid, invoice_id) {
 function ApproveInvoice() {
     var invoice_id = document.getElementById('approve_invoice_id').innerHTML;
     var feedback = document.getElementById('approve_feedback').value;
+    var milestone_id = document.getElementById('ap_milestone_id').value;
     // if(feedback){
     $.ajax({
         url: "/system/Invoices/ProcurementToDo/approve/api/",
@@ -368,12 +354,47 @@ function ApproveInvoice() {
         data: {
             'invoice_id': invoice_id,
             'feedback': feedback,
+            'milestone': milestone_id,
         },
         success: function (t) {
-            console.log(t);
-            var ap_invoice_id = document.getElementById('ap_invoice_id').value;
+            // console.log(t);
+            // var ap_invoice_id = document.getElementById('ap_invoice_id').value;
+            // var milestone_id = document.getElementById('ap_milestone_id').value;
             var e = $("#pendingInvoicesTbl");
-            e.bootstrapTable('removeByUniqueId', ap_invoice_id)
+            e.bootstrapTable("showLoading");
+            // e.bootstrapTable('removeByUniqueId', ap_invoice_id);
+            var temp_table = e.bootstrapTable('getData');
+            // console.log(temp_table);
+            // temp_table.forEach((object) => {
+            //     if (object.milestone_id == milestone_id) {
+            //         console.log(object);
+            //         delete temp_table[object]
+            //     }
+            // })
+            var id_list = []
+            for (var key in temp_table) {
+                if (temp_table[key].milestone_id == milestone_id) {
+                    console.log(temp_table[key]);
+                    // delete temp_table[key];
+                    // $("#pendingInvoicesTbl").bootstrapTable('removeByUniqueId', temp_table[key].id);
+                    id_list.push(temp_table[key].id);
+                }
+            }
+            for(let i=0;i<id_list.length;i++){
+                $("#pendingInvoicesTbl").bootstrapTable('removeByUniqueId', id_list[i]);
+            }
+            // e.bootstrapTable("load", temp_table);
+            e.bootstrapTable("refresh");
+            e.bootstrapTable("hideLoading");
+            // for(let item in temp_table){
+            //     console.log(temp_table[item]);
+            //     if(temp_table[item].milestone_id == milestone_id){
+            //         e.bootstrapTable('removeByUniqueId', temp_table[item].id);
+            //         console.log('must remove =>', temp_table[item].id);
+            //     }else{
+            //         console.log('at else');
+            //     }
+            // }
             $('#approve_action_modal').modal('hide');
         },
     });
@@ -386,6 +407,7 @@ function ApproveInvoice() {
 function RejectInvoice() {
     var invoice_id = document.getElementById('reject_invoice_id').innerHTML;
     var feedback = document.getElementById('reject_feedback').value;
+    var milestone_id = document.getElementById('rp_milestone_id').value;
     // if(feedback){
     $.ajax({
         url: "/system/Invoices/ProcurementToDo/reject/api/",
@@ -394,6 +416,7 @@ function RejectInvoice() {
         data: {
             'invoice_id': invoice_id,
             'feedback': feedback,
+            'milestone': milestone_id,
         },
         success: function (t) {
             console.log(t);
@@ -440,47 +463,13 @@ function RejectInvoice() {
 
 
 
-
-function ApprovedTimeSheet() {
-    time_sheet_id = document.getElementById('am_sheetid').value;
-    // console.log(time_sheet_id);
-    $.ajax({
-        url: "/system/TimeSheet/ToDo/approved/api/" + time_sheet_id,
-        method: "GET",
-        dataType: "json",
-        success: function (t) {
-            // console.log(t);
-            var e = $("#pendingInvoicesTbl");
-            e.bootstrapTable('removeByUniqueId', time_sheet_id)
-            $('#approve_action_modal').modal('hide');
-        },
-    });
-}
-
-function NotApprovedTimeSheet() {
-    time_sheet_id = document.getElementById('rm_sheetid').value;
-    // console.log(time_sheet_id);
-    $.ajax({
-        url: "/system/TimeSheet/ToDo/rejected/api/" + time_sheet_id,
-        method: "GET",
-        dataType: "json",
-        success: function (t) {
-            // console.log(t);
-            var e = $("#pendingInvoicesTbl");
-            e.bootstrapTable('removeByUniqueId', time_sheet_id)
-            $('#reject_action_modal').modal('hide');
-        },
-    });
-}
-
-
 var o = $("#pendingInvoicesTbl");
 $("#toolbar")
     .find("select")
     .change(function () {
         var filename = document.getElementById('exportFileName').value;
         var currentDate = new Date();
-        var temp_table = o.bootstrapTable().bootstrapTable('getData');
+        var temp_table = o.bootstrapTable('getData');
         o.bootstrapTable("destroy").bootstrapTable({
             exportDataType: $(this).val(),
             exportOptions: {
@@ -553,82 +542,6 @@ document.getElementById("print_selected").addEventListener("click", function () 
 })
 
 
-var x = $("#InvoiceItemsTbl");
-$("#items_toolbar")
-    .find("select")
-    .change(function () {
-        var filename = document.getElementById('items_exportFileName').value;
-        var currentDate = new Date();
-        var temp_table = x.bootstrapTable().bootstrapTable('getData');
-        x.bootstrapTable("destroy").bootstrapTable({
-            exportDataType: $(this).val(),
-            exportOptions: {
-                fileName: (filename ? filename + '_' : 'GTS_') + currentDate.toLocaleString(),
-            },
-            exportTypes: ["json", "xml", "csv", "txt", "sql", "excel", "pdf"],
-            columns: [
-                { field: "state", checkbox: !0, visible: "selected" === $(this).val() },
-                { field: "number", title: "Number" },
-                { field: "description", title: "Description" },
-                { field: "quantity", title: "Quantity" },
-                { field: "uom", title: "UOM" },
-                { field: "unit_price", title: "Unit Price" },
-                { field: "amount", title: "Amount" },
-                // { field: "area_manager_status", title: "Status" },
-            ],
-        });
-        x.bootstrapTable("showLoading");
-        x.bootstrapTable("load", temp_table);
-        x.bootstrapTable("refresh");
-        x.bootstrapTable("hideLoading");
-    })
-
-document.getElementById("items_print_selected").addEventListener("click", function () {
-    var selectedRows = [];
-    selectedRows = $("#InvoiceItemsTbl").bootstrapTable("getSelections");
-    // console.log(selectedRows);
-    var printWindow = window.open("", "_blank");
-    var currentDate = new Date();
-    printWindow.document.open();
-    printWindow.document.write(
-        "<html><head><title>Invoice Items Table</title>" +
-        "<style>" +
-        "table { border-collapse: collapse;width: 100%; }" +
-        "th, td { border: 1px solid black;text-align: center; }" +
-        "</style>" +
-        "</head><body>"
-    );
-    //        printWindow.document.write("<html><head><title>Alarms Table</title></head><body>");
-    printWindow.document.write("<h2>Printed on: " + currentDate.toString() + "</h2>");
-    printWindow.document.write("<table>");
-    // Get the column names from the table header
-    var columnNames = [];
-    $("#InvoiceItemsTbl thead th").each(function () {
-        columnNames.push($(this).data("field"));
-    });
-
-    // Print the table header with column names
-    printWindow.document.write("<tr>");
-    for (var j = 1; j < columnNames.length; j++) {
-        printWindow.document.write("<th>" + columnNames[j] + "</th>");
-    }
-    printWindow.document.write("</tr>");
-
-    // Iterate over selected rows
-    for (var i = 0; i < selectedRows.length; i++) {
-        var row = selectedRows[i];
-        printWindow.document.write("<tr>");
-        for (var j = 1; j < columnNames.length; j++) {
-            var columnName = columnNames[j];
-            printWindow.document.write("<td>" + row[columnName] + "</td>");
-        }
-        printWindow.document.write("</tr>");
-    }
-    printWindow.document.write("</table></body></html>");
-    printWindow.document.close();
-    printWindow.print();
-})
-
 
 function printInvoice() {
     var view_invoice_id = document.getElementById('view_invoice_id').innerHTML;
@@ -642,24 +555,7 @@ function printInvoice() {
     var view_type = document.getElementById('view_type').innerHTML;
     var view_milestone = document.getElementById('view_milestone').innerHTML;
     var view_milestone_description = document.getElementById('view_milestone_description').innerHTML;
-    var total_items = document.getElementById('total_items').innerHTML;
-    var total_amount = document.getElementById('total_amount').innerHTML;
 
-    var iit = $("#InvoiceItemsTbl");
-    var temp_table = iit.bootstrapTable().bootstrapTable('getData');
-    items_table_data = ``;
-    temp_table.forEach((row)=>{
-        items_table_data += `
-        <tr>
-            <td>${row.number}</td>
-            <td>${row.description}</td>
-            <td>${row.quantity}</td>
-            <td>${row.uom}</td>
-            <td>${row.unit_price}</td>
-            <td>${row.amount}</td>
-        </tr>
-        `;
-    });
     var ta_view_invoice_currency = document.getElementById('ta_view_invoice_currency').innerHTML;
     var vat_view_invoice_currency = document.getElementById('vat_view_invoice_currency').innerHTML;
     var t_view_invoice_currency = document.getElementById('t_view_invoice_currency').innerHTML;
@@ -670,7 +566,7 @@ function printInvoice() {
     var total_files = document.getElementById('total_files').innerHTML;
     var files_list = document.getElementById('files_parent').children;
     var files_data = ``;
-    for(var i=0;i<files_list.length;i++){
+    for (var i = 0; i < files_list.length; i++) {
         files_data += `
         <div class="row mb-2" style="border-left: 1px solid #6c757d;">
             <div class="col-2 d-flex justify-content-start align-items-center">
@@ -930,69 +826,6 @@ function printInvoice() {
                             <h5>${view_milestone_description}</h5>
                         </div>
                     </div>
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="panel panel-default">
-                                <div class="panel-heading text-left"
-                                    style="padding: 10px 15px;border-radius: 5px;"
-                                    role="tab" id="items_table">
-                                    <h4 class="panel-title m-0">
-                                        <div class="row">
-                                            <div class="col-7">
-                                                <a role="button" data-toggle="collapse"
-                                                    style="text-decoration: none;color: #000;"
-                                                    href="#collapse_items_table" aria-expanded="false"
-                                                    aria-controls="collapse_items_table">
-                                                    <i class="fa-solid fa-table me-1"></i>
-                                                    Invoice Items Table
-                                                </a>
-                                            </div>
-                                            <div class="col-5 text-right">
-                                                <div class="row">
-                                                    <div
-                                                        class="col-4 d-flex justify-content-center align-items-center">
-                                                        <h5 class="mb-0 mr-2 pr-2"
-                                                            style="border-right: 2px solid #000;">Items</h5>
-                                                        <h5 class="mb-0">${total_items}</h5>
-                                                    </div>
-                                                    <div
-                                                        class="col-8 d-flex justify-content-center align-items-center">
-                                                        <h5 class="mb-0 mr-2 pr-2"
-                                                            style="border-right: 2px solid #000;">Total</h5>
-                                                        <h5 class="mb-0">${total_amount}</h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </h4>
-                                </div>
-                                <div id="collapse_items_table" class="panel-collapse collapse in show"
-                                    role="tabpanel" aria-labelledby="items_table">
-                                    <div class="panel-body">
-                                        <div class="card">
-                                            <div class="card-body table-striped table-sm">
-                                                <table class="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Number</th>
-                                                            <th>Description</th>
-                                                            <th>Quantity</th>
-                                                            <th>UOM</th>
-                                                            <th>Unit Price</th>
-                                                            <th>Amount</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    ${items_table_data}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="row mb-4 d-flex justify-content-end align-items-center">
                         <div class="col-7">
                             <div class="card-body"
@@ -1103,7 +936,7 @@ function printInvoice() {
     </body>
     </html>
     `);
-    setTimeout(function(){
+    setTimeout(function () {
         printWindow.document.close();
         printWindow.print();
     }, 100);

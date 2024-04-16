@@ -3,8 +3,226 @@
 {% block VendorDashboard %}
 <main>
     <div class="container-fluid px-4">
-        <h1 class="mt-2 mb-4">Invoices | Status</h1>
+        <h1 class="mt-2 mb-4">Status</h1>
         <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#rfq_card_body').toggleClass('d-none');">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-file-import me-1"></i>
+                            RFQ
+                        </div>
+                    </div>
+                    <div class="card-body text-center d-none" id="rfq_card_body">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Total
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{t_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Pending
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{p_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Replyed
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{r_RFQ}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#quotation_card_body').toggleClass('d-none');">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-file-import me-1"></i>
+                            Quotation
+                        </div>
+                    </div>
+                    <div class="card-body text-center d-none" id="quotation_card_body">
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Total
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{t_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Pending
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{p_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Approved
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{a_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-danger text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Rejected
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{r_Quotation}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#po_card_body').toggleClass('d-none');">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-file-import me-1"></i>
+                            Purchase Order
+                        </div>
+                    </div>
+                    <div class="card-body text-center d-none" id="po_card_body">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Total
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{t_PO}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Opened
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{o_PO}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-header bg-danger text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Closed
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{c_PO}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white" style="cursor: pointer;" onclick="$('#invoices_card_body').toggleClass('d-none');">
+                        <div class="col-xl-12">
+                            <i class="fa-solid fa-file-import me-1"></i>
+                            Invoices
+                        </div>
+                    </div>
+                    <div class="card-body text-center d-none" id="invoices_card_body">
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Total
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{t_invoice}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Pending
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{p_invoice}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Approved
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{a_invoice}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header bg-danger text-white">
+                                        <i class="fa-solid fa-receipt me-1"></i>
+                                        Rejected
+                                    </div>
+                                    <div class="card-body">
+                                        <h1>{{r_invoice}}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="row">
             <div class="col">
                 <div class="card mb-4">
                     <div class="card-header bg-light">
@@ -57,20 +275,32 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <h1 class="mb-4">Invoices | Status | Charts</h1>
+        </div> -->
+        <h1 class="mb-4">Status | Charts</h1>
         <div class="row">
             <div class="col-xl-3">
                 <div class="card mb-4">
-                    <div class="card-header card-date-filter">
+                    <div class="card-header card-date-filter bg-dark text-white">
                         <i class="fa-solid fa-filter me-1"></i>
                         Date Filter
                     </div>
                     <div class="card-body charts-body">
-                        <!-- select -->
+                        <!-- type select -->
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <select class="form-control" id="type_filter">
+                                    <option value="" selected disabled>Choose Type...</option>
+                                    <option value="r">RFQ</option>
+                                    <option value="q">Quotation</option>
+                                    <option value="p">Purchase Order</option>
+                                    <option value="i">Invoices</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- filter select -->
                         <div class="row">
                             <div class="col-12">
-                                <select class="form-control" id="date_filter">
+                                <select class="form-control" id="date_filter" disabled>
                                     <option value="" selected disabled>Choose Period...</option>
                                     <option value="h">Per Hour</option>
                                     <option value="d">Per Day</option>
@@ -144,7 +374,8 @@
                             <div class="col-12">
                                 <div class="row mt-2">
                                     <div class="col-12">
-                                        <input class="form-control" type="number" min="1900" max="2099" step="1" value="" id="per_year_from">
+                                        <input class="form-control" type="number" min="1900" max="2099" step="1"
+                                            value="" id="per_year_from">
                                     </div>
                                 </div>
                                 <div class="row mt-2">
@@ -154,13 +385,15 @@
                                 </div>
                                 <div class="row mt-2">
                                     <div class="col-12">
-                                        <input class="form-control" type="number" min="1900" max="2099" step="1" value="" id="per_year_to">
+                                        <input class="form-control" type="number" min="1900" max="2099" step="1"
+                                            value="" id="per_year_to">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer text-right">
+                        <input type="hidden" id="filter_for">
                         <input type="hidden" id="filter_type">
                         <button class="btn btn-success" onclick="searchColumnChart()">Search</button>
                         <button class="btn btn-danger" onclick="resetColumnChart()">Reset</button>
@@ -169,14 +402,14 @@
             </div>
             <div class="col-xl-5">
                 <div class="card mb-4">
-                    <div class="card-header card-date-filter">
+                    <div class="card-header card-date-filter bg-dark text-white">
                         <div class="col-xl-8">
                             <i class="fa-solid fa-chart-column me-1"></i>
-                            Column Chart
+                            <span id="cc_name">Invoices</span> Column Chart
                         </div>
                         <div class="col-xl-4 text-right">
-                            <select id="InvoiceStatusColumnSelect" class="form-control"
-                                onchange="downloadCharts('InvoiceStatusColumnChart','InvoiceStatusColumnSelect')">
+                            <select id="StatusColumnSelect" class="form-control"
+                                onchange="downloadCharts('StatusColumnChart','StatusColumnSelect')">
                                 <option value="" selected disabled>Download</option>
                                 <option value="png">PNG</option>
                                 <option value="pdf">PDF</option>
@@ -184,20 +417,20 @@
                         </div>
                     </div>
                     <div class="card-body charts-body">
-                        <div id="InvoiceStatusColumnChart" style="width: 100%; height: 100%;"></div>
+                        <div id="StatusColumnChart" style="width: 100%; height: 100%;"></div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-4">
                 <div class="card mb-4">
-                    <div class="card-header card-date-filter">
+                    <div class="card-header card-date-filter bg-dark text-white">
                         <div class="col-xl-7">
                             <i class="fa-solid fa-chart-pie me-1"></i>
-                            Pie Chart
+                            <span id="pc_name">Invoices</span> Pie Chart
                         </div>
                         <div class="col-xl-5 text-right">
-                            <select id="InvoiceStatusPieSelect" class="form-control"
-                                onchange="downloadCharts('InvoiceStatusPieChart','InvoiceStatusPieSelect')">
+                            <select id="StatusPieSelect" class="form-control"
+                                onchange="downloadCharts('StatusPieChart','StatusPieSelect')">
                                 <option value="" selected disabled>Download</option>
                                 <option value="png">PNG</option>
                                 <option value="pdf">PDF</option>
@@ -205,7 +438,7 @@
                         </div>
                     </div>
                     <div class="card-body charts-body">
-                        <div id="InvoiceStatusPieChart" style="width: 100%; height: 100%;"></div>
+                        <div id="StatusPieChart" style="width: 100%; height: 100%;"></div>
                     </div>
                 </div>
             </div>
