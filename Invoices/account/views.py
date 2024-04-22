@@ -86,27 +86,27 @@ def userLogin(request):
             # print(password, user.password)
             if password_checher:
                 # print(password_checher)
-                #user_otp = UserOTP.objects.filter(user=user)
-                #if user_otp.exists():
+                user_otp = UserOTP.objects.filter(user=user)
+                if user_otp.exists():
                     # print(user_otp.first().key, otp)
                     # print(type(user_otp.first().key), type(otp))
-                    #if user_otp.first().key == otp:
-                userToken = Token.objects.get(user=user).token
-                request.session['user_token'] = userToken
-                UserSession.objects.create(user=user, key=True)
-                    # print(user)
-                if user.role.id == 1: # vendor
-                    return HttpResponseRedirect('/system/Vendor/')
-                if user.role.id == 2: # procurement
-                    return HttpResponseRedirect('/system/Procurement/')
-                if user.role.id == 3: # manager
-                    return HttpResponseRedirect('/system/Manager/')
-                if user.role.id == 4: # Presales
-                    return HttpResponseRedirect('/system/Presales/')
-                    #else:
-                        #return HttpResponseRedirect('/?error=IOTP')
-                #else:
-                    #return HttpResponseRedirect('/?error=NOTP')
+                    if user_otp.first().key == otp:
+                        userToken = Token.objects.get(user=user).token
+                        request.session['user_token'] = userToken
+                        UserSession.objects.create(user=user, key=True)
+                        # print(user)
+                        if user.role.id == 1: # vendor
+                            return HttpResponseRedirect('/system/Vendor/')
+                        if user.role.id == 2: # procurement
+                            return HttpResponseRedirect('/system/Procurement/')
+                        if user.role.id == 3: # manager
+                            return HttpResponseRedirect('/system/Manager/')
+                        if user.role.id == 4: # Presales
+                            return HttpResponseRedirect('/system/Presales/')
+                    else:
+                        return HttpResponseRedirect('/?error=IOTP')
+                else:
+                    return HttpResponseRedirect('/?error=NOTP')
             else:
                 user.attempts += 1
                 if user.attempts == 3:
