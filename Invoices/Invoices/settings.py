@@ -125,7 +125,7 @@ DATABASES = {
         'NAME': 'Invoices',
         'USER': 'sa',
         'PASSWORD': 'P@$$w0rd',
-        'HOST': 'ABDULLAH-KAMAL',
+        'HOST': '127.0.0.1',
         'PORT': '',
         "OPTIONS": {"driver": "ODBC Driver 13 for SQL Server"},
     }
