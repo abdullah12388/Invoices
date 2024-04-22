@@ -72,9 +72,9 @@ urlpatterns = [
     path("Invoices/ProcurementDone/table/api/", ProcurementInvoicesDoneTableApi, name='ProcurementInvoicesDoneTableApi'),
     path("Invoices/ProcurementDone/details/api/", ProcurementInvoicesDoneDetailsApi, name='ProcurementInvoicesDoneDetailsApi'),
     
-    path("Invoices/ProcurementNewVendor/", ProcurementNewVendorView, name='ProcurementNewVendorView'),
-    path("Invoices/ProcurementNewVendor/api/", ProcurementNewVendorApi, name='ProcurementNewVendorApi'),
-    path("Invoices/ProcurementNewVendor/user/api/", ProcurementNewVendorUserApi, name='ProcurementNewVendorUserApi'),
+    path("ProcurementNewVendor/", ProcurementNewVendorView, name='ProcurementNewVendorView'),
+    path("ProcurementNewVendor/api/", ProcurementNewVendorApi, name='ProcurementNewVendorApi'),
+    path("ProcurementNewVendor/user/api/", ProcurementNewVendorUserApi, name='ProcurementNewVendorUserApi'),
     
     # path("Invoices/NewVendor/", NewInvoiceVendorView, name='NewInvoiceVendorView'),
     # path("Invoices/New/Submit/api/", NewInvoiceSubmitApi, name='NewInvoiceSubmitApi'),

@@ -88,6 +88,10 @@
             <div class="col-xl-12 d-flex justify-content-center align-items-center">
                 <h1 style="font-size: 70px;font-weight: bold;color: #198754"><i class="fa-solid fa-check"></i> Project Created Successfully</h1>
             </div>
+            {% elif 'project' in request.GET and request.GET.project == 'length' %}
+            <div class="col-xl-12 d-flex justify-content-center align-items-center">
+                <h1 style="font-size: 70px;font-weight: bold;color: #dc3545"><i class="fa-solid fa-xmark"></i> Project Name Exceeds The Length!...</h1>
+            </div>
             {% endif %}
         </div>
     </div>

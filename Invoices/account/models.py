@@ -24,6 +24,8 @@ class UserAccount(models.Model):
     role = models.ForeignKey(UserType, on_delete=models.CASCADE, related_name='role')
     add_date = models.DateTimeField(auto_now_add=True)
     first_login = models.BooleanField(default=True)
+    is_locked = models.BooleanField(default=False)
+    attempts = models.PositiveBigIntegerField(default=0)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

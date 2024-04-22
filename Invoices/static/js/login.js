@@ -1,6 +1,16 @@
 function sendOTP(){
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
+    if(username == ''){
+        document.getElementById('username').classList.add('bg-danger', 'text-white');
+    }else{
+        document.getElementById('username').classList.remove('bg-danger', 'text-white');
+    }
+    if(password == ''){
+        document.getElementById('password').classList.add('bg-danger', 'text-white');
+    }else{
+        document.getElementById('password').classList.remove('bg-danger', 'text-white');
+    }
     $.ajax({
         url: '/create/otp/api/',
         method: 'POST',

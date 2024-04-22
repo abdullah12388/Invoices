@@ -19,7 +19,7 @@
                                     {% csrf_token %}
                                     <div class="row">
                                         <div class="col-12">
-                                            <input class="form-control" type="text" name="vendor_name" placeholder="Enter Vendor Name" required>
+                                            <input class="form-control" type="text" name="vendor_name" placeholder="Enter Vendor Name" pattern="^[A-Za-z _]+$" required>
                                         </div>
                                     </div>
                                     <div class="row mt-4">
@@ -107,7 +107,7 @@
                                     <h5 for="vendor">First Name <span style="color: #dc3545;">*</span></h5>
                                 </div>
                                 <div class="col-8">
-                                    <input class="form-control" id="fn" type="text" name="firstName" placeholder="Enter Vendor First Name" required>
+                                    <input class="form-control" id="fn" type="text" name="firstName" placeholder="Enter Vendor First Name" pattern="^[A-Za-z]+$" required>
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -115,7 +115,7 @@
                                     <h5 for="vendor">Last Name</h5>
                                 </div>
                                 <div class="col-8">
-                                    <input class="form-control" id="ln" type="text" name="lastName" placeholder="Enter Vendor Last Name">
+                                    <input class="form-control" id="ln" type="text" name="lastName" placeholder="Enter Vendor Last Name" pattern="^[A-Za-z]+$">
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -123,7 +123,7 @@
                                     <h5 for="vendor">E-mail</h5>
                                 </div>
                                 <div class="col-8">
-                                    <input class="form-control" id="email" type="text" name="email" placeholder="Enter Vendor E-mail">
+                                    <input class="form-control" id="email" type="email" name="email" placeholder="Enter Vendor E-mail" pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$">
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -131,7 +131,7 @@
                                     <h5 for="vendor">Username <span style="color: #dc3545;">*</span></h5>
                                 </div>
                                 <div class="col-8">
-                                    <input class="form-control" id="username" type="text" name="username" placeholder="Enter Vendor Username" required>
+                                    <input class="form-control" id="username" type="text" name="username" placeholder="Enter Vendor Username" pattern="^[A-Za-z_]+$" required>
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -139,7 +139,7 @@
                                     <h5 for="vendor">Password</h5>
                                 </div>
                                 <div class="col-8">
-                                    <input class="form-control" id="password" type="password" name="password" placeholder="Enter Vendor Password">
+                                    <input class="form-control" id="password" type="password" name="password" placeholder="Enter Vendor Password" pattern="^(?=.*[a-zA-Z])(?=.*\d).{8,}$">
                                 </div>
                             </div>
                             <div class="row mt-2">

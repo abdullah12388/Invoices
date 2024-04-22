@@ -26,6 +26,8 @@ class UserAdmin(admin.ModelAdmin):
         'role',
         'add_date',
         'first_login',
+        'is_locked',
+        'attempts'
     ]
     
     def save_model(self, request, obj, form, change):

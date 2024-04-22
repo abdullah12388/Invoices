@@ -1,5 +1,5 @@
 let pond;
-
+let product_id_list = [];
 document.addEventListener('DOMContentLoaded', () => {
     // Get a reference to the file input element
     const inputElement = document.querySelector('.my-pond');
@@ -40,30 +40,30 @@ document.addEventListener('DOMContentLoaded', () => {
     //     const formData = new FormData(formElement);
 
     //     // Append the selected files to the FormData
-        // filesToUpload.forEach((file, index) => {
-        //     formData.append(`filepond`, file.file);
-        // });
+    // filesToUpload.forEach((file, index) => {
+    //     formData.append(`filepond`, file.file);
+    // });
 
     //     // Send the form data with files to the server
-        // fetch('./', {
-        //     method: 'POST',
-        //     body: formData,
-        // })
-        //     .then(response => {
-        //         // Handle the server response
-        //         console.log('Form submitted successfully');
-        //         // Reset the form after successful submission
-        //         // formElement.reset();
-        //         // pond.removeFiles();
-        //         $('#success').css('display', 'flex');
-        //         setTimeout(()=>{
-        //             location.reload();
-        //         },3000);
-        //     })
-        //     .catch(error => {
-        //         // Handle any errors
-        //         console.error('Error submitting form:', error);
-        //     });
+    // fetch('./', {
+    //     method: 'POST',
+    //     body: formData,
+    // })
+    //     .then(response => {
+    //         // Handle the server response
+    //         console.log('Form submitted successfully');
+    //         // Reset the form after successful submission
+    //         // formElement.reset();
+    //         // pond.removeFiles();
+    //         $('#success').css('display', 'flex');
+    //         setTimeout(()=>{
+    //             location.reload();
+    //         },3000);
+    //     })
+    //     .catch(error => {
+    //         // Handle any errors
+    //         console.error('Error submitting form:', error);
+    //     });
     // });
 
 
@@ -86,11 +86,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Format the date and time for datetime-local input
     // const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-    
+
     // Set the value of the input field
     // document.getElementById('submission_deadline').value = formattedDateTime;
+    // Get the current date
+    // var currentDate = new Date();
+
+    // Format the current date as YYYY-MM-DD
+    // var formattedDate = currentDate.toISOString().slice(0, 16);
+
+    // Set the minimum value for the input element
+    // document.getElementById('submission_deadline').setAttribute('min', formattedDate);
 });
 
+document.getElementById('RFQ_ID').addEventListener('keyup', function () {
+    var pattern = /^\d*$/; // Regular expression to match zero or more digits
+    if (!pattern.test(this.value)) {
+        this.classList.add('bg-danger', 'text-white');
+    } else {
+        this.classList.remove('bg-danger', 'text-white');
+    }
+})
+
+document.getElementById('Bidder_ID').addEventListener('keyup', function () {
+    var pattern = /^\d*$/; // Regular expression to match zero or more digits
+    if (!pattern.test(this.value)) {
+        this.classList.add('bg-danger', 'text-white');
+    } else {
+        this.classList.remove('bg-danger', 'text-white');
+    }
+})
+
+document.getElementById('submission_deadline').setAttribute('min', (new Date()).toISOString().slice(0, 16));
+
+document.getElementById('submission_deadline').addEventListener('change', function(){
+    var current_datetime = (new Date(this.value)).toISOString().substring(0, 10);
+    document.getElementById('qmbvu').setAttribute('min', current_datetime);
+    document.getElementById('qmbvu').removeAttribute('readonly');
+})
+
+document.getElementById('qmbvu').setAttribute('min', (new Date()).toISOString().slice(0, 10));
+
+document.getElementById('qmbvu').addEventListener('change', function(){
+    document.getElementById('submission_deadline').setAttribute('readonly', 'true');
+})
 
 function formatDateTime(date) {
     if (!(date instanceof Date)) {
@@ -117,6 +156,8 @@ function formatDate(date) {
 }
 
 
+document.getElementById('dd_sp').setAttribute('min', (new Date()).toISOString().slice(0, 10));
+
 function AddItemIntoTable() {
     var item_number = document.getElementById('item_number');
     var product_id = document.getElementById('product_id');
@@ -126,7 +167,7 @@ function AddItemIntoTable() {
     var dd_sp = document.getElementById('dd_sp');
     var description = document.getElementById('description');
     var items_count = document.getElementById('items_count_modal');
-
+    
     product_id.classList.remove('bg-danger');
     quantity.classList.remove('bg-danger');
     uom.classList.remove('bg-danger');
@@ -143,10 +184,12 @@ function AddItemIntoTable() {
     } else if (!(uom.value)) {
         // console.log('uom');
         uom.classList.add('bg-danger');
-    } else if (!(category.value)) {
-        // console.log('category');
-        category.classList.add('bg-danger');
-    } else if(!(dd_sp.value)){
+    } 
+    // else if (!(category.value)) {
+    //     // console.log('category');
+    //     category.classList.add('bg-danger');
+    // } 
+    else if (!(dd_sp.value)) {
         // console.log('dd_sp');
         dd_sp.classList.add('bg-danger');
     } else if (!(description.value)) {
@@ -155,33 +198,12 @@ function AddItemIntoTable() {
     } else {
         var o = $("#ItemsTbl");
         var tableData = o.bootstrapTable('getData');
-        if(tableData.length > 0){
-            tableData.forEach((row)=>{
-                if(row['product_id'] == product_id.value){
-                    product_id.classList.add('bg-danger');
-                }else{
-                    items_count.innerHTML = parseInt(items_count.innerHTML) + 1;
-                    var selectedOption = uom.options[uom.selectedIndex];
-                    var action_button = `<button class="btn btn-danger m-auto" style="width:100%" onclick="DeleteItem('${item_number.value}')"><i class="fa-solid fa-trash"></i></button>`;
-                    product_id.classList.remove('bg-danger');
-                    o.bootstrapTable('append', {
-                        'item_number': item_number.value,
-                        'product_id': product_id.value,
-                        'description': description.value,
-                        'category': category.id,
-                        'dd_sp': dd_sp.value,
-                        'quantity': quantity.value,
-                        'uom': selectedOption.id,
-                        'actions': action_button,
-                    });
-                    item_number.value = parseInt(item_number.value) + 1;
-                    ResetItemForm();
-                }
-            })
-        }else{
+        if (product_id_list.length < 1){
+            product_id_list.push(product_id.value);
             items_count.innerHTML = parseInt(items_count.innerHTML) + 1;
             var selectedOption = uom.options[uom.selectedIndex];
             var action_button = `<button class="btn btn-danger m-auto" style="width:100%" onclick="DeleteItem('${item_number.value}')"><i class="fa-solid fa-trash"></i></button>`;
+            product_id.classList.remove('bg-danger');
             o.bootstrapTable('append', {
                 'item_number': item_number.value,
                 'product_id': product_id.value,
@@ -194,11 +216,121 @@ function AddItemIntoTable() {
             });
             item_number.value = parseInt(item_number.value) + 1;
             ResetItemForm();
+        }else{
+            if(product_id_list.indexOf(product_id.value) !== -1){
+                product_id.classList.add('bg-danger');
+            }else{
+                product_id_list.push(product_id.value);
+                items_count.innerHTML = parseInt(items_count.innerHTML) + 1;
+                var selectedOption = uom.options[uom.selectedIndex];
+                var action_button = `<button class="btn btn-danger m-auto" style="width:100%" onclick="DeleteItem('${item_number.value}')"><i class="fa-solid fa-trash"></i></button>`;
+                product_id.classList.remove('bg-danger');
+                o.bootstrapTable('append', {
+                    'item_number': item_number.value,
+                    'product_id': product_id.value,
+                    'description': description.value,
+                    'category': category.id,
+                    'dd_sp': dd_sp.value,
+                    'quantity': quantity.value,
+                    'uom': selectedOption.id,
+                    'actions': action_button,
+                });
+                item_number.value = parseInt(item_number.value) + 1;
+                ResetItemForm();
+            }
         }
     }
 }
+// function AddItemIntoTable() {
+//     var item_number = document.getElementById('item_number');
+//     var product_id = document.getElementById('product_id');
+//     var quantity = document.getElementById('quantity');
+//     var uom = document.getElementById('uom');
+//     var category = document.getElementById('category');
+//     var dd_sp = document.getElementById('dd_sp');
+//     var description = document.getElementById('description');
+//     var items_count = document.getElementById('items_count_modal');
+    
+//     product_id.classList.remove('bg-danger');
+//     quantity.classList.remove('bg-danger');
+//     uom.classList.remove('bg-danger');
+//     category.classList.remove('bg-danger');
+//     dd_sp.classList.remove('bg-danger');
+//     description.classList.remove('bg-danger');
+
+//     if (!(product_id.value)) {
+//         // console.log('number');
+//         product_id.classList.add('bg-danger');
+//     } else if (!(quantity.value)) {
+//         // console.log('quantity');
+//         quantity.classList.add('bg-danger');
+//     } else if (!(uom.value)) {
+//         // console.log('uom');
+//         uom.classList.add('bg-danger');
+//     } 
+//     // else if (!(category.value)) {
+//     //     // console.log('category');
+//     //     category.classList.add('bg-danger');
+//     // } 
+//     else if (!(dd_sp.value)) {
+//         // console.log('dd_sp');
+//         dd_sp.classList.add('bg-danger');
+//     } else if (!(description.value)) {
+//         // console.log('description');
+//         description.classList.add('bg-danger');
+//     } else {
+//         var o = $("#ItemsTbl");
+//         var tableData = o.bootstrapTable('getData');
+//         if (tableData.length > 0) {
+//             tableData.forEach((row) => {
+//                 if (row['product_id'] == product_id.value) {
+//                     product_id.classList.add('bg-danger');
+//                 } else {
+//                     items_count.innerHTML = parseInt(items_count.innerHTML) + 1;
+//                     var selectedOption = uom.options[uom.selectedIndex];
+//                     var action_button = `<button class="btn btn-danger m-auto" style="width:100%" onclick="DeleteItem('${item_number.value}')"><i class="fa-solid fa-trash"></i></button>`;
+//                     product_id.classList.remove('bg-danger');
+//                     o.bootstrapTable('append', {
+//                         'item_number': item_number.value,
+//                         'product_id': product_id.value,
+//                         'description': description.value,
+//                         'category': category.id,
+//                         'dd_sp': dd_sp.value,
+//                         'quantity': quantity.value,
+//                         'uom': selectedOption.id,
+//                         'actions': action_button,
+//                     });
+//                     item_number.value = parseInt(item_number.value) + 1;
+//                     ResetItemForm();
+//                 }
+//             })
+//         } else {
+//             items_count.innerHTML = parseInt(items_count.innerHTML) + 1;
+//             var selectedOption = uom.options[uom.selectedIndex];
+//             var action_button = `<button class="btn btn-danger m-auto" style="width:100%" onclick="DeleteItem('${item_number.value}')"><i class="fa-solid fa-trash"></i></button>`;
+//             o.bootstrapTable('append', {
+//                 'item_number': item_number.value,
+//                 'product_id': product_id.value,
+//                 'description': description.value,
+//                 'category': category.id,
+//                 'dd_sp': dd_sp.value,
+//                 'quantity': quantity.value,
+//                 'uom': selectedOption.id,
+//                 'actions': action_button,
+//             });
+//             item_number.value = parseInt(item_number.value) + 1;
+//             ResetItemForm();
+//         }
+//     }
+// }
 
 function ResetItemForm() {
+    product_id.classList.remove('bg-danger');
+    quantity.classList.remove('bg-danger');
+    uom.classList.remove('bg-danger');
+    category.classList.remove('bg-danger');
+    dd_sp.classList.remove('bg-danger');
+    description.classList.remove('bg-danger');
     // document.getElementById('item_number').value = '';
     document.getElementById('product_id').value = '';
     document.getElementById('quantity').value = '';
@@ -216,7 +348,11 @@ function DeleteItem(rowid) {
     var item_number = document.getElementById('item_number');
     item_number.value = parseInt(item_number.value) - 1;
     // console.log(rowData);
-    e.bootstrapTable('removeByUniqueId', rowid)
+    e.bootstrapTable('removeByUniqueId', rowid);
+    let index = product_id_list.indexOf(rowData.product_id); // Find the index of value 3
+    if (index !== -1) {
+        product_id_list.splice(index, 1); // Removes one element at the found index
+    }
 }
 
 
@@ -226,7 +362,7 @@ function getFileExtension(fileName) {
 }
 
 
-function fillFields(){
+function fillFields() {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');  // Months are 0-indexed
@@ -234,7 +370,7 @@ function fillFields(){
 
     // Format the date and time for datetime-local input
     const formattedDateTime = `${year}-${month}-${day}`;
-    
+
     // Set the value of the input field
 
     document.getElementById('RFQ_ID').value = 571;
@@ -394,7 +530,7 @@ function VerifyRFQ() {
         fields.Upload = 1;
         flag = true;
     } else {
-        for(var file=0;file<files.length;file++){
+        for (var file = 0; file < files.length; file++) {
             var firstFile = files[file].file;
             // Get the file extension
             var fileExtension = getFileExtension(firstFile.name);
@@ -551,8 +687,8 @@ function ReviewRFQ() {
     t.bootstrapTable("hideLoading");
 
     var files_list = ``;
-    files.forEach((element)=>{
-        files_list +=`
+    files.forEach((element) => {
+        files_list += `
         <div class="row mb-2" style="border-left: 1px solid #6c757d;">
             <div class="col-1 d-flex justify-content-start align-items-center">
                 <h5 class="mb-0">#</h5>
@@ -578,8 +714,8 @@ function ReviewRFQ() {
 
 // Submit Invoice
 
-function SubmitRFQ(){
-    if(!VerifyRFQ()){
+function SubmitRFQ() {
+    if (!VerifyRFQ()) {
         setTimeout(function () {
             $('#submit_modal').modal({
                 backdrop: true,
@@ -651,7 +787,7 @@ function SubmitRFQ(){
                 success: function (response) {
                     // Handle the successful response
                     console.log(response);
-                    if(response.status == 'added'){
+                    if (response.status == 'added') {
                         document.getElementById('submit_img').classList.add('d-none');
                         document.getElementById('submit_valid_img').classList.remove('d-none');
                         document.getElementById('submit_message').classList.add('d-none');
@@ -670,7 +806,7 @@ function SubmitRFQ(){
                         setTimeout(function () {
                             window.location.reload();
                         }, 1000);
-                    }else{
+                    } else {
                         setTimeout(function () {
                             document.getElementById('submit_img').classList.add('d-none');
                             document.getElementById('submit_valid_img').classList.add('d-none');

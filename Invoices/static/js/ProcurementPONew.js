@@ -124,20 +124,21 @@ function AddItemIntoTable() {
     var milestone_due = document.getElementById('milestone_due');
     var milestone_amount = document.getElementById('milestone_amount');
     var milestone_description = document.getElementById('milestone_description');
-
+    var pattern = /^(?!\d+$)(?!\s+$).*$/;
+    
     milestone_precentage.classList.remove('bg-danger');
     milestone_due.classList.remove('bg-danger');
     milestone_description.classList.remove('bg-danger');
 
-    if (!(milestone_precentage.value)) {
+    if ((!(milestone_precentage.value)) || (milestone_precentage.value < 0) || (milestone_precentage.value == 0)) {
         // console.log('number');
         milestone_precentage.classList.add('bg-danger');
     } 
-    else if (due && (!(milestone_due.value))) {
+    else if ((due && (!(milestone_due.value))) || ((milestone_due.value) % 1 !== 0)) {
         // console.log(milestone_due);
         milestone_due.classList.add('bg-danger');
     }
-    else if (!(milestone_description.value)) {
+    else if (!pattern.test(milestone_description.value)) {
         // console.log('unit_price');
         milestone_description.classList.add('bg-danger');
     } else {
@@ -230,6 +231,7 @@ function VerifyPO() {
     var milestones_count = document.getElementById('milestones_count_modal');
     const files = pond.getFiles();
     var flag = false;
+    var pattern = /^(?!\d+$)(?!\s+$).*$/;
 
     if (files.length == 0) {
         // console.log("FilePond does not have any files");
@@ -255,7 +257,7 @@ function VerifyPO() {
         fields.quotation = 1;
         flag = true;
     }
-    if (po.value == '') {
+    if (!pattern.test(po.value)) {
         // console.log("no po");
         fields.po = 1;
         flag = true;
@@ -265,7 +267,7 @@ function VerifyPO() {
         fields.contact_person = 1;
         flag = true;
     }
-    if (total_value.value == '') {
+    if ((total_value.value == '') || (total_value.value < 0) || (total_value.value == 0)) {
         // console.log("no currency");
         fields.total_value = 1;
         flag = true;
@@ -275,7 +277,7 @@ function VerifyPO() {
         fields.currency = 1;
         flag = true;
     }
-    if (shipping_terms.value == '') {
+    if (!pattern.test(shipping_terms.value)) {
         // console.log("no bill_to");
         fields.shipping_terms = 1;
         flag = true;

@@ -1079,11 +1079,11 @@ def NewInvoiceView(request):
         vendor = cursor.execute(f"""SELECT DISTINCT sv.id, sv.name FROM [{database_name}].[dbo].[system_vendor_users] AS svu, [{database_name}].[dbo].[system_vendor] AS sv
                                 WHERE svu.vendor_id = sv.id AND svu.useraccount_id = {user_obj.id}""")
         vendor_results = vendor.fetchone()
-        type = cursor.execute("SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_invoicetype]")
+        type = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_invoicetype]")
         type_results = type.fetchall()
-        currency = cursor.execute("SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_invoicecurrency]")
+        currency = cursor.execute(f"SELECT DISTINCT [id], [name] FROM [{database_name}].[dbo].[system_invoicecurrency]")
         currency_results = currency.fetchall()
-        vat = cursor.execute("SELECT DISTINCT [id], [amount] FROM [{database_name}].[dbo].[system_invoicevat]")
+        vat = cursor.execute(f"SELECT DISTINCT [id], [amount] FROM [{database_name}].[dbo].[system_invoicevat]")
         vat_results = vat.fetchall()
     context = {
         'user': user_obj,
@@ -2698,12 +2698,12 @@ def ProcurementNewVendorApi(request):
         vendor_name = request.POST.get('vendor_name', None)
         check_name = Vendor.objects.filter(name=vendor_name).exists()
         if check_name:
-            return HttpResponseRedirect('/system/Invoices/ProcurementNewVendor/?vendor=exists')
+            return HttpResponseRedirect('/system/ProcurementNewVendor/?vendor=exists')
         else:
             Vendor.objects.create(
                 name=vendor_name
             )
-            return HttpResponseRedirect('/system/Invoices/ProcurementNewVendor/?vendor=added')
+            return HttpResponseRedirect('/system/ProcurementNewVendor/?vendor=added')
 
 
 @is_user_login
@@ -2715,10 +2715,10 @@ def ProcurementNewVendorUserApi(request):
         username = request.POST.get('username', None)
         password = request.POST.get('password', None)
         vendor = request.POST.get('vendor', None)
-        print(vendor)
+        # print(vendor)
         check_name = UserAccount.objects.filter(username=username).exists()
         if check_name:
-            return HttpResponseRedirect('/system/Invoices/ProcurementNewVendor/?user=exists')
+            return HttpResponseRedirect('/system/ProcurementNewVendor/?user=exists')
         else:
             user_obj = UserAccount.objects.create(
                 first_name= firstName,
@@ -2727,12 +2727,15 @@ def ProcurementNewVendorUserApi(request):
                 username= username,
                 password= make_password(password) if password else make_password('As123123'),
                 role_id= 1,
+                first_login = True,
+                is_locked = False,
+                attempts = 0,
             )
             vendor_obj = Vendor.objects.get(name=vendor)
-            print(vendor_obj)
+            # print(vendor_obj)
             vendor_obj.users.add(user_obj)
             vendor_obj.save()
-            return HttpResponseRedirect('/system/Invoices/ProcurementNewVendor/?user=added')
+            return HttpResponseRedirect('/system/ProcurementNewVendor/?user=added')
 
 
 
@@ -3817,6 +3820,9 @@ def PresalesStatusPieChartApi(request):
 def PresalesNewProjectView(request):
     if request.POST:
         project_name = request.POST.get('project_name', None)
+        # print(len(project_name))
+        if len(project_name) > 256:
+            return HttpResponseRedirect('/system/PresalesProject/New/?project=length')
         check_project = Project.objects.filter(name=project_name).exists()
         if check_project:
             return HttpResponseRedirect('/system/PresalesProject/New/?project=exists')
@@ -3886,7 +3892,7 @@ def PresalesNewRFQSubmitApi(request):
         bcai = request.POST.get('bcai', None)
         bccq = request.POST.get('bccq', None)
         
-        check_RFQ = RFQ.objects.select_related('vendor', 'project').filter(RFQ_ID=RFQ_ID, vendor_id=vendor, project_id=project)
+        check_RFQ = RFQ.objects.select_related('vendor', 'project').filter(Q(RFQ_ID=RFQ_ID) | Q(bidder_id=Bidder_ID))
         
         if check_RFQ.exists():
             data = {

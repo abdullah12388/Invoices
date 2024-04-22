@@ -36,6 +36,8 @@ def CreateOTPApi(request):
                 print('password_checher => ', password_checher)
                 # print(password, user.password)
                 if password_checher:
+                    if user.is_locked:
+                        return JsonResponse(data={'status': 'invalid'}, safe=False)
                     # print(password_checher)
                     current_datetime = datetime.now()
                     check_user_otp = UserOTP.objects.filter(user=user)
@@ -60,6 +62,10 @@ def CreateOTPApi(request):
                     send_email(sender,receiver,subject,message)
                     return JsonResponse(data={'status': 'valid'}, safe=False)
                 else:
+                    user.attempts += 1
+                    if user.attempts == 3:
+                        user.is_locked = True
+                    user.save()
                     return JsonResponse(data={'status': 'invalid'}, safe=False)
         except Exception as ex:
             print(ex)
@@ -102,6 +108,10 @@ def userLogin(request):
                 else:
                     return HttpResponseRedirect('/?error=NOTP')
             else:
+                user.attempts += 1
+                if user.attempts == 3:
+                    user.is_locked = True
+                user.save()
                 return HttpResponseRedirect('/?error=IPASS')
         except Exception as ex:
             print(ex)

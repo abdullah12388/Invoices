@@ -13717,7 +13717,31 @@ body {
     }
 }
 
-.projects-container{
+.projects-container {
     max-height: 300px;
     overflow: auto;
+}
+
+
+/* For WebKit browsers (e.g., Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 10px;
+    /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background-color: #212529;
+    /* Color of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #176e38;
+    /* Color of the scrollbar thumb */
+    border-radius: 5px;
+    /* Radius of the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #19a34d;
+    /* Color of the scrollbar thumb on hover */
 }
